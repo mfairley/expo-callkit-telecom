@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android", "web"],
+  "apple": {
+    "modules": ["ExpoCallKitTelecomModule"]
+  },
+  "android": {
+    "modules": ["expo.modules.callkittelecom.ExpoCallKitTelecomModule"]
+  }
+}
