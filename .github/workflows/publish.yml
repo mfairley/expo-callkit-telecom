@@ -12,7 +12,7 @@ jobs:
       name: prod
       url: https://www.npmjs.com/package/expo-callkit-telecom
     permissions:
-      contents: write # for creating the GitHub Release
+      contents: read
       id-token: write # for npm provenance + trusted publishing (OIDC)
     steps:
       - uses: actions/checkout@v6
@@ -44,12 +44,5 @@ jobs:
       - name: Publish
         run: npm publish --provenance --access public
 
-      - name: Create GitHub Release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          TAG="${GITHUB_REF#refs/tags/}"
-          gh release create "$TAG" \
-            --title "$TAG" \
-            --generate-notes \
-            --verify-tag
+      # GitHub Release is created by release-please when the release PR merges,
+      # so we don't create it here. Release notes come from CHANGELOG.md.
