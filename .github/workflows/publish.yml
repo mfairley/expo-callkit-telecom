@@ -5,9 +5,15 @@ on:
     tags:
       - "v*"
   # Manual escape hatch — re-publish a specific tag with:
-  #   gh workflow run publish.yml --ref vX.Y.Z
-  # The verify-tag step guards against accidental main-branch dispatches.
+  #   gh workflow run publish.yml -f tag=vX.Y.Z
+  # Always dispatched from `main` (where this workflow_dispatch block lives);
+  # the `tag` input controls which commit gets checked out and verified.
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to publish (e.g. v0.2.8)"
+        required: true
+        type: string
 
 jobs:
   publish:
@@ -20,6 +26,10 @@ jobs:
       id-token: write # for npm provenance + trusted publishing (OIDC)
     steps:
       - uses: actions/checkout@v6
+        with:
+          # For workflow_dispatch, check out the tag the user named.
+          # For tag-push events, github.ref is already refs/tags/vX.Y.Z so this is a no-op.
+          ref: ${{ github.event.inputs.tag || github.ref }}
 
       - uses: oven-sh/setup-bun@v2
         with:
@@ -36,7 +46,7 @@ jobs:
       - name: Verify tag matches package.json version
         run: |
           PKG_VERSION="v$(node -p "require('./package.json').version")"
-          TAG="${GITHUB_REF#refs/tags/}"
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
           if [ "$PKG_VERSION" != "$TAG" ]; then
             echo "Tag $TAG does not match package.json version $PKG_VERSION"
             exit 1
