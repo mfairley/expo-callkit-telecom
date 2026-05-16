@@ -10,9 +10,9 @@ import java.util.UUID
 /**
  * Handles decline actions from call notifications.
  *
- * Answer actions use PendingIntent.getActivity() to bring the app to the
- * foreground directly (required on Android 12+), and are handled by
- * [ExpoCallKitTelecomModule.OnNewIntent]. This receiver only handles decline.
+ * Answer actions use PendingIntent.getActivity() to bring the app to the foreground directly
+ * (required on Android 12+), and are handled by [ExpoCallKitTelecomModule.OnNewIntent]. This
+ * receiver only handles decline.
  */
 class CallNotificationReceiver : BroadcastReceiver() {
     companion object {
@@ -23,10 +23,7 @@ class CallNotificationReceiver : BroadcastReceiver() {
         const val EXTRA_CALL_ID = "expo.modules.callkittelecom.EXTRA_CALL_ID"
     }
 
-    override fun onReceive(
-        context: Context,
-        intent: Intent,
-    ) {
+    override fun onReceive(context: Context, intent: Intent) {
         val callIdStr = intent.getStringExtra(EXTRA_CALL_ID) ?: return
         val callId =
             try {
@@ -41,7 +38,9 @@ class CallNotificationReceiver : BroadcastReceiver() {
                 // Answer action is handled by OnNewIntent in ExpoCallKitTelecomModule
                 // since the PendingIntent launches the Activity directly.
                 // This branch only fires for legacy broadcast-based answer actions.
-                CallKitTelecomLog.d(TAG) { "Notification answer action (broadcast) - callId: $callId" }
+                CallKitTelecomLog.d(TAG) {
+                    "Notification answer action (broadcast) - callId: $callId"
+                }
                 CallManager.shared.answerCall(callId)
             }
 

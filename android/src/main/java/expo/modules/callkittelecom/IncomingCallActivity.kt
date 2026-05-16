@@ -16,26 +16,25 @@ import expo.modules.callkittelecom.managers.CallManager
 import expo.modules.callkittelecom.models.CallSessionStatus
 import expo.modules.callkittelecom.store.CallStore
 import expo.modules.callkittelecom.utils.CallKitTelecomLog
+import java.net.HttpURLConnection
+import java.net.URL
+import java.util.UUID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.net.HttpURLConnection
-import java.net.URL
-import java.util.UUID
 
 /**
  * Native full-screen incoming call Activity displayed over the lock screen.
  *
- * Shows caller information with answer/decline buttons. Automatically
- * dismisses when the call leaves the RINGING state (answered, declined,
- * timed out, or ended elsewhere).
+ * Shows caller information with answer/decline buttons. Automatically dismisses when the call
+ * leaves the RINGING state (answered, declined, timed out, or ended elsewhere).
  *
  * Answer flow: answers the call directly, dismisses the keyguard via
- * [KeyguardManager.requestDismissKeyguard], then launches the main Activity
- * so the user sees the in-call UI after unlocking.
+ * [KeyguardManager.requestDismissKeyguard], then launches the main Activity so the user sees the
+ * in-call UI after unlocking.
  */
 class IncomingCallActivity : Activity() {
     companion object {
@@ -81,7 +80,7 @@ class IncomingCallActivity : Activity() {
         window.addFlags(
             WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON,
+                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
         )
     }
 
@@ -99,9 +98,8 @@ class IncomingCallActivity : Activity() {
     private fun bindAppBranding() {
         try {
             val appInfo = packageManager.getApplicationInfo(packageName, 0)
-            findViewById<ImageView>(R.id.expo_callkit_telecom_app_icon).setImageDrawable(
-                packageManager.getApplicationIcon(appInfo),
-            )
+            findViewById<ImageView>(R.id.expo_callkit_telecom_app_icon)
+                .setImageDrawable(packageManager.getApplicationIcon(appInfo))
             findViewById<TextView>(R.id.expo_callkit_telecom_app_name).text =
                 packageManager.getApplicationLabel(appInfo)
         } catch (_: Exception) {
@@ -109,10 +107,7 @@ class IncomingCallActivity : Activity() {
         }
     }
 
-    private fun bindCallerInfo(
-        displayName: String?,
-        hasVideo: Boolean,
-    ) {
+    private fun bindCallerInfo(displayName: String?, hasVideo: Boolean) {
         val name = displayName ?: "Unknown"
 
         findViewById<TextView>(R.id.expo_callkit_telecom_avatar_text).text =
@@ -125,9 +120,9 @@ class IncomingCallActivity : Activity() {
     }
 
     /**
-     * Loads the caller's avatar from [avatarUrl] on a background thread.
-     * On success, displays a circular-cropped image and hides the initial letter.
-     * On failure, silently keeps the initial letter fallback.
+     * Loads the caller's avatar from [avatarUrl] on a background thread. On success, displays a
+     * circular-cropped image and hides the initial letter. On failure, silently keeps the initial
+     * letter fallback.
      */
     private fun loadAvatar(avatarUrl: String?) {
         if (avatarUrl.isNullOrBlank()) return
@@ -165,10 +160,7 @@ class IncomingCallActivity : Activity() {
         }
     }
 
-    private fun bindButtons(
-        id: UUID,
-        hasVideo: Boolean,
-    ) {
+    private fun bindButtons(id: UUID, hasVideo: Boolean) {
         val answerButton = findViewById<ImageButton>(R.id.expo_callkit_telecom_answer_button)
         if (hasVideo) {
             answerButton.setImageResource(R.drawable.expo_callkit_telecom_ic_videocam)
@@ -181,12 +173,12 @@ class IncomingCallActivity : Activity() {
     }
 
     /**
-     * Answers the call directly, then dismisses the keyguard and launches
-     * the main Activity so the user transitions into the in-call UI.
+     * Answers the call directly, then dismisses the keyguard and launches the main Activity so the
+     * user transitions into the in-call UI.
      *
-     * The call is answered immediately (media connection starts) regardless
-     * of whether the keyguard dismissal succeeds. This matches the behavior
-     * of iOS CallKit where audio connects before the device is unlocked.
+     * The call is answered immediately (media connection starts) regardless of whether the keyguard
+     * dismissal succeeds. This matches the behavior of iOS CallKit where audio connects before the
+     * device is unlocked.
      */
     private fun onAnswerTapped(id: UUID) {
         if (isAnswering) return
@@ -237,12 +229,11 @@ class IncomingCallActivity : Activity() {
     }
 
     /**
-     * Observes session updates to auto-dismiss when the call is no longer ringing
-     * (answered elsewhere, timed out, or ended by the remote side).
+     * Observes session updates to auto-dismiss when the call is no longer ringing (answered
+     * elsewhere, timed out, or ended by the remote side).
      *
-     * When [isAnswering] is true (user tapped answer locally), only auto-dismiss
-     * for ENDED status — the CONNECTING transition is expected and handled by
-     * the keyguard dismissal flow.
+     * When [isAnswering] is true (user tapped answer locally), only auto-dismiss for ENDED status —
+     * the CONNECTING transition is expected and handled by the keyguard dismissal flow.
      */
     private fun observeSessionChanges(id: UUID) {
         scope.launch {
@@ -250,7 +241,9 @@ class IncomingCallActivity : Activity() {
                 if (session.status == CallSessionStatus.ENDED) {
                     finish()
                 } else if (!isAnswering && session.status != CallSessionStatus.RINGING) {
-                    CallKitTelecomLog.d(TAG) { "Call no longer ringing (${session.status.value}), finishing" }
+                    CallKitTelecomLog.d(TAG) {
+                        "Call no longer ringing (${session.status.value}), finishing"
+                    }
                     finish()
                 }
             }

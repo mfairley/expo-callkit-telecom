@@ -1,30 +1,25 @@
 package expo.modules.callkittelecom.managers
 
 import expo.modules.callkittelecom.utils.CallKitTelecomLog
+import java.util.UUID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.UUID
 
 /**
  * Pending fulfill request metadata for answered incoming calls.
  *
  * `requestId` is sent to JS and must be fulfilled once media is connected.
  */
-data class FulfillRequest(
-    val requestId: UUID,
-    val callId: UUID,
-)
+data class FulfillRequest(val requestId: UUID, val callId: UUID)
 
 /** Result of a fulfill request. */
 sealed interface FulfillResult {
     /** The request was successfully fulfilled, includes the associated call ID. */
-    data class Fulfilled(
-        val callId: UUID,
-    ) : FulfillResult
+    data class Fulfilled(val callId: UUID) : FulfillResult
 
     /** The request timed out before being fulfilled. */
     data object TimedOut : FulfillResult
@@ -55,11 +50,7 @@ object FulfillRequestManager {
      * @param timeoutMs Maximum wait time before automatic timeout.
      * @param onTimeout Callback invoked with the call UUID when request expires.
      */
-    fun createRequest(
-        callId: UUID,
-        timeoutMs: Long,
-        onTimeout: (UUID) -> Unit,
-    ): FulfillRequest {
+    fun createRequest(callId: UUID, timeoutMs: Long, onTimeout: (UUID) -> Unit): FulfillRequest {
         val requestId = UUID.randomUUID()
 
         val job =
@@ -71,7 +62,9 @@ object FulfillRequestManager {
                         requests.remove(requestId)
                     }
                 if (removedCallId != null) {
-                    CallKitTelecomLog.d(TAG) { "Fulfill request timed out - requestId: $requestId, callId: $removedCallId" }
+                    CallKitTelecomLog.d(TAG) {
+                        "Fulfill request timed out - requestId: $requestId, callId: $removedCallId"
+                    }
                     onTimeout(removedCallId)
                 }
             }
@@ -81,7 +74,9 @@ object FulfillRequestManager {
             timeoutJobs[requestId] = job
         }
 
-        CallKitTelecomLog.d(TAG) { "Created fulfill request - requestId: $requestId, callId: $callId, timeout: ${timeoutMs}ms" }
+        CallKitTelecomLog.d(TAG) {
+            "Created fulfill request - requestId: $requestId, callId: $callId, timeout: ${timeoutMs}ms"
+        }
         return FulfillRequest(requestId = requestId, callId = callId)
     }
 
@@ -100,9 +95,13 @@ object FulfillRequestManager {
         job?.cancel()
 
         if (callId != null) {
-            CallKitTelecomLog.d(TAG) { "Fulfill request succeeded - requestId: $requestId, callId: $callId" }
+            CallKitTelecomLog.d(TAG) {
+                "Fulfill request succeeded - requestId: $requestId, callId: $callId"
+            }
         } else {
-            CallKitTelecomLog.d(TAG) { "Fulfill request not found (likely timed out) - requestId: $requestId" }
+            CallKitTelecomLog.d(TAG) {
+                "Fulfill request not found (likely timed out) - requestId: $requestId"
+            }
         }
         return callId
     }
@@ -127,9 +126,8 @@ object FulfillRequestManager {
     /**
      * Cancels any pending fulfill request associated with a specific call.
      *
-     * Used when a call ends before JS fulfills the answer request.
-     * This is a convenience for the call-end path where only the call ID
-     * is available rather than the request ID.
+     * Used when a call ends before JS fulfills the answer request. This is a convenience for the
+     * call-end path where only the call ID is available rather than the request ID.
      */
     fun cancelForCall(callId: UUID) {
         val entriesToCancel: List<Pair<UUID, Job?>>
@@ -144,7 +142,9 @@ object FulfillRequestManager {
         }
         entriesToCancel.forEach { (reqId, job) ->
             job?.cancel()
-            CallKitTelecomLog.d(TAG) { "Fulfill request cancelled for call - requestId: $reqId, callId: $callId" }
+            CallKitTelecomLog.d(TAG) {
+                "Fulfill request cancelled for call - requestId: $reqId, callId: $callId"
+            }
         }
     }
 }

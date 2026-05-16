@@ -17,8 +17,7 @@ import kotlinx.coroutines.sync.withLock
  * Plays the dialtone sound during outgoing call connection.
  *
  * Reads the dialtone resource name from AndroidManifest metadata
- * (`ExpoCallKitTelecomDefaultDialtone`) and plays it in a loop with a fade-in
- * until stopped.
+ * (`ExpoCallKitTelecomDefaultDialtone`) and plays it in a loop with a fade-in until stopped.
  */
 object DialtonePlayer {
     private const val TAG = "ExpoCallKitTelecom.Dialtone"
@@ -68,11 +67,14 @@ object DialtonePlayer {
 
         // The plugin writes the sanitized resource name into the manifest,
         // so we can use it directly for the resource lookup.
-        rawResourceId = appContext.resources.getIdentifier(dialtoneFilename, "raw", appContext.packageName)
+        rawResourceId =
+            appContext.resources.getIdentifier(dialtoneFilename, "raw", appContext.packageName)
         if (rawResourceId == 0) {
             CallKitTelecomLog.e(TAG) { "Dialtone raw resource not found: $dialtoneFilename" }
         } else {
-            CallKitTelecomLog.d(TAG) { "Initialized dialtone: $dialtoneFilename (resId=$rawResourceId)" }
+            CallKitTelecomLog.d(TAG) {
+                "Initialized dialtone: $dialtoneFilename (resId=$rawResourceId)"
+            }
         }
 
         isInitialized = true

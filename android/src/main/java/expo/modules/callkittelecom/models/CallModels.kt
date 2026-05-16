@@ -5,18 +5,14 @@ import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 /** Source/origin of a call session from the app/system perspective. */
-enum class CallSessionOrigin(
-    val value: String,
-) {
+enum class CallSessionOrigin(val value: String) {
     INCOMING("incoming"),
     OUTGOING_APP("outgoingApp"),
     OUTGOING_SYSTEM("outgoingSystem"),
 }
 
 /** Lifecycle status of a native call session. */
-enum class CallSessionStatus(
-    val value: String,
-) {
+enum class CallSessionStatus(val value: String) {
     REQUESTING("requesting"),
     CONNECTING("connecting"),
     RINGING("ringing"),
@@ -25,9 +21,7 @@ enum class CallSessionStatus(
 }
 
 /** Call-level options shared with JS and stored in session state. */
-data class CallOptions(
-    val hasVideo: Boolean,
-)
+data class CallOptions(val hasVideo: Boolean)
 
 /** Remote participant identity and optional contact/display details. */
 data class CallParticipant(
@@ -40,12 +34,13 @@ data class CallParticipant(
     /** Serializes participant data into the JS-facing event/session shape. */
     fun toMap(): Map<String, Any?> =
         mapOf(
-            "id" to id,
-            "phoneNumber" to phoneNumber,
-            "email" to email,
-            "displayName" to displayName,
-            "avatarUrl" to avatarUrl,
-        ).filterValues { it != null }
+                "id" to id,
+                "phoneNumber" to phoneNumber,
+                "email" to email,
+                "displayName" to displayName,
+                "avatarUrl" to avatarUrl,
+            )
+            .filterValues { it != null }
 
     companion object {
         /** Parses a JS/record dictionary into a strongly-typed participant model. */
@@ -67,8 +62,8 @@ data class CallParticipant(
  *
  * Two construction paths:
  * - [fromMap]: parses JS camelCase dictionaries (used by `reportIncomingCall`).
- * - [fromPayload]: parses a push payload that wraps the event under the
- *   top-level `incoming_call` key (used by VoIP push handling).
+ * - [fromPayload]: parses a push payload that wraps the event under the top-level `incoming_call`
+ *   key (used by VoIP push handling).
  */
 data class IncomingCallEvent(
     val eventId: String,
@@ -92,12 +87,13 @@ data class IncomingCallEvent(
         /** Serializes caller data into JS-facing payload shape. */
         fun toMap(): Map<String, Any?> =
             mapOf(
-                "id" to id,
-                "displayName" to displayName,
-                "phoneNumber" to phoneNumber,
-                "email" to email,
-                "avatarUrl" to avatarUrl,
-            ).filterValues { it != null }
+                    "id" to id,
+                    "displayName" to displayName,
+                    "phoneNumber" to phoneNumber,
+                    "email" to email,
+                    "avatarUrl" to avatarUrl,
+                )
+                .filterValues { it != null }
 
         companion object {
             /** Parses caller dictionaries (camelCase). */
@@ -153,8 +149,7 @@ data class IncomingCallEvent(
             require(serverCallId.isNotBlank()) { "IncomingCallEvent.serverCallId is required" }
             require(callerId.isNotBlank()) { "IncomingCallEvent.caller.id is required" }
 
-            @Suppress("UNCHECKED_CAST")
-            val metadata = map["metadata"] as? Map<String, Any?>
+            @Suppress("UNCHECKED_CAST") val metadata = map["metadata"] as? Map<String, Any?>
 
             return IncomingCallEvent(
                 eventId = eventId,
@@ -169,12 +164,11 @@ data class IncomingCallEvent(
         /**
          * Parses an `IncomingCallEvent` from a push payload.
          *
-         * The payload MUST wrap the event under the top-level key `incoming_call`.
-         * There is no fallback to a flat top-level shape. Inner keys are
-         * camelCase, matching the TS contract and the example server.
+         * The payload MUST wrap the event under the top-level key `incoming_call`. There is no
+         * fallback to a flat top-level shape. Inner keys are camelCase, matching the TS contract
+         * and the example server.
          *
-         * Returns `null` if the envelope is missing or required fields are
-         * absent.
+         * Returns `null` if the envelope is missing or required fields are absent.
          */
         @Suppress("UNCHECKED_CAST")
         fun fromPayload(payload: Map<String, Any?>): IncomingCallEvent? {
@@ -251,19 +245,17 @@ data class CallSession(
 }
 
 /** Normalized call end reasons supported by the shared JS API. */
-enum class CallEndedReason(
-    val value: String,
-) {
+enum class CallEndedReason(val value: String) {
     FAILED("failed"),
     REMOTE_ENDED("remoteEnded"),
     UNANSWERED("unanswered"),
     ANSWERED_ELSEWHERE("answeredElsewhere"),
     DECLINED_ELSEWHERE("declinedElsewhere"),
-    UNKNOWN("unknown"),
-    ;
+    UNKNOWN("unknown");
 
     companion object {
         /** Safely maps a reason string to enum, defaulting to `UNKNOWN`. */
-        fun fromValue(value: String): CallEndedReason = entries.firstOrNull { it.value == value } ?: UNKNOWN
+        fun fromValue(value: String): CallEndedReason =
+            entries.firstOrNull { it.value == value } ?: UNKNOWN
     }
 }

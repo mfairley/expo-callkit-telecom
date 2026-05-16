@@ -8,20 +8,19 @@ import expo.modules.callkittelecom.managers.CallManager
 import expo.modules.callkittelecom.managers.VoIPPushManager
 import expo.modules.callkittelecom.models.IncomingCallEvent
 import expo.modules.notifications.service.ExpoFirebaseMessagingService
+import java.util.concurrent.ConcurrentHashMap
 import org.json.JSONArray
 import org.json.JSONObject
-import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Android FCM entry point for incoming call payloads.
  *
- * Extends expo-notifications' [ExpoFirebaseMessagingService] so that non-call
- * messages are handled by the existing notification delegate via [super], and
- * call payloads are routed directly to Telecom.
+ * Extends expo-notifications' [ExpoFirebaseMessagingService] so that non-call messages are handled
+ * by the existing notification delegate via [super], and call payloads are routed directly to
+ * Telecom.
  *
- * Wire format (matches example/server/lib/fcm.ts):
- *   data["messageType"]   = "incoming_call"
- *   data["incoming_call"] = JSON string of the IncomingCallEvent (camelCase)
+ * Wire format (matches example/server/lib/fcm.ts): data["messageType"] = "incoming_call"
+ * data["incoming_call"] = JSON string of the IncomingCallEvent (camelCase)
  */
 class ExpoCallKitTelecomMessagingService : ExpoFirebaseMessagingService() {
     companion object {
@@ -52,9 +51,7 @@ class ExpoCallKitTelecomMessagingService : ExpoFirebaseMessagingService() {
             return
         }
 
-        Handler(Looper.getMainLooper()).post {
-            processIncomingCall(eventMap)
-        }
+        Handler(Looper.getMainLooper()).post { processIncomingCall(eventMap) }
     }
 
     override fun onNewToken(token: String) {
@@ -78,10 +75,7 @@ class ExpoCallKitTelecomMessagingService : ExpoFirebaseMessagingService() {
             CallManager.shared.reportIncomingCall(event)
             Log.d(TAG, "Reported incoming call from FCM payload")
         } catch (error: IllegalStateException) {
-            Log.w(
-                TAG,
-                "Ignoring incoming call push while another session exists: ${error.message}",
-            )
+            Log.w(TAG, "Ignoring incoming call push while another session exists: ${error.message}")
         } catch (error: Throwable) {
             Log.e(TAG, "Failed to process incoming call push: ${error.message}", error)
         }
@@ -149,8 +143,7 @@ class ExpoCallKitTelecomMessagingService : ExpoFirebaseMessagingService() {
     private fun jsonValueToAny(value: Any?): Any? =
         when (value) {
             null,
-            JSONObject.NULL,
-            -> null
+            JSONObject.NULL -> null
 
             is JSONObject -> jsonObjectToMap(value)
 

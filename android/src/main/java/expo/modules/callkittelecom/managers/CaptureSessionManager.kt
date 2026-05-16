@@ -21,7 +21,5 @@ object CaptureSessionManager {
 
     /** Returns capture session state matching the TypeScript `CaptureSession` shape. */
     fun getCaptureSessionState(): Map<String, Any?> =
-        mapOf(
-            "cameraPermission" to PermissionUtils.cameraPermission(context),
-        )
+        mapOf("cameraPermission" to PermissionUtils.cameraPermission(context))
 }

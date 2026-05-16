@@ -7,10 +7,9 @@ import android.util.Log
 /**
  * Debug-only logging wrapper for expo-calls.
  *
- * All log calls are no-ops in release builds (where `FLAG_DEBUGGABLE` is unset),
- * eliminating both the I/O cost and the string-building cost of log messages.
- * The `msg` parameter is an `inline` lambda so the string is never allocated
- * when logging is disabled.
+ * All log calls are no-ops in release builds (where `FLAG_DEBUGGABLE` is unset), eliminating both
+ * the I/O cost and the string-building cost of log messages. The `msg` parameter is an `inline`
+ * lambda so the string is never allocated when logging is disabled.
  */
 object CallKitTelecomLog {
     @Volatile
@@ -28,25 +27,15 @@ object CallKitTelecomLog {
         enabled = value
     }
 
-    inline fun d(
-        tag: String,
-        msg: () -> String,
-    ) {
+    inline fun d(tag: String, msg: () -> String) {
         if (enabled) Log.d(tag, msg())
     }
 
-    inline fun w(
-        tag: String,
-        msg: () -> String,
-    ) {
+    inline fun w(tag: String, msg: () -> String) {
         if (enabled) Log.w(tag, msg())
     }
 
-    inline fun e(
-        tag: String,
-        tr: Throwable? = null,
-        msg: () -> String,
-    ) {
+    inline fun e(tag: String, tr: Throwable? = null, msg: () -> String) {
         if (enabled) Log.e(tag, msg(), tr)
     }
 }

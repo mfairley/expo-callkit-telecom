@@ -17,20 +17,19 @@ import androidx.core.graphics.drawable.IconCompat
 import expo.modules.callkittelecom.IncomingCallActivity
 import expo.modules.callkittelecom.services.CallNotificationReceiver
 import expo.modules.callkittelecom.utils.CallKitTelecomLog
+import java.util.UUID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.UUID
 
 /**
  * Manages call notifications across all call states.
  *
- * Creates CallStyle notifications with full-screen intent for lock screen
- * display and notification shade answer/decline actions. Supports incoming,
- * dialing, ongoing, and ended notification states.
+ * Creates CallStyle notifications with full-screen intent for lock screen display and notification
+ * shade answer/decline actions. Supports incoming, dialing, ongoing, and ended notification states.
  */
 object CallNotificationManager {
     private const val TAG = "ExpoCallKitTelecom.Notification"
@@ -72,10 +71,10 @@ object CallNotificationManager {
     /**
      * Creates the incoming call notification channel with the configured ringtone.
      *
-     * Android caches channel settings after first creation, so sound changes
-     * are ignored on subsequent calls. To handle ringtone config changes between
-     * app versions, the channel ID includes a ringtone suffix. When the config
-     * changes, a new channel is created and the old one is deleted.
+     * Android caches channel settings after first creation, so sound changes are ignored on
+     * subsequent calls. To handle ringtone config changes between app versions, the channel ID
+     * includes a ringtone suffix. When the config changes, a new channel is created and the old one
+     * is deleted.
      */
     private fun createIncomingChannel(notificationManager: NotificationManager) {
         val ringtoneConfig = readRingtoneConfig()
@@ -92,42 +91,45 @@ object CallNotificationManager {
         }
 
         val ringtoneAttributes =
-            AudioAttributes
-                .Builder()
+            AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
                 .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                 .build()
 
         val channel =
             NotificationChannel(
-                incomingChannelId,
-                "Incoming calls",
-                NotificationManager.IMPORTANCE_HIGH,
-            ).apply {
-                description = "Notifications for incoming calls"
-                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
-                setSound(ringtoneUri, ringtoneAttributes)
-                enableVibration(true)
-                vibrationPattern = longArrayOf(0, 1000, 500, 1000)
-            }
+                    incomingChannelId,
+                    "Incoming calls",
+                    NotificationManager.IMPORTANCE_HIGH,
+                )
+                .apply {
+                    description = "Notifications for incoming calls"
+                    lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                    setSound(ringtoneUri, ringtoneAttributes)
+                    enableVibration(true)
+                    vibrationPattern = longArrayOf(0, 1000, 500, 1000)
+                }
 
         notificationManager.createNotificationChannel(channel)
         prefs.edit().putString(PREF_INCOMING_CHANNEL_ID, incomingChannelId).apply()
 
-        CallKitTelecomLog.d(TAG) { "Created incoming channel: $incomingChannelId, ringtone: $ringtoneConfig" }
+        CallKitTelecomLog.d(TAG) {
+            "Created incoming channel: $incomingChannelId, ringtone: $ringtoneConfig"
+        }
     }
 
     private fun createOngoingChannel(notificationManager: NotificationManager) {
         val channel =
             NotificationChannel(
-                CHANNEL_ONGOING,
-                "Ongoing calls",
-                NotificationManager.IMPORTANCE_DEFAULT,
-            ).apply {
-                description = "Notifications for active calls"
-                setSound(null, null)
-                enableVibration(false)
-            }
+                    CHANNEL_ONGOING,
+                    "Ongoing calls",
+                    NotificationManager.IMPORTANCE_DEFAULT,
+                )
+                .apply {
+                    description = "Notifications for active calls"
+                    setSound(null, null)
+                    enableVibration(false)
+                }
 
         notificationManager.createNotificationChannel(channel)
     }
@@ -148,7 +150,6 @@ object CallNotificationManager {
 
     /**
      * Resolves a ringtone config value to a sound URI.
-     *
      * - `null` / "default" → system default ringtone
      * - custom filename → `android.resource://` URI for the raw resource
      */
@@ -157,10 +158,11 @@ object CallNotificationManager {
             return RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
         }
 
-        val resId =
-            appContext.resources.getIdentifier(config, "raw", appContext.packageName)
+        val resId = appContext.resources.getIdentifier(config, "raw", appContext.packageName)
         if (resId == 0) {
-            CallKitTelecomLog.e(TAG) { "Ringtone raw resource not found: $config, falling back to system default" }
+            CallKitTelecomLog.e(TAG) {
+                "Ringtone raw resource not found: $config, falling back to system default"
+            }
             return RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
         }
 
@@ -168,12 +170,7 @@ object CallNotificationManager {
     }
 
     /** Shows an incoming call notification with answer/decline actions and full-screen intent. */
-    fun showIncomingCall(
-        context: Context,
-        callId: UUID,
-        callerName: String?,
-        hasVideo: Boolean,
-    ) {
+    fun showIncomingCall(context: Context, callId: UUID, callerName: String?, hasVideo: Boolean) {
         cancelDelayedCancel()
         val ctx = context.applicationContext
         val displayName = callerName ?: "Unknown"
@@ -185,8 +182,7 @@ object CallNotificationManager {
         // onNewIntent to trigger the actual call answer.
         val answerIntent =
             ctx.packageManager.getLaunchIntentForPackage(ctx.packageName)?.apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                    Intent.FLAG_ACTIVITY_SINGLE_TOP
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
                 action = CallNotificationReceiver.ACTION_ANSWER
                 putExtra(CallNotificationReceiver.EXTRA_CALL_ID, callId.toString())
             } ?: Intent()
@@ -214,10 +210,20 @@ object CallNotificationManager {
         val fullScreenIntent = buildIncomingCallFullScreenIntent(ctx, callId)
 
         val notification =
-            buildBase(ctx, incomingChannelId, displayName, if (hasVideo) "Incoming video call" else "Incoming call")
+            buildBase(
+                    ctx,
+                    incomingChannelId,
+                    displayName,
+                    if (hasVideo) "Incoming video call" else "Incoming call",
+                )
                 .setStyle(
-                    NotificationCompat.CallStyle.forIncomingCall(buildPerson(displayName), declinePI, answerPI),
-                ).setFullScreenIntent(fullScreenIntent, true)
+                    NotificationCompat.CallStyle.forIncomingCall(
+                        buildPerson(displayName),
+                        declinePI,
+                        answerPI,
+                    )
+                )
+                .setFullScreenIntent(fullScreenIntent, true)
                 .setOngoing(true)
                 .setAutoCancel(false)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
@@ -228,11 +234,7 @@ object CallNotificationManager {
     }
 
     /** Shows a dialing notification for outgoing calls with a hangup action. */
-    fun showDialingCall(
-        context: Context,
-        callId: UUID,
-        callerName: String?,
-    ) {
+    fun showDialingCall(context: Context, callId: UUID, callerName: String?) {
         cancelDelayedCancel()
         val ctx = context.applicationContext
         val displayName = callerName ?: "Unknown"
@@ -255,8 +257,9 @@ object CallNotificationManager {
         val notification =
             buildBase(ctx, CHANNEL_ONGOING, displayName, "Dialing...")
                 .setStyle(
-                    NotificationCompat.CallStyle.forOngoingCall(buildPerson(displayName), hangupPI),
-                ).setFullScreenIntent(contentIntent, true)
+                    NotificationCompat.CallStyle.forOngoingCall(buildPerson(displayName), hangupPI)
+                )
+                .setFullScreenIntent(contentIntent, true)
                 .setContentIntent(contentIntent)
                 .setOngoing(true)
                 .setAutoCancel(false)
@@ -296,8 +299,9 @@ object CallNotificationManager {
         val notification =
             buildBase(ctx, CHANNEL_ONGOING, displayName, "Ongoing call")
                 .setStyle(
-                    NotificationCompat.CallStyle.forOngoingCall(buildPerson(displayName), hangupPI),
-                ).setFullScreenIntent(contentIntent, true)
+                    NotificationCompat.CallStyle.forOngoingCall(buildPerson(displayName), hangupPI)
+                )
+                .setFullScreenIntent(contentIntent, true)
                 .setContentIntent(contentIntent)
                 .setOngoing(true)
                 .setAutoCancel(false)
@@ -310,11 +314,7 @@ object CallNotificationManager {
     }
 
     /** Shows a brief "Call Ended" notification that auto-cancels after ~2 seconds. */
-    fun showEndedCall(
-        context: Context,
-        callId: UUID,
-        callerName: String?,
-    ) {
+    fun showEndedCall(context: Context, callId: UUID, callerName: String?) {
         cancelDelayedCancel()
         val ctx = context.applicationContext
         val displayName = callerName ?: "Unknown"
@@ -350,8 +350,7 @@ object CallNotificationManager {
 
     /** Creates a Person with an icon for use in CallStyle notifications. */
     private fun buildPerson(displayName: String): Person =
-        Person
-            .Builder()
+        Person.Builder()
             .setName(displayName)
             .setIcon(IconCompat.createWithResource(appContext, android.R.drawable.ic_menu_call))
             .setImportant(true)
@@ -364,8 +363,7 @@ object CallNotificationManager {
         title: String,
         text: String,
     ): NotificationCompat.Builder =
-        NotificationCompat
-            .Builder(ctx, channelId)
+        NotificationCompat.Builder(ctx, channelId)
             .setSmallIcon(getAppIconRes(ctx))
             .setContentTitle(title)
             .setContentText(text)
@@ -373,20 +371,14 @@ object CallNotificationManager {
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
 
     /** Posts notification, logging success or permission errors. */
-    private fun postNotification(
-        ctx: Context,
-        callId: UUID,
-        displayName: String,
-        label: String,
-    ) {
-        CallKitTelecomLog.d(TAG) { "Showing $label notification - callId: $callId, caller: $displayName" }
+    private fun postNotification(ctx: Context, callId: UUID, displayName: String, label: String) {
+        CallKitTelecomLog.d(TAG) {
+            "Showing $label notification - callId: $callId, caller: $displayName"
+        }
     }
 
     /** Notifies via NotificationManagerCompat, catching posting failures. */
-    private fun notify(
-        ctx: Context,
-        notification: Notification,
-    ) {
+    private fun notify(ctx: Context, notification: Notification) {
         try {
             NotificationManagerCompat.from(ctx).notify(NOTIFICATION_ID, notification)
         } catch (e: Exception) {
@@ -395,10 +387,7 @@ object CallNotificationManager {
     }
 
     /** Builds a full-screen intent targeting IncomingCallActivity for lock screen display. */
-    private fun buildIncomingCallFullScreenIntent(
-        context: Context,
-        callId: UUID,
-    ): PendingIntent {
+    private fun buildIncomingCallFullScreenIntent(context: Context, callId: UUID): PendingIntent {
         val intent =
             Intent(context, IncomingCallActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -414,15 +403,13 @@ object CallNotificationManager {
     }
 
     /** Builds a full-screen intent that launches the app's main activity. */
-    private fun buildFullScreenIntent(
-        context: Context,
-        callId: UUID,
-    ): PendingIntent {
+    private fun buildFullScreenIntent(context: Context, callId: UUID): PendingIntent {
         val launchIntent =
             context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                    Intent.FLAG_ACTIVITY_SINGLE_TOP or
-                    Intent.FLAG_ACTIVITY_CLEAR_TOP
+                flags =
+                    Intent.FLAG_ACTIVITY_NEW_TASK or
+                        Intent.FLAG_ACTIVITY_SINGLE_TOP or
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP
                 putExtra(CallNotificationReceiver.EXTRA_CALL_ID, callId.toString())
             } ?: Intent()
 

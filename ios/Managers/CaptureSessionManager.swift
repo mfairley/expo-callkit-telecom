@@ -40,7 +40,7 @@ final class CaptureSessionManager {
     )
 
     var state: [String: Any] = [
-      "cameraPermission": cameraPermission,
+      "cameraPermission": cameraPermission
     ]
 
     // Check multitasking camera access support (iOS 16+)

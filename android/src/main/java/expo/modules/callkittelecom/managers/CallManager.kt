@@ -27,6 +27,9 @@ import expo.modules.callkittelecom.models.CallSessionStatus
 import expo.modules.callkittelecom.models.IncomingCallEvent
 import expo.modules.callkittelecom.store.CallStore
 import expo.modules.callkittelecom.utils.CallKitTelecomLog
+import java.time.Instant
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -39,9 +42,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.selects.select
-import java.time.Instant
-import java.util.UUID
-import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Central Android call lifecycle manager using Core-Telecom Jetpack.
@@ -70,8 +70,8 @@ class CallManager private constructor() {
     /**
      * Channels for dispatching actions into active Core-Telecom call scopes.
      *
-     * Scope methods are called from within the addCall block via channel-based
-     * dispatch rather than storing and calling CallControlScope references externally.
+     * Scope methods are called from within the addCall block via channel-based dispatch rather than
+     * storing and calling CallControlScope references externally.
      */
     private class CallActions {
         val setActive = Channel<Unit>(Channel.CONFLATED)
@@ -81,8 +81,8 @@ class CallManager private constructor() {
     }
 
     /**
-     * Encapsulates the coroutine job, action channels, and timeout for a single call.
-     * Consolidates what was previously three separate maps.
+     * Encapsulates the coroutine job, action channels, and timeout for a single call. Consolidates
+     * what was previously three separate maps.
      */
     private class CallController(
         val job: Job,
@@ -116,12 +116,15 @@ class CallManager private constructor() {
 
         callsManager = CallsManager(context)
         callsManager.registerAppWithTelecom(
-            CallsManager.CAPABILITY_BASELINE or CallsManager.CAPABILITY_SUPPORTS_VIDEO_CALLING,
+            CallsManager.CAPABILITY_BASELINE or CallsManager.CAPABILITY_SUPPORTS_VIDEO_CALLING
         )
 
-        incomingCallTimeoutMs = readTimeoutMs("ExpoCallKitTelecomIncomingCallTimeout", incomingCallTimeoutMs)
-        outgoingCallTimeoutMs = readTimeoutMs("ExpoCallKitTelecomOutgoingCallTimeout", outgoingCallTimeoutMs)
-        fulfillAnswerTimeoutMs = readTimeoutMs("ExpoCallKitTelecomFulfillAnswerCallTimeout", fulfillAnswerTimeoutMs)
+        incomingCallTimeoutMs =
+            readTimeoutMs("ExpoCallKitTelecomIncomingCallTimeout", incomingCallTimeoutMs)
+        outgoingCallTimeoutMs =
+            readTimeoutMs("ExpoCallKitTelecomOutgoingCallTimeout", outgoingCallTimeoutMs)
+        fulfillAnswerTimeoutMs =
+            readTimeoutMs("ExpoCallKitTelecomFulfillAnswerCallTimeout", fulfillAnswerTimeoutMs)
 
         CallAudioManager.initialize(context)
         CallAudioManager.onRequestEndpointChange = { endpoint ->
@@ -139,10 +142,7 @@ class CallManager private constructor() {
     }
 
     /** Reads a timeout from Android manifest metadata (seconds) and returns milliseconds. */
-    private fun readTimeoutMs(
-        key: String,
-        defaultMs: Long,
-    ): Long =
+    private fun readTimeoutMs(key: String, defaultMs: Long): Long =
         try {
             val defaultSeconds = (defaultMs / 1000).toInt()
             val appInfo =
@@ -159,10 +159,7 @@ class CallManager private constructor() {
     // region Call Timeout
 
     /** Starts a call timeout that marks non-connected calls as unanswered. */
-    private fun startCallTimeout(
-        id: UUID,
-        timeoutMs: Long,
-    ) {
+    private fun startCallTimeout(id: UUID, timeoutMs: Long) {
         cancelCallTimeout(id)
         CallKitTelecomLog.d(TAG) { "Starting call timeout - id: $id, timeout: ${timeoutMs}ms" }
 
@@ -203,7 +200,11 @@ class CallManager private constructor() {
             return Uri.fromParts(PhoneAccount.SCHEME_SIP, email, null)
         }
 
-        return Uri.fromParts(PhoneAccount.SCHEME_SIP, "${participant.id}@callkit-telecom.local", null)
+        return Uri.fromParts(
+            PhoneAccount.SCHEME_SIP,
+            "${participant.id}@callkit-telecom.local",
+            null,
+        )
     }
 
     // region Start Outgoing Call
@@ -217,13 +218,12 @@ class CallManager private constructor() {
      * - preps audio for call
      * - calls addCall with DIRECTION_OUTGOING
      */
-    fun startOutgoingCall(
-        recipient: CallParticipant,
-        options: CallOptions,
-    ): String {
+    fun startOutgoingCall(recipient: CallParticipant, options: CallOptions): String {
         val existingSession = CallStore.firstSession()
         if (existingSession != null) {
-            CallKitTelecomLog.w(TAG) { "Cannot start outgoing call - session already exists: ${existingSession.id}" }
+            CallKitTelecomLog.w(TAG) {
+                "Cannot start outgoing call - session already exists: ${existingSession.id}"
+            }
             throw IllegalStateException("A call session already exists")
         }
 
@@ -314,7 +314,9 @@ class CallManager private constructor() {
     fun reportIncomingCall(event: IncomingCallEvent) {
         val existingSession = CallStore.firstSession()
         if (existingSession != null) {
-            CallKitTelecomLog.w(TAG) { "Cannot report incoming call - session already exists: ${existingSession.id}" }
+            CallKitTelecomLog.w(TAG) {
+                "Cannot report incoming call - session already exists: ${existingSession.id}"
+            }
             throw IllegalStateException("A call session already exists")
         }
 
@@ -418,15 +420,12 @@ class CallManager private constructor() {
 
         activeCalls[callId]?.actions?.setActive?.trySend(Unit)
 
-        val callerName =
-            CallStore
-                .session(callId)
-                ?.remoteParticipants
-                ?.firstOrNull()
-                ?.displayName
+        val callerName = CallStore.session(callId)?.remoteParticipants?.firstOrNull()?.displayName
         CallNotificationManager.showOngoingCall(context, callId, callerName, now.toEpochMilli())
 
-        CallKitTelecomLog.d(TAG) { "Fulfilled incoming call - callId: $callId, requestId: $requestId" }
+        CallKitTelecomLog.d(TAG) {
+            "Fulfilled incoming call - callId: $callId, requestId: $requestId"
+        }
         return true
     }
 
@@ -443,12 +442,7 @@ class CallManager private constructor() {
 
         activeCalls[id]?.actions?.setActive?.trySend(Unit)
 
-        val callerName =
-            CallStore
-                .session(id)
-                ?.remoteParticipants
-                ?.firstOrNull()
-                ?.displayName
+        val callerName = CallStore.session(id)?.remoteParticipants?.firstOrNull()?.displayName
         CallNotificationManager.showOngoingCall(context, id, callerName, now.toEpochMilli())
     }
 
@@ -463,17 +457,13 @@ class CallManager private constructor() {
     }
 
     /** Reports externally-ended call with explicit reason (`onCallReportedEnded` path). */
-    fun reportCallEnded(
-        id: UUID,
-        reason: CallEndedReason,
-    ) {
+    fun reportCallEnded(id: UUID, reason: CallEndedReason) {
         CallKitTelecomLog.d(TAG) { "Reporting call ended - id: $id, reason: ${reason.value}" }
         finishCall(id, emitEnded = false, reportedReason = reason)
     }
 
     /**
      * Shared call-finalization routine.
-     *
      * - Cancels timeouts and pending fulfill requests
      * - Disconnects Core-Telecom scope (which causes addCall to return)
      * - Emits ended/reported-ended events as requested
@@ -499,11 +489,7 @@ class CallManager private constructor() {
         // so the DisconnectCause is properly delivered to the Telecom framework.
         // The finally block provides safety-net cleanup if needed.
         if (sendDisconnect) {
-            activeCalls
-                .remove(id)
-                ?.actions
-                ?.disconnect
-                ?.trySend(disconnectCauseFor(reportedReason))
+            activeCalls.remove(id)?.actions?.disconnect?.trySend(disconnectCauseFor(reportedReason))
         }
 
         if (existingSession.status != CallSessionStatus.ENDED) {
@@ -517,10 +503,7 @@ class CallManager private constructor() {
         if (reportedReason != null) {
             CallEventEmitter.send(
                 CallEvents.CALL_REPORTED_ENDED,
-                mapOf(
-                    "id" to id.toString(),
-                    "reason" to reportedReason.value,
-                ),
+                mapOf("id" to id.toString(), "reason" to reportedReason.value),
             )
         }
 
@@ -531,20 +514,24 @@ class CallManager private constructor() {
             CallAudioManager.onAudioDeactivated(remainingSessions)
         }
 
-        CallKitTelecomLog.d(TAG) { "Call finished - id: $id, emitEnded: $emitEnded, reason: ${reportedReason?.value}" }
+        CallKitTelecomLog.d(TAG) {
+            "Call finished - id: $id, emitEnded: $emitEnded, reason: ${reportedReason?.value}"
+        }
     }
 
     /**
      * Safety-net cleanup called from the addCall finally block.
      *
-     * Ensures all resources are released even if finishCall didn't run due to
-     * an unexpected exception or cancellation.
+     * Ensures all resources are released even if finishCall didn't run due to an unexpected
+     * exception or cancellation.
      */
     private fun cleanupCallIfNeeded(id: UUID) {
         activeCalls.remove(id)
 
         val session = CallStore.session(id) ?: return
-        CallKitTelecomLog.w(TAG) { "Safety-net cleanup for call - id: $id, status: ${session.status.value}" }
+        CallKitTelecomLog.w(TAG) {
+            "Safety-net cleanup for call - id: $id, status: ${session.status.value}"
+        }
 
         DialtonePlayer.stop()
         FulfillRequestManager.cancelForCall(id)
@@ -569,12 +556,10 @@ class CallManager private constructor() {
             CallEndedReason.UNANSWERED -> DisconnectCause(DisconnectCause.MISSED)
 
             CallEndedReason.ANSWERED_ELSEWHERE,
-            CallEndedReason.DECLINED_ELSEWHERE,
-            -> DisconnectCause(DisconnectCause.REMOTE)
+            CallEndedReason.DECLINED_ELSEWHERE -> DisconnectCause(DisconnectCause.REMOTE)
 
             CallEndedReason.FAILED,
-            CallEndedReason.UNKNOWN,
-            -> DisconnectCause(DisconnectCause.LOCAL)
+            CallEndedReason.UNKNOWN -> DisconnectCause(DisconnectCause.LOCAL)
 
             null -> DisconnectCause(DisconnectCause.LOCAL)
         }
@@ -584,18 +569,12 @@ class CallManager private constructor() {
     // region Mute Support
 
     /** Sets local mute state and emits `onSetMutedAction`. */
-    fun setMuted(
-        id: UUID,
-        muted: Boolean,
-    ) {
+    fun setMuted(id: UUID, muted: Boolean) {
         CallKitTelecomLog.d(TAG) { "Setting mute state - id: $id, muted: $muted" }
         CallStore.updateMuted(id, muted)
         CallEventEmitter.send(
             CallEvents.SET_MUTED_ACTION,
-            mapOf(
-                "id" to id.toString(),
-                "isMuted" to muted,
-            ),
+            mapOf("id" to id.toString(), "isMuted" to muted),
         )
     }
 
@@ -604,10 +583,7 @@ class CallManager private constructor() {
     // region Video Support
 
     /** Reports video enabled state change and emits `onVideoChanged`. */
-    fun reportVideo(
-        id: UUID,
-        enabled: Boolean,
-    ) {
+    fun reportVideo(id: UUID, enabled: Boolean) {
         CallKitTelecomLog.d(TAG) { "Setting video state - id: $id, enabled: $enabled" }
         CallStore.update(id) { session ->
             session.copy(options = session.options.copy(hasVideo = enabled))
@@ -617,10 +593,7 @@ class CallManager private constructor() {
 
         CallEventEmitter.send(
             CallEvents.VIDEO_CHANGED,
-            mapOf(
-                "id" to id.toString(),
-                "hasVideo" to enabled,
-            ),
+            mapOf("id" to id.toString(), "hasVideo" to enabled),
         )
     }
 
@@ -629,10 +602,7 @@ class CallManager private constructor() {
     // region Hold Support
 
     /** Sets hold state, updates Core-Telecom scope state, and emits `onSetHeldAction`. */
-    fun setHeld(
-        id: UUID,
-        onHold: Boolean,
-    ) {
+    fun setHeld(id: UUID, onHold: Boolean) {
         CallKitTelecomLog.d(TAG) { "Setting hold state - id: $id, onHold: $onHold" }
         CallStore.updateHeld(id, onHold)
 
@@ -644,10 +614,7 @@ class CallManager private constructor() {
 
         CallEventEmitter.send(
             CallEvents.SET_HELD_ACTION,
-            mapOf(
-                "id" to id.toString(),
-                "isOnHold" to onHold,
-            ),
+            mapOf("id" to id.toString(), "isOnHold" to onHold),
         )
     }
 
@@ -656,22 +623,11 @@ class CallManager private constructor() {
     // region DTMF Support
 
     /** Records requested DTMF digits and emits `onDTMF`. */
-    fun playDTMF(
-        id: UUID,
-        digits: String,
-    ) {
+    fun playDTMF(id: UUID, digits: String) {
         CallKitTelecomLog.d(TAG) { "Playing DTMF - id: $id, length: ${digits.length}" }
-        CallStore.update(id) { session ->
-            session.copy(dtmfDigits = digits)
-        }
+        CallStore.update(id) { session -> session.copy(dtmfDigits = digits) }
 
-        CallEventEmitter.send(
-            CallEvents.DTMF,
-            mapOf(
-                "id" to id.toString(),
-                "digits" to digits,
-            ),
-        )
+        CallEventEmitter.send(CallEvents.DTMF, mapOf("id" to id.toString(), "digits" to digits))
     }
 
     // endregion
@@ -681,8 +637,8 @@ class CallManager private constructor() {
     /**
      * Launches a Core-Telecom call scope with shared lifecycle management.
      *
-     * Handles channel setup, action dispatch via select, flow collectors,
-     * and safety-net cleanup in a single place.
+     * Handles channel setup, action dispatch via select, flow collectors, and safety-net cleanup in
+     * a single place.
      *
      * @param id Call UUID
      * @param attributes Core-Telecom call attributes
@@ -704,15 +660,18 @@ class CallManager private constructor() {
                     callAttributes = attributes,
                     onAnswer = onAnswer,
                     onDisconnect = { cause ->
-                        CallKitTelecomLog.d(TAG) { "Call onDisconnect - id: $id, cause: ${cause.code}" }
-                        finishCall(id, emitEnded = true, reportedReason = null, sendDisconnect = false)
+                        CallKitTelecomLog.d(TAG) {
+                            "Call onDisconnect - id: $id, cause: ${cause.code}"
+                        }
+                        finishCall(
+                            id,
+                            emitEnded = true,
+                            reportedReason = null,
+                            sendDisconnect = false,
+                        )
                     },
-                    onSetActive = {
-                        setHeld(id, false)
-                    },
-                    onSetInactive = {
-                        setHeld(id, true)
-                    },
+                    onSetActive = { setHeld(id, false) },
+                    onSetInactive = { setHeld(id, true) },
                 ) {
                     val callScope: CallControlScope = this
 
@@ -729,7 +688,12 @@ class CallManager private constructor() {
                 CallKitTelecomLog.d(TAG) { "Call coroutine cancelled - id: $id" }
             } catch (e: Exception) {
                 CallKitTelecomLog.e(TAG) { "Call addCall failed - id: $id, error: ${e.message}" }
-                finishCall(id, emitEnded = true, reportedReason = CallEndedReason.FAILED, sendDisconnect = false)
+                finishCall(
+                    id,
+                    emitEnded = true,
+                    reportedReason = CallEndedReason.FAILED,
+                    sendDisconnect = false,
+                )
             } finally {
                 cleanupCallIfNeeded(id)
                 CallKitTelecomLog.d(TAG) { "Call addCall block exited - id: $id" }
@@ -739,26 +703,17 @@ class CallManager private constructor() {
     /**
      * Processes call action channels using a single select loop.
      *
-     * Runs until the coroutine is cancelled (when addCall returns).
-     * Using select ensures actions are processed sequentially, preventing
-     * concurrent scope method calls from racing.
+     * Runs until the coroutine is cancelled (when addCall returns). Using select ensures actions
+     * are processed sequentially, preventing concurrent scope method calls from racing.
      */
-    private suspend fun handleCallActions(
-        id: UUID,
-        actions: CallActions,
-        scope: CallControlScope,
-    ) {
+    private suspend fun handleCallActions(id: UUID, actions: CallActions, scope: CallControlScope) {
         while (currentCoroutineContext().isActive) {
             select<Unit> {
                 actions.setActive.onReceive {
                     handleControlResult(id, "setActive", scope.setActive())
                 }
-                actions.setInactive.onReceive {
-                    logIfError(id, "setInactive", scope.setInactive())
-                }
-                actions.disconnect.onReceive { cause ->
-                    scope.disconnect(cause)
-                }
+                actions.setInactive.onReceive { logIfError(id, "setInactive", scope.setInactive()) }
+                actions.disconnect.onReceive { cause -> scope.disconnect(cause) }
                 actions.endpointChange.onReceive { endpoint ->
                     logIfError(id, "requestEndpointChange", scope.requestEndpointChange(endpoint))
                 }
@@ -769,14 +724,10 @@ class CallManager private constructor() {
     /**
      * Handles CallControlResult for critical actions like setActive.
      *
-     * When a critical action fails, the call cannot continue in a valid state
-     * and is ended with a FAILED reason.
+     * When a critical action fails, the call cannot continue in a valid state and is ended with a
+     * FAILED reason.
      */
-    private fun handleControlResult(
-        id: UUID,
-        action: String,
-        result: CallControlResult,
-    ) {
+    private fun handleControlResult(id: UUID, action: String, result: CallControlResult) {
         if (result is CallControlResult.Error) {
             CallKitTelecomLog.e(TAG) { "$action failed - id: $id, error: ${result.errorCode}" }
             reportCallEnded(id, CallEndedReason.FAILED)
@@ -784,11 +735,7 @@ class CallManager private constructor() {
     }
 
     /** Logs Core-Telecom control action failures at error level. */
-    private fun logIfError(
-        id: UUID,
-        action: String,
-        result: CallControlResult,
-    ) {
+    private fun logIfError(id: UUID, action: String, result: CallControlResult) {
         if (result is CallControlResult.Error) {
             CallKitTelecomLog.e(TAG) { "$action failed - id: $id, error: ${result.errorCode}" }
         }
@@ -797,17 +744,16 @@ class CallManager private constructor() {
     /**
      * Collects Core-Telecom endpoint and mute flows within the CallControlScope.
      *
-     * These coroutines keep the addCall block alive and forward audio state
-     * changes to CallAudioManager and CallStore.
+     * These coroutines keep the addCall block alive and forward audio state changes to
+     * CallAudioManager and CallStore.
      */
-    private fun CoroutineScope.collectCallFlows(
-        id: UUID,
-        callScope: CallControlScope,
-    ) {
+    private fun CoroutineScope.collectCallFlows(id: UUID, callScope: CallControlScope) {
         launch {
             callScope.availableEndpoints.collect { endpoints ->
                 CallStore.session(id) ?: return@collect
-                CallKitTelecomLog.d(TAG) { "Available endpoints changed - id: $id, count: ${endpoints.size}" }
+                CallKitTelecomLog.d(TAG) {
+                    "Available endpoints changed - id: $id, count: ${endpoints.size}"
+                }
                 CallAudioManager.onAvailableEndpointsChanged(endpoints)
             }
         }
@@ -815,7 +761,9 @@ class CallManager private constructor() {
         launch {
             callScope.currentCallEndpoint.collect { endpoint ->
                 CallStore.session(id) ?: return@collect
-                CallKitTelecomLog.d(TAG) { "Endpoint changed - id: $id, type: ${endpoint.type}, name: ${endpoint.name}" }
+                CallKitTelecomLog.d(TAG) {
+                    "Endpoint changed - id: $id, type: ${endpoint.type}, name: ${endpoint.name}"
+                }
                 CallAudioManager.onEndpointChanged(endpoint)
             }
         }
@@ -828,10 +776,7 @@ class CallManager private constructor() {
                     CallStore.updateMuted(id, muted)
                     CallEventEmitter.send(
                         CallEvents.SET_MUTED_ACTION,
-                        mapOf(
-                            "id" to id.toString(),
-                            "isMuted" to muted,
-                        ),
+                        mapOf("id" to id.toString(), "isMuted" to muted),
                     )
                 }
             }
@@ -865,10 +810,7 @@ class CallManager private constructor() {
         }
 
         val request =
-            FulfillRequestManager.createRequest(
-                callId = id,
-                timeoutMs = fulfillAnswerTimeoutMs,
-            ) {
+            FulfillRequestManager.createRequest(callId = id, timeoutMs = fulfillAnswerTimeoutMs) {
                 reportCallEnded(it, CallEndedReason.FAILED)
             }
 
@@ -876,10 +818,7 @@ class CallManager private constructor() {
 
         CallEventEmitter.send(
             CallEvents.CALL_ANSWERED,
-            mapOf(
-                "id" to id.toString(),
-                "requestId" to request.requestId.toString(),
-            ),
+            mapOf("id" to id.toString(), "requestId" to request.requestId.toString()),
         )
     }
 

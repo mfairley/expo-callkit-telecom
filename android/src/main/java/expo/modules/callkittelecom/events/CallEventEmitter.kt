@@ -4,10 +4,7 @@ import expo.modules.callkittelecom.utils.CallKitTelecomLog
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 
-private data class QueuedEvent(
-    val body: Map<String, Any?>,
-    val timestamp: Instant,
-)
+private data class QueuedEvent(val body: Map<String, Any?>, val timestamp: Instant)
 
 /**
  * Event bridge between Android native call state and the Expo JS module.
@@ -29,8 +26,7 @@ object CallEventEmitter {
 
     var defaultQueueLimit: Int? = 0
 
-    @Volatile
-    private var sender: ((String, Map<String, Any?>) -> Unit)? = null
+    @Volatile private var sender: ((String, Map<String, Any?>) -> Unit)? = null
 
     /** Sets or clears the active event sender provided by the Expo module. */
     fun setSender(eventSender: ((String, Map<String, Any?>) -> Unit)?) {
@@ -42,24 +38,17 @@ object CallEventEmitter {
      *
      * `null` means unlimited queueing, `0` disables queueing.
      */
-    fun setQueueLimit(
-        eventName: String,
-        limit: Int?,
-    ) {
-        synchronized(lock) {
-            queueLimits[eventName] = limit
-        }
+    fun setQueueLimit(eventName: String, limit: Int?) {
+        synchronized(lock) { queueLimits[eventName] = limit }
     }
 
     /**
      * Sends an event to JS if it is currently observed, or queues it otherwise.
      *
-     * All delivered events are augmented with a `meta` object containing timestamp and flush status.
+     * All delivered events are augmented with a `meta` object containing timestamp and flush
+     * status.
      */
-    fun send(
-        eventName: String,
-        body: Map<String, Any?>,
-    ) {
+    fun send(eventName: String, body: Map<String, Any?>) {
         val timestamp = Instant.now()
         val senderRef = sender
         val isObserving = synchronized(lock) { observingEvents.contains(eventName) }
@@ -79,16 +68,16 @@ object CallEventEmitter {
             queueCount = eventQueues[eventName]?.size ?: 0
             observingEvents.add(eventName)
         }
-        CallKitTelecomLog.d(TAG) { "Start observing - event: $eventName, queuedEvents: $queueCount" }
+        CallKitTelecomLog.d(TAG) {
+            "Start observing - event: $eventName, queuedEvents: $queueCount"
+        }
         flushQueue(eventName)
     }
 
     /** Marks an event as no longer observed by JS. */
     fun stopObserving(eventName: String) {
         CallKitTelecomLog.d(TAG) { "Stop observing - event: $eventName" }
-        synchronized(lock) {
-            observingEvents.remove(eventName)
-        }
+        synchronized(lock) { observingEvents.remove(eventName) }
     }
 
     /** Adds native event metadata used by TypeScript event types. */
@@ -107,11 +96,7 @@ object CallEventEmitter {
     }
 
     /** Queues an event and enforces per-event queue limits (drop oldest first). */
-    private fun queueEvent(
-        name: String,
-        body: Map<String, Any?>,
-        timestamp: Instant,
-    ) {
+    private fun queueEvent(name: String, body: Map<String, Any?>, timestamp: Instant) {
         synchronized(lock) {
             val limit = queueLimits[name] ?: defaultQueueLimit
             if (limit == 0) {
@@ -124,12 +109,14 @@ object CallEventEmitter {
 
             if (limit != null && queue.size > limit) {
                 val dropCount = queue.size - limit
-                repeat(dropCount) {
-                    queue.removeAt(0)
+                repeat(dropCount) { queue.removeAt(0) }
+                CallKitTelecomLog.d(TAG) {
+                    "Queueing event (dropped $dropCount old) - name: $name, queueSize: ${queue.size}"
                 }
-                CallKitTelecomLog.d(TAG) { "Queueing event (dropped $dropCount old) - name: $name, queueSize: ${queue.size}" }
             } else {
-                CallKitTelecomLog.d(TAG) { "Queueing event (JS not listening) - name: $name, queueSize: ${queue.size}" }
+                CallKitTelecomLog.d(TAG) {
+                    "Queueing event (JS not listening) - name: $name, queueSize: ${queue.size}"
+                }
             }
         }
     }
@@ -140,7 +127,9 @@ object CallEventEmitter {
         val queue = synchronized(lock) { eventQueues.remove(eventName) } ?: return
         if (queue.isEmpty()) return
 
-        CallKitTelecomLog.d(TAG) { "Flushing event queue - event: $eventName, count: ${queue.size}" }
+        CallKitTelecomLog.d(TAG) {
+            "Flushing event queue - event: $eventName, count: ${queue.size}"
+        }
         queue.forEach { event ->
             senderRef(
                 eventName,

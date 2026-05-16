@@ -16,8 +16,14 @@
       "ffmpeg": {
         "pkg-path": "ffmpeg"
       },
+      "ktfmt": {
+        "pkg-path": "ktfmt"
+      },
       "nodejs": {
         "pkg-path": "nodejs"
+      },
+      "swift-format": {
+        "pkg-path": "swift-format"
       }
     },
     "vars": {
@@ -44,6 +50,7 @@
       "rev_date": "2026-05-10T19:57:52Z",
       "scrape_date": "2026-05-13T08:52:39.934595Z",
       "stabilities": [
+        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -73,6 +80,7 @@
       "rev_date": "2026-05-10T19:57:52Z",
       "scrape_date": "2026-05-13T09:22:13.525830Z",
       "stabilities": [
+        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -102,6 +110,7 @@
       "rev_date": "2026-05-10T19:57:52Z",
       "scrape_date": "2026-05-13T09:55:21.673874Z",
       "stabilities": [
+        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -131,6 +140,7 @@
       "rev_date": "2026-05-10T19:57:52Z",
       "scrape_date": "2026-05-13T10:36:01.871497Z",
       "stabilities": [
+        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -160,6 +170,7 @@
       "rev_date": "2026-05-10T19:57:52Z",
       "scrape_date": "2026-05-13T08:52:40.238034Z",
       "stabilities": [
+        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -189,6 +200,7 @@
       "rev_date": "2026-05-10T19:57:52Z",
       "scrape_date": "2026-05-13T09:55:21.905994Z",
       "stabilities": [
+        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -218,6 +230,7 @@
       "rev_date": "2026-05-10T19:57:52Z",
       "scrape_date": "2026-05-13T08:52:40.833942Z",
       "stabilities": [
+        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -254,6 +267,7 @@
       "rev_date": "2026-05-10T19:57:52Z",
       "scrape_date": "2026-05-13T09:22:14.663194Z",
       "stabilities": [
+        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -290,6 +304,7 @@
       "rev_date": "2026-05-10T19:57:52Z",
       "scrape_date": "2026-05-13T09:55:22.449911Z",
       "stabilities": [
+        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -326,6 +341,7 @@
       "rev_date": "2026-05-10T19:57:52Z",
       "scrape_date": "2026-05-13T10:36:03.173456Z",
       "stabilities": [
+        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -348,6 +364,126 @@
       "priority": 5
     },
     {
+      "attr_path": "ktfmt",
+      "broken": false,
+      "derivation": "/nix/store/8qk3syy2s17zxi9zxinb2x7milc0xnx4-ktfmt-0.61.drv",
+      "description": "Program that reformats Kotlin source code to comply with the common community standard for Kotlin code conventions",
+      "install_id": "ktfmt",
+      "license": "Apache-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=da5ad661ba4e5ef59ba743f0d112cbc30e474f32",
+      "name": "ktfmt-0.61",
+      "pname": "ktfmt",
+      "rev": "da5ad661ba4e5ef59ba743f0d112cbc30e474f32",
+      "rev_count": 995699,
+      "rev_date": "2026-05-10T19:57:52Z",
+      "scrape_date": "2026-05-13T08:52:57.833241Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "0.61",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/5m19ch7xar86ilbjaaa1ll3wrgwbng0q-ktfmt-0.61"
+      },
+      "system": "aarch64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "ktfmt",
+      "broken": false,
+      "derivation": "/nix/store/im8nh6s7lgr1ixb1kp48flnrf65nyx8n-ktfmt-0.61.drv",
+      "description": "Program that reformats Kotlin source code to comply with the common community standard for Kotlin code conventions",
+      "install_id": "ktfmt",
+      "license": "Apache-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=da5ad661ba4e5ef59ba743f0d112cbc30e474f32",
+      "name": "ktfmt-0.61",
+      "pname": "ktfmt",
+      "rev": "da5ad661ba4e5ef59ba743f0d112cbc30e474f32",
+      "rev_count": 995699,
+      "rev_date": "2026-05-10T19:57:52Z",
+      "scrape_date": "2026-05-13T09:22:38.451995Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "0.61",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/alc3fv63a3hnjpwsdvqzmk1ib7lj0hv9-ktfmt-0.61"
+      },
+      "system": "aarch64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "ktfmt",
+      "broken": false,
+      "derivation": "/nix/store/igqya66r0gggzl3fhmx2h831amzkn3gn-ktfmt-0.61.drv",
+      "description": "Program that reformats Kotlin source code to comply with the common community standard for Kotlin code conventions",
+      "install_id": "ktfmt",
+      "license": "Apache-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=da5ad661ba4e5ef59ba743f0d112cbc30e474f32",
+      "name": "ktfmt-0.61",
+      "pname": "ktfmt",
+      "rev": "da5ad661ba4e5ef59ba743f0d112cbc30e474f32",
+      "rev_count": 995699,
+      "rev_date": "2026-05-10T19:57:52Z",
+      "scrape_date": "2026-05-13T09:55:39.675201Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "0.61",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/ncak70jfxy8vnvb686377mywajnbiny5-ktfmt-0.61"
+      },
+      "system": "x86_64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "ktfmt",
+      "broken": false,
+      "derivation": "/nix/store/p5haq03v3l86ca6yisxag38y4p0igdg8-ktfmt-0.61.drv",
+      "description": "Program that reformats Kotlin source code to comply with the common community standard for Kotlin code conventions",
+      "install_id": "ktfmt",
+      "license": "Apache-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=da5ad661ba4e5ef59ba743f0d112cbc30e474f32",
+      "name": "ktfmt-0.61",
+      "pname": "ktfmt",
+      "rev": "da5ad661ba4e5ef59ba743f0d112cbc30e474f32",
+      "rev_count": 995699,
+      "rev_date": "2026-05-10T19:57:52Z",
+      "scrape_date": "2026-05-13T10:36:26.637185Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "0.61",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/n79gff7da457rv4kkillccsx65ry0yvg-ktfmt-0.61"
+      },
+      "system": "x86_64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
       "attr_path": "nodejs",
       "broken": false,
       "derivation": "/nix/store/1m7745r13n7wk43fzx5yr3jjr3vdc1db-nodejs-24.14.1.drv",
@@ -362,6 +498,7 @@
       "rev_date": "2026-05-10T19:57:52Z",
       "scrape_date": "2026-05-13T08:53:04.957162Z",
       "stabilities": [
+        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -392,6 +529,7 @@
       "rev_date": "2026-05-10T19:57:52Z",
       "scrape_date": "2026-05-13T09:22:53.228646Z",
       "stabilities": [
+        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -422,6 +560,7 @@
       "rev_date": "2026-05-10T19:57:52Z",
       "scrape_date": "2026-05-13T09:55:47.018047Z",
       "stabilities": [
+        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -452,6 +591,7 @@
       "rev_date": "2026-05-10T19:57:52Z",
       "scrape_date": "2026-05-13T10:36:42.203422Z",
       "stabilities": [
+        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -462,6 +602,126 @@
       ],
       "outputs": {
         "out": "/nix/store/785jidgnryzj566s25s3rb262d4g5znb-nodejs-24.14.1"
+      },
+      "system": "x86_64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "swift-format",
+      "broken": false,
+      "derivation": "/nix/store/dd5b84d6clg7sshwzyjlr5624xyq366a-swift-format-5.10.1.drv",
+      "description": "Formatting technology for Swift source code",
+      "install_id": "swift-format",
+      "license": "Apache-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=da5ad661ba4e5ef59ba743f0d112cbc30e474f32",
+      "name": "swift-format-5.10.1",
+      "pname": "swift-format",
+      "rev": "da5ad661ba4e5ef59ba743f0d112cbc30e474f32",
+      "rev_count": 995699,
+      "rev_date": "2026-05-10T19:57:52Z",
+      "scrape_date": "2026-05-13T08:54:30.187356Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "5.10.1",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/s5ygfqql9k53i5szg93fsdaxq3grp1ym-swift-format-5.10.1"
+      },
+      "system": "aarch64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "swift-format",
+      "broken": false,
+      "derivation": "/nix/store/g1al79j765cbjjkinxp12x6kfdvia0a2-swift-format-5.10.1.drv",
+      "description": "Formatting technology for Swift source code",
+      "install_id": "swift-format",
+      "license": "Apache-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=da5ad661ba4e5ef59ba743f0d112cbc30e474f32",
+      "name": "swift-format-5.10.1",
+      "pname": "swift-format",
+      "rev": "da5ad661ba4e5ef59ba743f0d112cbc30e474f32",
+      "rev_count": 995699,
+      "rev_date": "2026-05-10T19:57:52Z",
+      "scrape_date": "2026-05-13T09:24:48.019909Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "5.10.1",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/3iqhk310xvhjiw8aascg7jp9ygf1px8d-swift-format-5.10.1"
+      },
+      "system": "aarch64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "swift-format",
+      "broken": false,
+      "derivation": "/nix/store/ffr01x4hx1xc5v8f78nn9pfsakyx3hr0-swift-format-5.10.1.drv",
+      "description": "Formatting technology for Swift source code",
+      "install_id": "swift-format",
+      "license": "Apache-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=da5ad661ba4e5ef59ba743f0d112cbc30e474f32",
+      "name": "swift-format-5.10.1",
+      "pname": "swift-format",
+      "rev": "da5ad661ba4e5ef59ba743f0d112cbc30e474f32",
+      "rev_count": 995699,
+      "rev_date": "2026-05-10T19:57:52Z",
+      "scrape_date": "2026-05-13T09:57:19.402216Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "5.10.1",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/6fyzh7v913js4gnsvgkaikj75c44yz7l-swift-format-5.10.1"
+      },
+      "system": "x86_64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "swift-format",
+      "broken": false,
+      "derivation": "/nix/store/jhffq96yd48lvr4p1idacl6wvi8n0d7q-swift-format-5.10.1.drv",
+      "description": "Formatting technology for Swift source code",
+      "install_id": "swift-format",
+      "license": "Apache-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=da5ad661ba4e5ef59ba743f0d112cbc30e474f32",
+      "name": "swift-format-5.10.1",
+      "pname": "swift-format",
+      "rev": "da5ad661ba4e5ef59ba743f0d112cbc30e474f32",
+      "rev_count": 995699,
+      "rev_date": "2026-05-10T19:57:52Z",
+      "scrape_date": "2026-05-13T10:38:35.624994Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "5.10.1",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/8dgmi98q46p53qb7ncm22r95nam7y3ss-swift-format-5.10.1"
       },
       "system": "x86_64-linux",
       "group": "toplevel",

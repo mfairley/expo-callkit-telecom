@@ -24,12 +24,10 @@ object VoIPPushManager {
 
     /** Registers for FCM push tokens by fetching the current token. */
     fun register() {
-        FirebaseMessaging
-            .getInstance()
+        FirebaseMessaging.getInstance()
             .token
-            .addOnSuccessListener { newToken ->
-                updateToken(newToken)
-            }.addOnFailureListener { error ->
+            .addOnSuccessListener { newToken -> updateToken(newToken) }
+            .addOnFailureListener { error ->
                 Log.e(TAG, "Failed to get FCM token: ${error.message}", error)
             }
     }

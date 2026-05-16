@@ -14,9 +14,8 @@ import expo.modules.callkittelecom.utils.PermissionUtils
 /**
  * Manages Android call audio state and routing for the shared calls API.
  *
- * Audio focus and mode are managed by Core-Telecom. This manager tracks
- * endpoint state, emits route changes to JS, and requests endpoint switches
- * via the active call scope.
+ * Audio focus and mode are managed by Core-Telecom. This manager tracks endpoint state, emits route
+ * changes to JS, and requests endpoint switches via the active call scope.
  */
 object CallAudioManager {
     private const val TAG = "ExpoCallKitTelecom.Audio"
@@ -55,14 +54,14 @@ object CallAudioManager {
                 }
 
                 override fun onAudioDevicesRemoved(removedDevices: Array<out AudioDeviceInfo>) {
-                    CallKitTelecomLog.d(TAG) { "Audio devices removed - count: ${removedDevices.size}" }
+                    CallKitTelecomLog.d(TAG) {
+                        "Audio devices removed - count: ${removedDevices.size}"
+                    }
                     if (!isActive) emitRouteChanged()
                 }
             }
 
-        routeCallback?.let { callback ->
-            audioManager.registerAudioDeviceCallback(callback, null)
-        }
+        routeCallback?.let { callback -> audioManager.registerAudioDeviceCallback(callback, null) }
 
         isInitialized = true
         CallKitTelecomLog.d(TAG) { "Initialized CallAudioManager" }
@@ -83,15 +82,14 @@ object CallAudioManager {
     /** Returns current audio session state in the shared TypeScript shape. */
     fun getAudioSessionState(): Map<String, Any?> {
         val sampleRate =
-            audioManager
-                .getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE)
-                ?.toDoubleOrNull()
+            audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE)?.toDoubleOrNull()
         val framesPerBuffer =
             audioManager
                 .getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER)
                 ?.toDoubleOrNull()
         val ioBufferDuration =
-            if (sampleRate != null && framesPerBuffer != null) framesPerBuffer / sampleRate else null
+            if (sampleRate != null && framesPerBuffer != null) framesPerBuffer / sampleRate
+            else null
 
         val currentRoute = currentRouteMap()
 
@@ -118,7 +116,9 @@ object CallAudioManager {
 
     /** No-op on Android — Core-Telecom manages audio mode and focus. Kept for JS API compat. */
     fun restoreAudioSession() {
-        CallKitTelecomLog.d(TAG) { "restoreAudioSession is a no-op on Android (Core-Telecom manages audio)" }
+        CallKitTelecomLog.d(TAG) {
+            "restoreAudioSession is a no-op on Android (Core-Telecom manages audio)"
+        }
     }
 
     /**
@@ -133,18 +133,9 @@ object CallAudioManager {
 
         isActive = true
 
-        val callInfos =
-            calls.map {
-                mapOf(
-                    "id" to it.id.toString(),
-                    "status" to it.status.value,
-                )
-            }
+        val callInfos = calls.map { mapOf("id" to it.id.toString(), "status" to it.status.value) }
 
-        CallEventEmitter.send(
-            CallEvents.AUDIO_SESSION_ACTIVATED,
-            mapOf("calls" to callInfos),
-        )
+        CallEventEmitter.send(CallEvents.AUDIO_SESSION_ACTIVATED, mapOf("calls" to callInfos))
     }
 
     /**
@@ -164,18 +155,9 @@ object CallAudioManager {
 
         emitRouteChanged()
 
-        val callInfos =
-            calls.map {
-                mapOf(
-                    "id" to it.id.toString(),
-                    "status" to it.status.value,
-                )
-            }
+        val callInfos = calls.map { mapOf("id" to it.id.toString(), "status" to it.status.value) }
 
-        CallEventEmitter.send(
-            CallEvents.AUDIO_SESSION_DEACTIVATED,
-            mapOf("calls" to callInfos),
-        )
+        CallEventEmitter.send(CallEvents.AUDIO_SESSION_DEACTIVATED, mapOf("calls" to callInfos))
     }
 
     /** Requests endpoint change to speaker (`true`) or best non-speaker device (`false`). */
@@ -195,18 +177,22 @@ object CallAudioManager {
     }
 
     /**
-     * Selects the best non-speaker endpoint matching iOS priority:
-     * Bluetooth > Wired Headset > Earpiece (audio) / Speaker (video).
+     * Selects the best non-speaker endpoint matching iOS priority: Bluetooth > Wired Headset >
+     * Earpiece (audio) / Speaker (video).
      */
     private fun selectBestNonSpeakerEndpoint(): CallEndpointCompat? {
         val available = currentAvailableEndpoints
 
         available
             .firstOrNull { it.type == CallEndpointCompat.TYPE_BLUETOOTH }
-            ?.let { return it }
+            ?.let {
+                return it
+            }
         available
             .firstOrNull { it.type == CallEndpointCompat.TYPE_WIRED_HEADSET }
-            ?.let { return it }
+            ?.let {
+                return it
+            }
 
         return if (configuredForVideo) {
             available.firstOrNull { it.type == CallEndpointCompat.TYPE_SPEAKER }
@@ -219,16 +205,13 @@ object CallAudioManager {
     private fun emitRouteChanged() {
         CallEventEmitter.send(
             CallEvents.AUDIO_ROUTE_CHANGED,
-            mapOf(
-                "currentRoute" to currentRouteMap(),
-                "availableRoutes" to availableRoutesMap(),
-            ),
+            mapOf("currentRoute" to currentRouteMap(), "availableRoutes" to availableRoutesMap()),
         )
     }
 
     /**
-     * Converts Core-Telecom available endpoints into JS-facing AudioPort objects.
-     * Each endpoint maps to a single output port.
+     * Converts Core-Telecom available endpoints into JS-facing AudioPort objects. Each endpoint
+     * maps to a single output port.
      */
     private fun availableRoutesMap(): List<Map<String, String>> =
         currentAvailableEndpoints.mapNotNull { endpoint -> resolveOutputPort(endpoint) }
@@ -236,38 +219,40 @@ object CallAudioManager {
     /**
      * Builds the current route payload with the single active input/output device.
      *
-     * During an active call, uses Core-Telecom's [CallEndpointCompat] to determine
-     * the active device (matching iOS's `AVAudioSession.currentRoute` behavior).
-     * When no call is active, falls back to built-in defaults.
+     * During an active call, uses Core-Telecom's [CallEndpointCompat] to determine the active
+     * device (matching iOS's `AVAudioSession.currentRoute` behavior). When no call is active, falls
+     * back to built-in defaults.
      */
     private fun currentRouteMap(): Map<String, Any?> {
         val endpoint = currentEndpoint
         if (endpoint != null) {
             val output = resolveOutputPort(endpoint)
             val input = resolveInputPort(endpoint.type)
-            return mapOf(
-                "inputs" to listOfNotNull(input),
-                "outputs" to listOfNotNull(output),
-            )
+            return mapOf("inputs" to listOfNotNull(input), "outputs" to listOfNotNull(output))
         }
 
-        val input = findDevicePort(AudioManager.GET_DEVICES_INPUTS, AudioDeviceInfo.TYPE_BUILTIN_MIC)
-        val output = findDevicePort(AudioManager.GET_DEVICES_OUTPUTS, AudioDeviceInfo.TYPE_BUILTIN_EARPIECE)
-        return mapOf(
-            "inputs" to listOfNotNull(input),
-            "outputs" to listOfNotNull(output),
-        )
+        val input =
+            findDevicePort(AudioManager.GET_DEVICES_INPUTS, AudioDeviceInfo.TYPE_BUILTIN_MIC)
+        val output =
+            findDevicePort(AudioManager.GET_DEVICES_OUTPUTS, AudioDeviceInfo.TYPE_BUILTIN_EARPIECE)
+        return mapOf("inputs" to listOfNotNull(input), "outputs" to listOfNotNull(output))
     }
 
     /** Maps Core-Telecom endpoint to a port map for the JS layer. */
     private fun resolveOutputPort(endpoint: CallEndpointCompat): Map<String, String>? =
         when (endpoint.type) {
             CallEndpointCompat.TYPE_SPEAKER -> {
-                findDevicePort(AudioManager.GET_DEVICES_OUTPUTS, AudioDeviceInfo.TYPE_BUILTIN_SPEAKER)
+                findDevicePort(
+                    AudioManager.GET_DEVICES_OUTPUTS,
+                    AudioDeviceInfo.TYPE_BUILTIN_SPEAKER,
+                )
             }
 
             CallEndpointCompat.TYPE_EARPIECE -> {
-                findDevicePort(AudioManager.GET_DEVICES_OUTPUTS, AudioDeviceInfo.TYPE_BUILTIN_EARPIECE)
+                findDevicePort(
+                    AudioManager.GET_DEVICES_OUTPUTS,
+                    AudioDeviceInfo.TYPE_BUILTIN_EARPIECE,
+                )
             }
 
             CallEndpointCompat.TYPE_BLUETOOTH -> {
@@ -280,7 +265,10 @@ object CallAudioManager {
 
             CallEndpointCompat.TYPE_WIRED_HEADSET -> {
                 findDevicePort(AudioManager.GET_DEVICES_OUTPUTS, AudioDeviceInfo.TYPE_WIRED_HEADSET)
-                    ?: findDevicePort(AudioManager.GET_DEVICES_OUTPUTS, AudioDeviceInfo.TYPE_WIRED_HEADPHONES)
+                    ?: findDevicePort(
+                        AudioManager.GET_DEVICES_OUTPUTS,
+                        AudioDeviceInfo.TYPE_WIRED_HEADPHONES,
+                    )
             }
 
             else -> {
@@ -301,14 +289,8 @@ object CallAudioManager {
     }
 
     /** Finds the first matching device by type and returns its port map. */
-    private fun findDevicePort(
-        direction: Int,
-        type: Int,
-    ): Map<String, String>? =
-        audioManager
-            .getDevices(direction)
-            .firstOrNull { it.type == type }
-            ?.let { portMap(it) }
+    private fun findDevicePort(direction: Int, type: Int): Map<String, String>? =
+        audioManager.getDevices(direction).firstOrNull { it.type == type }?.let { portMap(it) }
 
     /** Serializes an Android audio device into the shared audio port payload shape. */
     private fun portMap(info: AudioDeviceInfo): Map<String, String> =
@@ -326,8 +308,7 @@ object CallAudioManager {
             AudioDeviceInfo.TYPE_BUILTIN_SPEAKER -> "builtInSpeaker"
 
             AudioDeviceInfo.TYPE_WIRED_HEADSET,
-            AudioDeviceInfo.TYPE_WIRED_HEADPHONES,
-            -> "headphones"
+            AudioDeviceInfo.TYPE_WIRED_HEADPHONES -> "headphones"
 
             AudioDeviceInfo.TYPE_BLUETOOTH_A2DP -> "bluetoothA2DP"
 
@@ -339,12 +320,10 @@ object CallAudioManager {
 
             AudioDeviceInfo.TYPE_USB_DEVICE,
             AudioDeviceInfo.TYPE_USB_ACCESSORY,
-            AudioDeviceInfo.TYPE_USB_HEADSET,
-            -> "usbAudio"
+            AudioDeviceInfo.TYPE_USB_HEADSET -> "usbAudio"
 
             AudioDeviceInfo.TYPE_LINE_ANALOG,
-            AudioDeviceInfo.TYPE_LINE_DIGITAL,
-            -> "lineOut"
+            AudioDeviceInfo.TYPE_LINE_DIGITAL -> "lineOut"
 
             else -> "android_$type"
         }
