@@ -4,6 +4,10 @@ on:
   push:
     tags:
       - "v*"
+  # Manual escape hatch — re-publish a specific tag with:
+  #   gh workflow run publish.yml --ref vX.Y.Z
+  # The verify-tag step guards against accidental main-branch dispatches.
+  workflow_dispatch:
 
 jobs:
   publish:
