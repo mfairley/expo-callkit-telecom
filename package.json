@@ -1,6 +1,6 @@
 {
   "name": "expo-callkit-telecom",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Expo module wrapping CallKit (iOS) and Jetpack Core-Telecom (Android) with API parity",
   "main": "build/index.js",
   "types": "build/index.d.ts",
