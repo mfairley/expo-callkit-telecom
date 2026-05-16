@@ -1,6 +1,6 @@
 {
   "name": "expo-callkit-telecom",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "CallKit + Jetpack Core-Telecom for Expo / React Native — native call UI, VoIP push, LiveKit-friendly audio. A modern react-native-callkeep alternative.",
   "main": "build/index.js",
   "types": "build/index.d.ts",
