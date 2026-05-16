@@ -1,3 +1,7 @@
+---
+description: VoIP push payload shape for expo-callkit-telecom — APNs VoIP (PushKit) on iOS and FCM data messages on Android. Parsed natively so incoming calls report from a terminated state.
+---
+
 # VoIP push payload
 
 When the OS delivers a VoIP push (PushKit on iOS, an FCM data message on Android), the module parses the payload natively — before JS is running — and reports the call to the OS.

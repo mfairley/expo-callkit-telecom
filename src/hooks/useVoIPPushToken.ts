@@ -14,6 +14,10 @@ import type { PushTokenType, VoIPPushToken } from "../Calls.types";
  *
  * @returns The current token, or `null` if not yet available.
  *
+ * @see {@link registerVoIPPush} — must be called once before any token will be available.
+ * @see {@link getVoIPPushToken} — non-hook accessor for the same token.
+ * @see {@link addVoIPPushTokenUpdatedListener} — the underlying subscription.
+ *
  * @category Hooks
  */
 export function useVoIPPushToken(): VoIPPushToken | null {

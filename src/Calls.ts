@@ -236,6 +236,9 @@ export function setRTCAudioSessionConfiguration(hasVideo: boolean): void {
  * @param hasVideo - Whether to configure for video calls (uses speaker by default)
  *   or audio-only calls (uses earpiece by default).
  *
+ * @see {@link restoreAudioSession} — call this after the call ends to revert the session configuration.
+ * @see {@link getAudioSession} — inspect the resulting audio session state.
+ *
  * @category Audio
  */
 export function prepareAudioSessionForCall(hasVideo: boolean): void {
@@ -248,6 +251,8 @@ export function prepareAudioSessionForCall(hasVideo: boolean): void {
  * Call this if a call fails to start after prepareAudioSessionForCall was called,
  * or to manually restore the audio session. This is called automatically when
  * the audio session is deactivated after a call ends.
+ *
+ * @see {@link prepareAudioSessionForCall} — the matching setup call.
  *
  * @category Audio
  */
@@ -367,6 +372,10 @@ export function addCallIntentReceivedListener(
  * );
  * ```
  *
+ * @see {@link addOutgoingCallStartedListener} for the event fired once the OS accepts the call.
+ * @see {@link reportOutgoingCallConnected} to call after the remote media stream is established.
+ * @see {@link endCall} to terminate the call from the app.
+ *
  * @category Requests
  */
 export async function startOutgoingCall(
@@ -385,6 +394,9 @@ export async function startOutgoingCall(
  *
  * @param listener - Callback invoked when an outgoing call starts.
  * @returns A subscription that can be removed by calling `.remove()`.
+ *
+ * @see {@link startOutgoingCall} — the request that triggers this event.
+ * @see {@link reportOutgoingCallConnected} — the next step in the outgoing-call flow.
  *
  * @category Call Events
  */
@@ -420,6 +432,10 @@ export function addOutgoingCallStartedListener(
  * });
  * ```
  *
+ * @see {@link addIncomingCallReportedListener} — fires once the OS accepts the report.
+ * @see {@link addCallAnsweredListener} — fires when the user answers from the system UI.
+ * @see [VoIP push payload shape](https://mfairley.github.io/expo-callkit-telecom/voip-push) — the payload that drives this when called from a native push handler.
+ *
  * @category Reporters
  */
 export async function reportIncomingCall(
@@ -437,6 +453,9 @@ export async function reportIncomingCall(
  *
  * @param listener - Callback invoked when an incoming call is reported.
  * @returns A subscription that can be removed by calling `.remove()`.
+ *
+ * @see {@link reportIncomingCall} — the report that triggers this event.
+ * @see {@link addCallAnsweredListener} — fires when the user answers from the system UI.
  *
  * @category Call Events
  */
@@ -458,6 +477,10 @@ export function addIncomingCallReportedListener(
  *
  * @param id - The call session ID to answer.
  *
+ * @see {@link addCallAnsweredListener} — react to user-initiated answers from the system UI; most apps listen here rather than calling this directly.
+ * @see {@link fulfillIncomingCallConnected} — call after media is established.
+ * @see {@link failIncomingCallConnected} — call if media setup fails.
+ *
  * @category Requests
  */
 export async function answerCall(id: string): Promise<void> {
@@ -472,6 +495,10 @@ export async function answerCall(id: string): Promise<void> {
  *
  * @param listener - Callback invoked when a call is answered.
  * @returns A subscription that can be removed by calling `.remove()`.
+ *
+ * @see {@link answerCall} — the programmatic equivalent (rarely needed; usually the OS UI triggers answering).
+ * @see {@link fulfillIncomingCallConnected} — call after media setup completes.
+ * @see {@link failIncomingCallConnected} — call if media setup fails.
  *
  * @category Call Events
  */
@@ -493,6 +520,9 @@ export function addCallAnsweredListener(
  *
  * @param requestId - The request ID from the CallAnsweredEvent.
  *
+ * @see {@link addCallAnsweredListener} — the event you typically respond to before calling this.
+ * @see {@link failIncomingCallConnected} — call this instead if media setup fails.
+ *
  * @category Fulfillers
  */
 export async function fulfillIncomingCallConnected(
@@ -512,6 +542,9 @@ export async function fulfillIncomingCallConnected(
  *
  * @param id - The call session ID.
  * @param requestId - The request ID from the CallAnsweredEvent.
+ *
+ * @see {@link fulfillIncomingCallConnected} — call this on the success path.
+ * @see {@link addCallAnsweredListener} — the event you typically respond to before calling either fulfiller.
  *
  * @category Fulfillers
  */
@@ -538,6 +571,9 @@ export async function failIncomingCallConnected(
  *
  * @param id - The call session ID.
  *
+ * @see {@link startOutgoingCall} — the call that initiated this outgoing flow.
+ * @see {@link addOutgoingCallStartedListener} — fires when the OS accepts the request.
+ *
  * @category Reporters
  */
 export async function reportOutgoingCallConnected(id: string): Promise<void> {
@@ -557,6 +593,9 @@ export async function reportOutgoingCallConnected(id: string): Promise<void> {
  *
  * @param id - The call session ID to end.
  *
+ * @see {@link addCallEndedListener} — confirms the call ended.
+ * @see {@link reportCallEnded} — call this instead when the remote party hung up (a server-side signal), so the OS records the right reason.
+ *
  * @category Requests
  */
 export async function endCall(id: string): Promise<void> {
@@ -571,6 +610,9 @@ export async function endCall(id: string): Promise<void> {
  *
  * @param listener - Callback invoked when a call ends.
  * @returns A subscription that can be removed by calling `.remove()`.
+ *
+ * @see {@link endCall} — the app-side request that fires this when the user ends from your UI.
+ * @see {@link reportCallEnded} — for remote-initiated ends (server tells you the other party hung up).
  *
  * @category Call Events
  */
@@ -598,6 +640,9 @@ export function addCallEndedListener(
  * await reportCallEnded(callId, 'failed');
  * ```
  *
+ * @see {@link endCall} — the app-initiated path (your user ended the call).
+ * @see {@link addReportedCallEndedListener} — confirms the OS accepted the report.
+ *
  * @category Reporters
  */
 export async function reportCallEnded(
@@ -615,6 +660,8 @@ export async function reportCallEnded(
  *
  * @param listener - Callback invoked when a call end is reported.
  * @returns A subscription that can be removed by calling `.remove()`.
+ *
+ * @see {@link reportCallEnded} — the report that triggers this event.
  *
  * @category Call Events
  */
@@ -637,6 +684,8 @@ export function addReportedCallEndedListener(
  * @param id - The call session ID.
  * @param muted - Whether the microphone should be muted.
  *
+ * @see {@link addSetMutedActionListener} — fires when the system requests a mute change (e.g. the user pressed mute in the CallKit UI); apply the change to your media stream from there.
+ *
  * @category Requests
  */
 export async function setMuted(id: string, muted: boolean): Promise<void> {
@@ -651,6 +700,8 @@ export async function setMuted(id: string, muted: boolean): Promise<void> {
  *
  * @param listener - Callback invoked when set muted action is requested.
  * @returns A subscription that can be removed by calling `.remove()`.
+ *
+ * @see {@link setMuted} — for the app-initiated direction (programmatic mute toggle).
  *
  * @category Call Events
  */
@@ -672,6 +723,8 @@ export function addSetMutedActionListener(
  * @param id - The call session ID.
  * @param enabled - Whether video is enabled.
  *
+ * @see {@link addVideoChangedListener} — the inverse direction (system-side video state changes).
+ *
  * @category Reporters
  */
 export async function reportVideo(id: string, enabled: boolean): Promise<void> {
@@ -685,6 +738,8 @@ export async function reportVideo(id: string, enabled: boolean): Promise<void> {
  *
  * @param listener - Callback invoked when video state changes.
  * @returns A subscription that can be removed by calling `.remove()`.
+ *
+ * @see {@link reportVideo} — for reporting your app's video state changes back to the system.
  *
  * @category Call Events
  */
@@ -707,6 +762,8 @@ export function addVideoChangedListener(
  * @param id - The call session ID.
  * @param onHold - Whether the call should be on hold.
  *
+ * @see {@link addSetHeldActionListener} — fires when the system requests a hold-state change.
+ *
  * @category Requests
  */
 export async function setHeld(id: string, onHold: boolean): Promise<void> {
@@ -721,6 +778,8 @@ export async function setHeld(id: string, onHold: boolean): Promise<void> {
  *
  * @param listener - Callback invoked when set held action is requested.
  * @returns A subscription that can be removed by calling `.remove()`.
+ *
+ * @see {@link setHeld} — for the app-initiated direction.
  *
  * @category Call Events
  */
@@ -743,6 +802,8 @@ export function addSetHeldActionListener(
  * @param id - The call session ID.
  * @param digits - The DTMF digits to play (0-9, *, #).
  *
+ * @see {@link addDTMFListener} — fires when the system requests DTMF tones (e.g. from the in-call keypad).
+ *
  * @category Requests
  */
 export async function playDTMF(id: string, digits: string): Promise<void> {
@@ -757,6 +818,8 @@ export async function playDTMF(id: string, digits: string): Promise<void> {
  *
  * @param listener - Callback invoked when DTMF tones should be played.
  * @returns A subscription that can be removed by calling `.remove()`.
+ *
+ * @see {@link playDTMF} — for the app-initiated direction (programmatically play tones).
  *
  * @category Call Events
  */
@@ -792,6 +855,10 @@ export function addDTMFListener(
  * });
  * ```
  *
+ * @see {@link getVoIPPushToken} — read the current token synchronously after registration.
+ * @see {@link useVoIPPushToken} — React hook that reads the token and subscribes to updates.
+ * @see {@link addVoIPPushTokenUpdatedListener} — non-React subscription to token updates.
+ *
  * @category VoIP Push
  */
 export function registerVoIPPush(): void {
@@ -813,6 +880,9 @@ export function registerVoIPPush(): void {
  *   await sendTokenToBackend(voip.token, voip.type);
  * }
  * ```
+ *
+ * @see {@link registerVoIPPush} — must be called once before a token is available.
+ * @see {@link useVoIPPushToken} — React hook wrapper around this + the update listener.
  *
  * @category VoIP Push
  */
@@ -846,6 +916,9 @@ export function getVoIPPushToken(): VoIPPushToken | null {
  *   }
  * });
  * ```
+ *
+ * @see {@link useVoIPPushToken} — React hook that uses this internally; prefer it in components.
+ * @see {@link registerVoIPPush} — must be called once before any token updates fire.
  *
  * @category VoIP Push
  */

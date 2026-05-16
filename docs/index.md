@@ -1,5 +1,6 @@
 ---
 layout: home
+description: Open-source Expo module for native calling UI on iOS and Android. Wraps CallKit (PushKit) and Jetpack androidx.core-telecom with one typed API, native VoIP push parsing, and a LiveKit-friendly audio session.
 
 hero:
   name: expo-callkit-telecom

@@ -1,3 +1,7 @@
+---
+description: expo-callkit-telecom vs react-native-callkeep — architectural differences (Jetpack core-telecom vs ConnectionService, Swift/Kotlin vs Obj-C/Java, built-in vs app-side VoIP push), when to pick which, and migration sketch.
+---
+
 # `expo-callkit-telecom` vs `react-native-callkeep`
 
 [`react-native-callkeep`](https://github.com/react-native-webrtc/react-native-callkeep) is the long-standing React Native library for putting a native call UI on top of WebRTC. `expo-callkit-telecom` solves the same problem but is built on the *current* generation of platform APIs that Apple, Google, and Expo are pushing forward.

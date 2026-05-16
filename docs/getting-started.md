@@ -1,3 +1,7 @@
+---
+description: Install expo-callkit-telecom in an Expo or React Native app — config plugin setup, the request/report/fulfill mental model, and VoIP push registration.
+---
+
 # Getting started
 
 `expo-callkit-telecom` is opinionated about *system integration* and unopinionated about *media*. You wire your media library (LiveKit, plain WebRTC, etc.) to the events the module emits.

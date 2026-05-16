@@ -20,6 +20,28 @@ export default defineConfig({
     [
       "meta",
       {
+        name: "keywords",
+        content:
+          "expo callkit, expo voip, react native callkit, react native callkeep alternative, jetpack core-telecom, react native incoming call, expo livekit calling, pushkit expo, fcm voip android react native, expo native module callkit",
+      },
+    ],
+    [
+      "meta",
+      {
+        property: "og:type",
+        content: "website",
+      },
+    ],
+    [
+      "meta",
+      {
+        property: "og:site_name",
+        content: "expo-callkit-telecom",
+      },
+    ],
+    [
+      "meta",
+      {
         property: "og:title",
         content: "expo-callkit-telecom — CallKit + Jetpack Core-Telecom for Expo",
       },
@@ -28,6 +50,35 @@ export default defineConfig({
       "meta",
       {
         property: "og:description",
+        content:
+          "Native call UI, VoIP push, LiveKit-friendly audio. A modern react-native-callkeep alternative.",
+      },
+    ],
+    [
+      "meta",
+      {
+        property: "og:url",
+        content: "https://mfairley.github.io/expo-callkit-telecom/",
+      },
+    ],
+    [
+      "meta",
+      {
+        name: "twitter:card",
+        content: "summary_large_image",
+      },
+    ],
+    [
+      "meta",
+      {
+        name: "twitter:title",
+        content: "expo-callkit-telecom — CallKit + Jetpack Core-Telecom for Expo",
+      },
+    ],
+    [
+      "meta",
+      {
+        name: "twitter:description",
         content:
           "Native call UI, VoIP push, LiveKit-friendly audio. A modern react-native-callkeep alternative.",
       },
