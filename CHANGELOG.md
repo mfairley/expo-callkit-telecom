@@ -5,6 +5,15 @@ All notable changes to `expo-callkit-telecom` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.6] — 2026-05-16
+
+### Changed
+- API reference sections now appear in a learn-the-module order (Sessions → Requests → Reporters → Fulfillers → Call Events → Audio → Audio Events → Capture → VoIP Push → Hooks → Permissions → Core) instead of alphabetical.
+- Within each interface, type, and category, members are now listed in source order — so `CallParticipant` reads `id` → `displayName` → `avatarUrl` → `phoneNumber` → `email` as defined, rather than alphabetically.
+
+### Removed
+- The self-referential "each release updates this matrix…" sentence following the Verified-against table in `README.md`, `docs/index.md`, and `docs/vs-callkeep.md`. The table itself stays; the meta-commentary was unnecessary.
+
 ## [0.2.5] — 2026-05-16
 
 ### Changed
@@ -59,6 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Config plugin: entitlements, background modes, microphone permission, ringtone/dialtone bundling, FCM service registration.
 - CI: trusted publishing on Node 24 / npm 11.
 
+[0.2.6]: https://github.com/mfairley/expo-callkit-telecom/releases/tag/v0.2.6
 [0.2.5]: https://github.com/mfairley/expo-callkit-telecom/releases/tag/v0.2.5
 [0.2.4]: https://github.com/mfairley/expo-callkit-telecom/releases/tag/v0.2.4
 [0.2.3]: https://github.com/mfairley/expo-callkit-telecom/releases/tag/v0.2.3

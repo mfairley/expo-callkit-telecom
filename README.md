@@ -36,8 +36,6 @@ This release is exercised end-to-end on real devices via the runnable `example/`
 | New Architecture | Yes |
 | Media transport | LiveKit RN SDK |
 
-Each release updates this table — so the recency signal is the version number on npm, not a promise in prose.
-
 ## 📦 Install
 
 ```sh

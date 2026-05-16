@@ -27,8 +27,6 @@ This release of `expo-callkit-telecom` is exercised end-to-end on real devices i
 | New Architecture | Yes |
 | Media transport | LiveKit RN SDK |
 
-Each release updates this matrix — so the recency signal is the version number on npm, not a verbal claim.
-
 ## Side-by-side
 
 | | `expo-callkit-telecom` | `react-native-callkeep` |

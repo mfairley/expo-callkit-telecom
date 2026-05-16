@@ -15,5 +15,21 @@
   "parametersFormat": "table",
   "indexFormat": "table",
   "entryFileName": "index.md",
-  "fileExtension": ".md"
+  "fileExtension": ".md",
+  "sort": ["source-order"],
+  "categoryOrder": [
+    "Sessions",
+    "Requests",
+    "Reporters",
+    "Fulfillers",
+    "Call Events",
+    "Audio",
+    "Audio Events",
+    "Capture",
+    "VoIP Push",
+    "Hooks",
+    "Permissions",
+    "Core",
+    "*"
+  ]
 }
