@@ -12,3 +12,14 @@ __tests__
 /android/src/test/
 /android/build/
 /example/
+
+# Lockfiles — consumers have their own
+bun.lock
+package-lock.json
+yarn.lock
+
+# Build / tooling configs
+/.eslintrc.js
+/tsconfig.json
+/plugin/tsconfig.json
+/plugin/tsconfig.tsbuildinfo
