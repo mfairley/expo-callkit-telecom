@@ -9,7 +9,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     environment:
-      name: prod
+      name: npm-prod
       url: https://www.npmjs.com/package/expo-callkit-telecom
     permissions:
       contents: read
