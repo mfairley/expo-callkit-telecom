@@ -13,6 +13,8 @@ import type { PushTokenType, VoIPPushToken } from "../Calls.types";
  * On iOS this returns an APNs VoIP token; on Android it returns an FCM token.
  *
  * @returns The current token, or `null` if not yet available.
+ *
+ * @category Hooks
  */
 export function useVoIPPushToken(): VoIPPushToken | null {
   const [token, setToken] = useState<VoIPPushToken | null>(() =>

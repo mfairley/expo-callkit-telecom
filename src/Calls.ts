@@ -98,6 +98,8 @@ import ExpoCallKitTelecomModule from "./ExpoCallKitTelecomModule";
  *   console.log('Active call with:', session.remoteParticipants[0]?.displayName);
  * }
  * ```
+ *
+ * @category Sessions
  */
 export async function getActiveCallSession(): Promise<CallSession | null> {
   const session = await ExpoCallKitTelecomModule.getActiveCallSession();
@@ -124,6 +126,8 @@ export async function getActiveCallSession(): Promise<CallSession | null> {
  * // Later, to unsubscribe:
  * subscription.remove();
  * ```
+ *
+ * @category Sessions
  */
 export function addCallSessionAddedListener(
   listener: (event: CallSessionAddedEvent) => void,
@@ -143,6 +147,8 @@ export function addCallSessionAddedListener(
  *
  * @param listener - Callback invoked when a session is updated.
  * @returns A subscription that can be removed by calling `.remove()`.
+ *
+ * @category Sessions
  */
 export function addCallSessionUpdatedListener(
   listener: (event: CallSessionUpdatedEvent) => void,
@@ -162,6 +168,8 @@ export function addCallSessionUpdatedListener(
  *
  * @param listener - Callback invoked when a session is removed.
  * @returns A subscription that can be removed by calling `.remove()`.
+ *
+ * @category Sessions
  */
 export function addCallSessionRemovedListener(
   listener: (event: CallSessionRemovedEvent) => void,
@@ -270,7 +278,7 @@ export function setAudioSessionPortOverride(enabled: boolean): void {
  * @param listener - Callback invoked when audio session activates.
  * @returns A subscription that can be removed by calling `.remove()`.
  *
- * @category Audio Event Listener
+ * @category Audio Events
  */
 export function addAudioSessionActivatedListener(
   listener: (event: AudioSessionActivatedEvent) => void,
@@ -286,7 +294,7 @@ export function addAudioSessionActivatedListener(
  * @param listener - Callback invoked when audio session deactivates.
  * @returns A subscription that can be removed by calling `.remove()`.
  *
- * @category Audio Event Listener
+ * @category Audio Events
  */
 export function addAudioSessionDeactivatedListener(
   listener: (event: AudioSessionDeactivatedEvent) => void,
@@ -303,7 +311,7 @@ export function addAudioSessionDeactivatedListener(
  * @param listener - Callback invoked when audio route changes.
  * @returns A subscription that can be removed by calling `.remove()`.
  *
- * @category Audio Event Listener
+ * @category Audio Events
  */
 export function addAudioRouteChangedListener(
   listener: (event: AudioRouteChangedEvent) => void,
@@ -328,7 +336,7 @@ export function addAudioRouteChangedListener(
  * @param listener - Callback invoked when a call intent is received.
  * @returns A subscription that can be removed by calling `.remove()`.
  *
- * @category Event Listener
+ * @category Call Events
  */
 export function addCallIntentReceivedListener(
   listener: (event: CallIntentReceivedEvent) => void,
@@ -359,7 +367,7 @@ export function addCallIntentReceivedListener(
  * );
  * ```
  *
- * @category Request
+ * @category Requests
  */
 export async function startOutgoingCall(
   recipient: CallParticipant,
@@ -378,7 +386,7 @@ export async function startOutgoingCall(
  * @param listener - Callback invoked when an outgoing call starts.
  * @returns A subscription that can be removed by calling `.remove()`.
  *
- * @category Event Listener
+ * @category Call Events
  */
 export function addOutgoingCallStartedListener(
   listener: (event: OutgoingCallStartedEvent) => void,
@@ -412,7 +420,7 @@ export function addOutgoingCallStartedListener(
  * });
  * ```
  *
- * @category Reporter
+ * @category Reporters
  */
 export async function reportIncomingCall(
   event: IncomingCallEvent,
@@ -430,7 +438,7 @@ export async function reportIncomingCall(
  * @param listener - Callback invoked when an incoming call is reported.
  * @returns A subscription that can be removed by calling `.remove()`.
  *
- * @category Event Listener
+ * @category Call Events
  */
 export function addIncomingCallReportedListener(
   listener: (event: IncomingCallReportedEvent) => void,
@@ -450,7 +458,7 @@ export function addIncomingCallReportedListener(
  *
  * @param id - The call session ID to answer.
  *
- * @category Request
+ * @category Requests
  */
 export async function answerCall(id: string): Promise<void> {
   await ExpoCallKitTelecomModule.answerCall(id);
@@ -465,7 +473,7 @@ export async function answerCall(id: string): Promise<void> {
  * @param listener - Callback invoked when a call is answered.
  * @returns A subscription that can be removed by calling `.remove()`.
  *
- * @category Event Listener
+ * @category Call Events
  */
 export function addCallAnsweredListener(
   listener: (event: CallAnsweredEvent) => void,
@@ -485,7 +493,7 @@ export function addCallAnsweredListener(
  *
  * @param requestId - The request ID from the CallAnsweredEvent.
  *
- * @category Fulfiller
+ * @category Fulfillers
  */
 export async function fulfillIncomingCallConnected(
   requestId: string,
@@ -505,7 +513,7 @@ export async function fulfillIncomingCallConnected(
  * @param id - The call session ID.
  * @param requestId - The request ID from the CallAnsweredEvent.
  *
- * @category Fulfiller
+ * @category Fulfillers
  */
 export async function failIncomingCallConnected(
   id: string,
@@ -530,7 +538,7 @@ export async function failIncomingCallConnected(
  *
  * @param id - The call session ID.
  *
- * @category Reporter
+ * @category Reporters
  */
 export async function reportOutgoingCallConnected(id: string): Promise<void> {
   await ExpoCallKitTelecomModule.reportOutgoingCallConnected(id);
@@ -549,7 +557,7 @@ export async function reportOutgoingCallConnected(id: string): Promise<void> {
  *
  * @param id - The call session ID to end.
  *
- * @category Request
+ * @category Requests
  */
 export async function endCall(id: string): Promise<void> {
   await ExpoCallKitTelecomModule.endCall(id);
@@ -564,7 +572,7 @@ export async function endCall(id: string): Promise<void> {
  * @param listener - Callback invoked when a call ends.
  * @returns A subscription that can be removed by calling `.remove()`.
  *
- * @category Event Listener
+ * @category Call Events
  */
 export function addCallEndedListener(
   listener: (event: CallEndedEvent) => void,
@@ -590,7 +598,7 @@ export function addCallEndedListener(
  * await reportCallEnded(callId, 'failed');
  * ```
  *
- * @category Reporter
+ * @category Reporters
  */
 export async function reportCallEnded(
   id: string,
@@ -608,7 +616,7 @@ export async function reportCallEnded(
  * @param listener - Callback invoked when a call end is reported.
  * @returns A subscription that can be removed by calling `.remove()`.
  *
- * @category Event Listener
+ * @category Call Events
  */
 export function addReportedCallEndedListener(
   listener: (event: CallReportedEnded) => void,
@@ -629,7 +637,7 @@ export function addReportedCallEndedListener(
  * @param id - The call session ID.
  * @param muted - Whether the microphone should be muted.
  *
- * @category Request
+ * @category Requests
  */
 export async function setMuted(id: string, muted: boolean): Promise<void> {
   await ExpoCallKitTelecomModule.setMuted(id, muted);
@@ -644,7 +652,7 @@ export async function setMuted(id: string, muted: boolean): Promise<void> {
  * @param listener - Callback invoked when set muted action is requested.
  * @returns A subscription that can be removed by calling `.remove()`.
  *
- * @category Event Listener
+ * @category Call Events
  */
 export function addSetMutedActionListener(
   listener: (event: SetMutedActionEvent) => void,
@@ -664,7 +672,7 @@ export function addSetMutedActionListener(
  * @param id - The call session ID.
  * @param enabled - Whether video is enabled.
  *
- * @category Reporter
+ * @category Reporters
  */
 export async function reportVideo(id: string, enabled: boolean): Promise<void> {
   await ExpoCallKitTelecomModule.reportVideo(id, enabled);
@@ -678,7 +686,7 @@ export async function reportVideo(id: string, enabled: boolean): Promise<void> {
  * @param listener - Callback invoked when video state changes.
  * @returns A subscription that can be removed by calling `.remove()`.
  *
- * @category Event Listener
+ * @category Call Events
  */
 export function addVideoChangedListener(
   listener: (event: VideoChangedEvent) => void,
@@ -699,7 +707,7 @@ export function addVideoChangedListener(
  * @param id - The call session ID.
  * @param onHold - Whether the call should be on hold.
  *
- * @category Request
+ * @category Requests
  */
 export async function setHeld(id: string, onHold: boolean): Promise<void> {
   await ExpoCallKitTelecomModule.setHeld(id, onHold);
@@ -714,7 +722,7 @@ export async function setHeld(id: string, onHold: boolean): Promise<void> {
  * @param listener - Callback invoked when set held action is requested.
  * @returns A subscription that can be removed by calling `.remove()`.
  *
- * @category Event Listener
+ * @category Call Events
  */
 export function addSetHeldActionListener(
   listener: (event: SetHeldActionEvent) => void,
@@ -735,7 +743,7 @@ export function addSetHeldActionListener(
  * @param id - The call session ID.
  * @param digits - The DTMF digits to play (0-9, *, #).
  *
- * @category Request
+ * @category Requests
  */
 export async function playDTMF(id: string, digits: string): Promise<void> {
   await ExpoCallKitTelecomModule.playDTMF(id, digits);
@@ -750,7 +758,7 @@ export async function playDTMF(id: string, digits: string): Promise<void> {
  * @param listener - Callback invoked when DTMF tones should be played.
  * @returns A subscription that can be removed by calling `.remove()`.
  *
- * @category Event Listener
+ * @category Call Events
  */
 export function addDTMFListener(
   listener: (event: DTMFEvent) => void,
@@ -839,7 +847,7 @@ export function getVoIPPushToken(): VoIPPushToken | null {
  * });
  * ```
  *
- * @category VoIP Push Event Listener
+ * @category VoIP Push
  */
 export function addVoIPPushTokenUpdatedListener(
   listener: (event: VoIPPushTokenUpdatedEvent) => void,

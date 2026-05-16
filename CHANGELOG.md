@@ -5,6 +5,12 @@ All notable changes to `expo-callkit-telecom` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.5] — 2026-05-16
+
+### Changed
+- API reference page now groups items into 12 themed sections (Sessions, Requests, Reporters, Fulfillers, Call Events, Audio, Audio Events, Capture, VoIP Push, Permissions, Hooks, Core). Added `@category` tags to all exports in `src/Calls.ts` and `src/Calls.types.ts`, including the previously-uncategorized session functions and every type alias.
+- Every interface and type alias now carries a one-line summary, replacing the empty placeholders and the repeated "Base type for all native events with metadata" inherited descriptions on event interfaces.
+
 ## [0.2.4] — 2026-05-16
 
 ### Added
@@ -53,6 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Config plugin: entitlements, background modes, microphone permission, ringtone/dialtone bundling, FCM service registration.
 - CI: trusted publishing on Node 24 / npm 11.
 
+[0.2.5]: https://github.com/mfairley/expo-callkit-telecom/releases/tag/v0.2.5
 [0.2.4]: https://github.com/mfairley/expo-callkit-telecom/releases/tag/v0.2.4
 [0.2.3]: https://github.com/mfairley/expo-callkit-telecom/releases/tag/v0.2.3
 [0.2.2]: https://github.com/mfairley/expo-callkit-telecom/releases/tag/v0.2.2

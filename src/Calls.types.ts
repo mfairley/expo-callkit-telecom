@@ -3,12 +3,20 @@
  *
  * - `"APNS_VOIP"` — Apple Push Notification service VoIP channel (iOS)
  * - `"FCM"` — Firebase Cloud Messaging (Android)
+ *
+ * @category VoIP Push
  */
 export type PushTokenType = "APNS_VOIP" | "FCM";
 
-// Native Event Metadata
+// ============================================================================
+// Native event infrastructure
+// ============================================================================
 
-/** Metadata attached to all native events */
+/**
+ * Metadata attached to every native event.
+ *
+ * @category Core
+ */
 export interface NativeEventMeta {
   /** Whether the event was flushed from queue (true) or sent in real-time (false) */
   flushed: boolean;
@@ -16,12 +24,28 @@ export interface NativeEventMeta {
   timestamp: string;
 }
 
-/** Base type for all native events with metadata */
+/**
+ * Base shape extended by every native event — carries a {@link NativeEventMeta} envelope.
+ *
+ * @category Core
+ */
 export interface NativeEvent {
   meta: NativeEventMeta;
 }
 
-// Call Session
+// ============================================================================
+// Call sessions
+// ============================================================================
+
+/**
+ * Active call as tracked by the module.
+ *
+ * Represents one in-flight call. Mirrors the OS-side `CXCall` (iOS) /
+ * `CallControlScope` (Android) plus app-level state (origin, participants,
+ * incoming-call payload, mute/hold).
+ *
+ * @category Sessions
+ */
 export interface CallSession {
   id: string;
   options: CallOptions;
@@ -35,12 +59,31 @@ export interface CallSession {
   dtmfDigits?: string;
 }
 
+/**
+ * Per-call options set at session start.
+ *
+ * @category Sessions
+ */
 export interface CallOptions {
   hasVideo: boolean;
 }
 
+/**
+ * Where a call session originated.
+ *
+ * - `incoming` — Reported from a VoIP push (or directly via `reportIncomingCall`).
+ * - `outgoingApp` — Started by your app via `startOutgoingCall`.
+ * - `outgoingSystem` — Started by the OS via a call intent (Recents, Siri).
+ *
+ * @category Sessions
+ */
 export type CallSessionOrigin = "incoming" | "outgoingApp" | "outgoingSystem";
 
+/**
+ * Identity for a remote party on a call.
+ *
+ * @category Sessions
+ */
 export interface CallParticipant {
   /** Opaque, stable app identifier for this participant. */
   id: string;
@@ -71,6 +114,8 @@ export interface CallParticipant {
  * - `connected` — Both directions. Media is flowing and the call is active.
  * - `ended` — Both directions. Transient state during teardown before the
  *   session is removed from the store.
+ *
+ * @category Sessions
  */
 export type CallSessionStatus =
   | "requesting"
@@ -79,20 +124,43 @@ export type CallSessionStatus =
   | "connected"
   | "ended";
 
-// Call Session events
+/**
+ * Fired when a new {@link CallSession} is created (outgoing request or incoming report).
+ *
+ * @category Sessions
+ */
 export interface CallSessionAddedEvent extends NativeEvent {
   session: CallSession;
 }
 
+/**
+ * Fired when an existing {@link CallSession}'s state changes (status, mute, hold, etc.).
+ *
+ * @category Sessions
+ */
 export interface CallSessionUpdatedEvent extends NativeEvent {
   session: CallSession;
 }
 
+/**
+ * Fired when a {@link CallSession} is removed after the call has ended and been cleaned up.
+ *
+ * @category Sessions
+ */
 export interface CallSessionRemovedEvent extends NativeEvent {
   id: string;
 }
 
-// Microphone/Camera Permission Status
+// ============================================================================
+// Permissions
+// ============================================================================
+
+/**
+ * Permission status for microphone and camera, reported on {@link AudioSession}
+ * and {@link CaptureSession}.
+ *
+ * @category Permissions
+ */
 export type PermissionStatus =
   | "granted"
   | "denied"
@@ -100,8 +168,16 @@ export type PermissionStatus =
   | "restricted"
   | "unknown";
 
-// Audio Session
+// ============================================================================
+// Audio session
+// ============================================================================
 
+/**
+ * Snapshot of the current audio session, including activation state, route,
+ * and (on iOS) the WebRTC `RTCAudioSession` coordination flags.
+ *
+ * @category Audio
+ */
 export interface AudioSession {
   isActive: boolean;
   /** iOS only: whether the WebRTC RTCAudioSession is active. */
@@ -127,11 +203,21 @@ export interface AudioSession {
   availableRoutes?: AudioPort[];
 }
 
+/**
+ * Currently-selected audio inputs and outputs.
+ *
+ * @category Audio
+ */
 export interface AudioRoute {
   inputs: AudioPort[];
   outputs: AudioPort[];
 }
 
+/**
+ * A single audio input or output (earpiece, speaker, headphones, Bluetooth device, etc.).
+ *
+ * @category Audio
+ */
 export interface AudioPort {
   portType: AudioOutputPortType;
   portName: string;
@@ -141,6 +227,8 @@ export interface AudioPort {
 /**
  * Cross-platform audio output port type identifiers.
  * Both iOS and Android map their native audio device types to these shared values.
+ *
+ * @category Audio
  */
 export type AudioOutputPortType =
   | "builtInReceiver" // Earpiece
@@ -156,40 +244,89 @@ export type AudioOutputPortType =
   | "lineOut" // Line out
   | (string & {}); // Allow other unknown port types
 
-// Audio Session Events
+/**
+ * Brief summary of one call associated with an audio-session activation event.
+ *
+ * @category Audio Events
+ */
 export interface AudioSessionCallInfo {
   id: string;
   status: CallSessionStatus;
 }
 
+/**
+ * Fired when the system activates the audio session for a call.
+ *
+ * @category Audio Events
+ */
 export interface AudioSessionActivatedEvent extends NativeEvent {
   calls: AudioSessionCallInfo[];
 }
 
+/**
+ * Fired when the system deactivates the audio session after a call.
+ *
+ * @category Audio Events
+ */
 export interface AudioSessionDeactivatedEvent extends NativeEvent {
   calls: AudioSessionCallInfo[];
 }
 
+/**
+ * Fired when the active audio route changes (e.g. AirPods connected, speaker toggled).
+ *
+ * @category Audio Events
+ */
 export interface AudioRouteChangedEvent extends NativeEvent {
   currentRoute: AudioRoute;
   /** Available audio output devices. Populated on Android; undefined on iOS. */
   availableRoutes?: AudioPort[];
 }
 
-// Capture Session
+// ============================================================================
+// Capture session (camera)
+// ============================================================================
+
+/**
+ * Snapshot of camera-related state, including permission and (on iOS 16+)
+ * multitasking-camera availability.
+ *
+ * @category Capture
+ */
 export interface CaptureSession {
   cameraPermission: PermissionStatus;
   /** Whether the device supports multitasking camera access (iOS 16+). */
   isMultitaskingCameraAccessSupported?: boolean;
 }
 
-// Call Action events
+// ============================================================================
+// Call action events
+// ============================================================================
+
+/**
+ * Base shape for any event carrying a {@link CallSession.id}.
+ *
+ * @category Call Events
+ */
 export interface CallActionEvent extends NativeEvent {
   id: string;
 }
 
+/**
+ * Fired after `startOutgoingCall`, once the OS has accepted the call request.
+ *
+ * @category Call Events
+ */
 export interface OutgoingCallStartedEvent extends CallActionEvent {}
 
+/**
+ * Payload describing one incoming call.
+ *
+ * Delivered both inside a VoIP push (parsed natively by the module) and on
+ * {@link CallSession.incomingCallEvent} for any incoming-origin session.
+ *
+ * @category VoIP Push
+ */
 export interface IncomingCallEvent {
   /** Unique event identifier (UUID). Used for dedup. */
   eventId: string;
@@ -213,14 +350,34 @@ export interface IncomingCallEvent {
   metadata?: Record<string, unknown>;
 }
 
+/**
+ * Fired after `reportIncomingCall`, once the OS has accepted the incoming-call report.
+ *
+ * @category Call Events
+ */
 export interface IncomingCallReportedEvent extends CallActionEvent {}
 
+/**
+ * Fired when the user answers an incoming call from the system UI.
+ *
+ * @category Call Events
+ */
 export interface CallAnsweredEvent extends CallActionEvent {
   requestId: string;
 }
 
+/**
+ * Fired when the user ends a call from the system UI, or the OS ends the call for any reason.
+ *
+ * @category Call Events
+ */
 export interface CallEndedEvent extends CallActionEvent {}
 
+/**
+ * Reason a call was ended, reported on {@link CallReportedEnded}.
+ *
+ * @category Call Events
+ */
 export type CallEndedReason =
   | "failed"
   | "remoteEnded"
@@ -229,35 +386,85 @@ export type CallEndedReason =
   | "declinedElsewhere"
   | "unknown";
 
+/**
+ * Fired when the app calls `reportCallEnded` to inform the OS the call has ended
+ * externally (e.g. remote hang-up).
+ *
+ * @category Call Events
+ */
 export interface CallReportedEnded extends CallActionEvent {
   reason: CallEndedReason;
 }
+
+/**
+ * Fired when the system requests a mute-state change (e.g. user pressed the
+ * mute button in the CallKit UI). Apply the change to your media connection.
+ *
+ * @category Call Events
+ */
 export interface SetMutedActionEvent extends CallActionEvent {
   isMuted: boolean;
 }
+
+/**
+ * Fired when video state changes on a call.
+ *
+ * @category Call Events
+ */
 export interface VideoChangedEvent extends CallActionEvent {
   hasVideo: boolean;
 }
+
+/**
+ * Fired when the system requests a hold-state change. Apply the change to your media connection.
+ *
+ * @category Call Events
+ */
 export interface SetHeldActionEvent extends CallActionEvent {
   isOnHold: boolean;
 }
+
+/**
+ * Fired when the system requests DTMF tones be played on the call.
+ *
+ * @category Call Events
+ */
 export interface DTMFEvent extends CallActionEvent {
   digits: string;
 }
 
-// Call Intent Events
+// ============================================================================
+// Call intents (iOS Recents, Siri "call X")
+// ============================================================================
 
+/**
+ * Kind of handle attached to a call intent (Recents tap, Siri).
+ *
+ * @category Call Events
+ */
 export type CallIntentHandleType = "phoneNumber" | "email" | "unknown";
 
+/**
+ * Fired when the OS routes a "start call" intent to the app — e.g. the user
+ * tapped a Recents entry or said "call Jane" to Siri.
+ *
+ * @category Call Events
+ */
 export interface CallIntentReceivedEvent extends NativeEvent {
   handle: string;
   handleType: CallIntentHandleType;
   hasVideo: boolean;
 }
 
-// VoIP Push
+// ============================================================================
+// VoIP push
+// ============================================================================
 
-/** A VoIP push token bundled with its type. */
+/**
+ * A VoIP push token bundled with its transport type.
+ *
+ * @category VoIP Push
+ */
 export interface VoIPPushToken {
   /** The VoIP push token string. */
   token: string;
@@ -265,8 +472,11 @@ export interface VoIPPushToken {
   type: PushTokenType;
 }
 
-// VoIP Push Events
-
+/**
+ * Fired when the VoIP push token is received, refreshed, or invalidated.
+ *
+ * @category VoIP Push
+ */
 export interface VoIPPushTokenUpdatedEvent extends NativeEvent {
   /** The VoIP push token string, or undefined if invalidated */
   token?: string;
