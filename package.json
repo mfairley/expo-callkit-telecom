@@ -5,39 +5,52 @@
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
-    "build": "expo-module build",
+    "build": "expo-module build && expo-module build plugin",
     "clean": "expo-module clean",
     "lint": "expo-module lint",
     "test": "expo-module test",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p plugin",
     "prepare": "expo-module prepare",
     "prepublishOnly": "expo-module prepublishOnly",
     "expo-module": "expo-module",
-    "open:ios": "xed example/ios",
-    "open:android": "open -a \"Android Studio\" example/android"
+    "open:ios": "xed example/client/ios",
+    "open:android": "open -a \"Android Studio\" example/client/android"
   },
   "keywords": [
     "react-native",
     "expo",
-    "expo-callkit-telecom",
-    "ExpoCallKitTelecom"
+    "callkit",
+    "telecom",
+    "voip",
+    "calling",
+    "webrtc"
   ],
-  "repository": "",
-  "bugs": {
-    "url": "/issues"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mfairley/expo-callkit-telecom.git"
   },
-  "author": "Michael Fairley <michael@jazmo.ai> ()",
+  "bugs": {
+    "url": "https://github.com/mfairley/expo-callkit-telecom/issues"
+  },
+  "author": {
+    "name": "Michael Fairley",
+    "url": "https://github.com/mfairley"
+  },
   "license": "MIT",
-  "homepage": "#readme",
+  "homepage": "https://github.com/mfairley/expo-callkit-telecom#readme",
   "dependencies": {},
   "devDependencies": {
-    "@types/react": "~19.1.1",
+    "@types/react": "~19.2.14",
     "expo-module-scripts": "^55.0.2",
     "expo": "^55.0.24",
-    "react-native": "0.82.1"
+    "react": "19.2.0",
+    "react-native": "0.83.6"
   },
   "peerDependencies": {
     "expo": "*",
     "react": "*",
-    "react-native": "*"
+    "react-native": "*",
+    "expo-notifications": "*",
+    "@livekit/react-native-webrtc": ">=144.0.0"
   }
 }

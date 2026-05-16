@@ -11,14 +11,16 @@ Pod::Spec.new do |s|
   s.author         = package['author']
   s.homepage       = package['homepage']
   s.platforms      = {
-    :ios => '15.1',
-    :tvos => '15.1'
+    :ios => '16.0'
   }
   s.swift_version  = '5.9'
-  s.source         = { git: '' }
+  s.source         = { git: package['repository']['url'] }
   s.static_framework = true
 
   s.dependency 'ExpoModulesCore'
+  s.dependency 'swift-collections'
+  s.dependency 'WebRTC-SDK'
+  s.dependency 'livekit-react-native-webrtc'
 
   # Swift/Objective-C compatibility
   s.pod_target_xcconfig = {

@@ -16,3 +16,17 @@ android {
     abortOnError false
   }
 }
+
+dependencies {
+  implementation "androidx.core:core-telecom:1.0.1"
+  implementation "com.google.firebase:firebase-messaging:24.1.0"
+
+  // expo-notifications may be included as a source project or as a prebuilt
+  // Maven artifact via Expo's version catalog, depending on the SDK version.
+  def notificationsProject = rootProject.findProject(":expo-notifications")
+  if (notificationsProject != null) {
+    compileOnly notificationsProject
+  } else {
+    compileOnly "host.exp.exponent:expo.modules.notifications:+"
+  }
+}

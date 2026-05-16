@@ -53,5 +53,16 @@ npm-debug.log
 yarn-debug.log
 yarn-error.log
 
+*.tsbuildinfo
+
 # Expo
 .expo/*
+
+# env (allow committing the template)
+.env*
+!.env.example
+
+# Per-account / per-project credentials
+google-services.json
+*.p8
+fcm_key*.json

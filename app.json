@@ -1,0 +1,8 @@
+{
+  "android": {
+    "package": "com.mfairley.expocallkittelecom"
+  },
+  "ios": {
+    "bundleIdentifier": "com.mfairley.expocallkittelecom"
+  }
+}
