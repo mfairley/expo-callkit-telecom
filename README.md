@@ -1,5 +1,12 @@
 # 📞 expo-callkit-telecom
 
+<p>
+  <a href="https://www.npmjs.com/package/expo-callkit-telecom"><img alt="npm version" src="https://img.shields.io/npm/v/expo-callkit-telecom.svg"></a>
+  <a href="https://www.npmjs.com/package/expo-callkit-telecom"><img alt="npm downloads" src="https://img.shields.io/npm/dm/expo-callkit-telecom.svg"></a>
+  <img alt="platform" src="https://img.shields.io/badge/platform-iOS%20%7C%20Android-blue">
+  <img alt="license" src="https://img.shields.io/npm/l/expo-callkit-telecom.svg">
+</p>
+
 > A modern Expo module — written in Swift and Kotlin — that wraps **CallKit** on iOS and **Jetpack Core-Telecom** on Android with API parity. It owns the system call UI, the audio session, and VoIP push — your app owns the media (e.g. LiveKit, plain WebRTC, etc.).
 
 The module is opinionated about *system integration* and unopinionated about *media*. You wire your media library to the events it emits.
@@ -182,6 +189,10 @@ See `src/Calls.ts` for full JSDoc. Main areas:
 - 🍎 **iOS** — requires the `voip` background mode and a VoIP push certificate. Uses CallKit + PushKit + WebRTC's `RTCAudioSession` for manual audio control. Min iOS 15.1.
 - 🤖 **Android** — requires `MANAGE_OWN_CALLS` permission, min SDK 26. Uses `androidx.core:core-telecom`. Incoming calls come via FCM data messages — the config plugin registers `ExpoCallKitTelecomMessagingService` automatically.
 - 🎟️ VoIP push token type is reported as `"APNS_VOIP"` on iOS and `"FCM"` on Android — send both to your backend so it knows which transport to use.
+
+## ⏰ Keeping connections alive in the background
+
+This module hands the OS a CallKit/Telecom call, which keeps the *process* alive during a call — but JS timers (`setInterval`, `setTimeout`) and JS-side network heartbeats are still subject to background throttling once the screen locks. If your media stack needs an app-level heartbeat (e.g. a WebSocket signalling channel) to survive the background, pair this module with [`react-native-nitro-keepalive-timer`](https://www.npmjs.com/package/react-native-nitro-keepalive-timer) to get native timers that fire reliably while a call is active.
 
 ## 🆚 Comparison with `react-native-callkeep`
 
