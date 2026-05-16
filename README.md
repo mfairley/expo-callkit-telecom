@@ -1,12 +1,15 @@
-# 📞 expo-callkit-telecom
+# 📞 expo-callkit-telecom — native calling UI for Expo (CallKit + Jetpack Core-Telecom)
 
 > A modern Expo module — written in Swift and Kotlin — that wraps **CallKit** on iOS and **Jetpack Core-Telecom** on Android with API parity. It owns the system call UI, the audio session, and VoIP push — your app owns the media (e.g. LiveKit, plain WebRTC, etc.).
 
 The module is opinionated about *system integration* and unopinionated about *media*. You wire your media library to the events it emits.
 
+📖 **Full documentation:** [mfairley.github.io/expo-callkit-telecom](https://mfairley.github.io/expo-callkit-telecom/)
+
 <p>
   <a href="https://www.npmjs.com/package/expo-callkit-telecom"><img alt="npm version" src="https://img.shields.io/npm/v/expo-callkit-telecom.svg"></a>
   <a href="https://www.npmjs.com/package/expo-callkit-telecom"><img alt="npm downloads" src="https://img.shields.io/npm/dm/expo-callkit-telecom.svg"></a>
+  <a href="https://mfairley.github.io/expo-callkit-telecom/"><img alt="docs" src="https://img.shields.io/badge/docs-online-blue"></a>
   <img alt="platform" src="https://img.shields.io/badge/platform-iOS%20%7C%20Android-blue">
   <img alt="license" src="https://img.shields.io/npm/l/expo-callkit-telecom">
 </p>

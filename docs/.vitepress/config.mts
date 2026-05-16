@@ -11,6 +11,10 @@ export default defineConfig({
   cleanUrls: true,
   lastUpdated: true,
 
+  sitemap: {
+    hostname: "https://mfairley.github.io/expo-callkit-telecom/",
+  },
+
   head: [
     ["meta", { name: "theme-color", content: "#3c82f6" }],
     [

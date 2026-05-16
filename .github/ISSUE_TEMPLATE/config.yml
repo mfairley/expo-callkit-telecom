@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://mfairley.github.io/expo-callkit-telecom/
+    about: The docs cover install, the config plugin, concepts, the VoIP push payload shape, platform notes, and the full API reference.
+  - name: react-native-callkeep comparison
+    url: https://mfairley.github.io/expo-callkit-telecom/vs-callkeep
+    about: When to pick this module vs callkeep, and migration notes.

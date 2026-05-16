@@ -4,6 +4,13 @@
   "description": "CallKit + Jetpack Core-Telecom for Expo / React Native — native call UI, VoIP push, LiveKit-friendly audio. A modern react-native-callkeep alternative.",
   "main": "build/index.js",
   "types": "build/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./build/index.d.ts",
+      "default": "./build/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "scripts": {
     "build": "expo-module build && expo-module build plugin",
     "clean": "expo-module clean",
@@ -51,7 +58,7 @@
     "url": "https://github.com/mfairley"
   },
   "license": "MIT",
-  "homepage": "https://github.com/mfairley/expo-callkit-telecom#readme",
+  "homepage": "https://mfairley.github.io/expo-callkit-telecom/",
   "dependencies": {},
   "devDependencies": {
     "@types/react": "~19.2.14",

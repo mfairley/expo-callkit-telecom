@@ -5,6 +5,19 @@ All notable changes to `expo-callkit-telecom` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.7] — 2026-05-16
+
+### Added
+- VitePress now emits a `sitemap.xml` on each docs build for better search-engine crawling.
+- Prominent "📖 Full documentation" link near the top of the README, plus a `docs` badge in the badge row.
+- `SECURITY.md` describing how to report vulnerabilities via GitHub Security Advisories.
+- `.github/ISSUE_TEMPLATE/` with bug-report and feature-request templates, plus a `config.yml` that points casual readers at the docs and the callkeep comparison first.
+- `exports` field in `package.json` alongside the existing `main` and `types` (modern dual-export shape; no behavior change for consumers).
+
+### Changed
+- `homepage` field in `package.json` now points at the docs site (`https://mfairley.github.io/expo-callkit-telecom/`) instead of the README anchor — affects the "Homepage" link on npm's package page.
+- README `<h1>` expanded to "expo-callkit-telecom — native calling UI for Expo (CallKit + Jetpack Core-Telecom)" for clearer SEO and first-impression scannability.
+
 ## [0.2.6] — 2026-05-16
 
 ### Changed
@@ -68,6 +81,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Config plugin: entitlements, background modes, microphone permission, ringtone/dialtone bundling, FCM service registration.
 - CI: trusted publishing on Node 24 / npm 11.
 
+[0.2.7]: https://github.com/mfairley/expo-callkit-telecom/releases/tag/v0.2.7
 [0.2.6]: https://github.com/mfairley/expo-callkit-telecom/releases/tag/v0.2.6
 [0.2.5]: https://github.com/mfairley/expo-callkit-telecom/releases/tag/v0.2.5
 [0.2.4]: https://github.com/mfairley/expo-callkit-telecom/releases/tag/v0.2.4
