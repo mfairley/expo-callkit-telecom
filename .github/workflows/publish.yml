@@ -8,6 +8,9 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    environment:
+      name: prod
+      url: https://www.npmjs.com/package/expo-callkit-telecom
     permissions:
       contents: read
       id-token: write # for npm provenance + trusted publishing (OIDC)
