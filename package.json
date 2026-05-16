@@ -1,7 +1,7 @@
 {
   "name": "expo-callkit-telecom",
   "version": "0.2.2",
-  "description": "Expo module wrapping CallKit (iOS) and Jetpack Core-Telecom (Android) with API parity",
+  "description": "CallKit + Jetpack Core-Telecom for Expo / React Native — native call UI, VoIP push, LiveKit-friendly audio. A modern react-native-callkeep alternative.",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
@@ -19,11 +19,21 @@
   "keywords": [
     "react-native",
     "expo",
+    "expo-module",
     "callkit",
+    "callkeep",
     "telecom",
+    "core-telecom",
+    "jetpack",
     "voip",
     "calling",
-    "webrtc"
+    "incoming-call",
+    "webrtc",
+    "livekit",
+    "pushkit",
+    "apns",
+    "fcm",
+    "push-notifications"
   ],
   "repository": {
     "type": "git",

@@ -196,13 +196,5 @@ This module hands the OS a CallKit/Telecom call, which keeps the *process* alive
 
 ## 🆚 Comparison with `react-native-callkeep`
 
-[`react-native-callkeep`](https://github.com/react-native-webrtc/react-native-callkeep) is the long-standing option in this space. Here are some differences with this package:
-
-- **Android backend.** callkeep uses the classic `android.telecom.ConnectionService` (`minSdk 23`). This module uses Jetpack `androidx.core:core-telecom` (`minSdk 26`), the Google-recommended path going forward — it owns the foreground service, the incoming-call notification, and the full-screen intent, so you don't wire any of that up.
-- **Native language.** callkeep is Objective-C + Java. This module is Swift + Kotlin.
-- **VoIP push parsing.** callkeep doesn't parse pushes — you wire up `pushRegistry:didReceiveIncomingPushWithPayload:` (or `react-native-voip-push-notification`) and FCM data handling yourself. This module parses APNs VoIP and FCM payloads natively, before JS is running, so calls report correctly from a terminated state without app-side glue.
-- **Audio session.** callkeep manipulates `AVAudioSession` directly, leaving WebRTC's `RTCAudioSession` to be coordinated by the app. This module integrates with `RTCAudioSession` so manual-audio WebRTC stacks (LiveKit, plain WebRTC) work without extra wiring.
-- **API shape.** callkeep's options are split into `{ ios: {...}, android: {...} }` and several methods are platform-only. This module exposes one typed `CallSession` object and one set of verbs (`request` / `report` / `fulfill`) that work the same on both platforms.
-- **Expo support.** This module is an Expo Module with a config plugin that handles entitlements, background modes, permissions, ringtone bundling, and FCM service registration.
-- **Tested with.** iOS 26 / Android 15, on real devices, with LiveKit as the media transport.
+Short version: this module targets Expo + modern Android (`androidx.core:core-telecom`, `minSdk 26`) + manual-audio WebRTC (LiveKit etc.), with native VoIP push parsing built in. Full side-by-side and migration notes: **[docs/vs-callkeep.md](docs/vs-callkeep.md)**.
 

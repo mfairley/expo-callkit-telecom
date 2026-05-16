@@ -12,6 +12,8 @@ __tests__
 /android/src/test/
 /android/build/
 /example/
+/docs/
+/marketing/
 
 # Lockfiles — consumers have their own
 bun.lock
