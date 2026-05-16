@@ -23,6 +23,21 @@ The module is opinionated about *system integration* and unopinionated about *me
 - 🗣️ **Call intents on iOS** — Recents list, Siri ("call Jane")
 - 🧩 **Typed TypeScript API** with a single `CallSession` object that tracks state across the call lifecycle
 
+## 🧪 Verified against
+
+This release is exercised end-to-end on real devices via the runnable `example/` app.
+
+| | Tested against |
+| --- | --- |
+| iOS | 26 (minimum 15.1) |
+| Android | 15 (minimum API 26) |
+| Expo SDK | 55 |
+| React Native | 0.83 |
+| New Architecture | Yes |
+| Media transport | LiveKit RN SDK |
+
+Each release updates this table — so the recency signal is the version number on npm, not a promise in prose.
+
 ## 📦 Install
 
 ```sh
@@ -196,5 +211,7 @@ This module hands the OS a CallKit/Telecom call, which keeps the *process* alive
 
 ## 🆚 Comparison with `react-native-callkeep`
 
-Short version: this module targets Expo + modern Android (`androidx.core:core-telecom`, `minSdk 26`) + manual-audio WebRTC (LiveKit etc.), with native VoIP push parsing built in. Full side-by-side and migration notes: **[docs/vs-callkeep.md](docs/vs-callkeep.md)**.
+[`react-native-callkeep`](https://github.com/react-native-webrtc/react-native-callkeep) is the long-standing React Native library in this space. `expo-callkit-telecom` solves the same problem but is built on the current generation of platform APIs: Jetpack `androidx.core:core-telecom` on Android, Swift + Kotlin, the Expo Modules API with a config plugin, and `RTCAudioSession` coordination for manual-audio WebRTC stacks like LiveKit. It also parses APNs VoIP and FCM data payloads natively, so the cold-start incoming-call case works without app-side glue.
+
+Full side-by-side, compatibility matrix, and migration notes: **[docs/vs-callkeep.md](docs/vs-callkeep.md)**.
 

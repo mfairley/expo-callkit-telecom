@@ -69,3 +69,8 @@ fcm_key*.json
 
 # Personal / not for publication
 marketing/
+
+# Docs site — generated artifacts
+docs/api/
+docs/.vitepress/cache/
+docs/.vitepress/dist/
