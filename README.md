@@ -26,9 +26,9 @@ The module is opinionated about *system integration* and unopinionated about *me
   <tr>
     <td align="center"><strong>iOS</strong></td>
     <td align="center">
-      <video src="https://github.com/mfairley/expo-callkit-telecom/raw/main/docs/public/outgoing-call-ios.mp4" controls muted playsinline width="200" poster="https://github.com/mfairley/expo-callkit-telecom/raw/main/docs/public/outgoing-call-ios-poster.jpg">
-        <img src="docs/public/outgoing-call-ios-poster.jpg" alt="Outgoing call on iOS" width="200">
-      </video>
+      <a href="https://github.com/mfairley/expo-callkit-telecom/raw/main/docs/public/outgoing-call-ios.mp4" title="Click to watch — outgoing call on iOS">
+        <img src="docs/public/outgoing-call-ios-poster.jpg" alt="Outgoing call on iOS (click to watch)" width="200">
+      </a>
     </td>
     <td align="center"><img src="docs/public/incoming-call-banner-ios.png" alt="Incoming call banner on iOS" width="200"></td>
     <td align="center"><img src="docs/public/incoming-call-fullscreen-ios.png" alt="Incoming call full screen on iOS" width="200"></td>
@@ -36,14 +36,16 @@ The module is opinionated about *system integration* and unopinionated about *me
   <tr>
     <td align="center"><strong>Android</strong></td>
     <td align="center">
-      <video src="https://github.com/mfairley/expo-callkit-telecom/raw/main/docs/public/outgoing-call-android.mp4" controls muted playsinline width="200" poster="https://github.com/mfairley/expo-callkit-telecom/raw/main/docs/public/outgoing-call-android-poster.jpg">
-        <img src="docs/public/outgoing-call-android-poster.jpg" alt="Outgoing call on Android" width="200">
-      </video>
+      <a href="https://github.com/mfairley/expo-callkit-telecom/raw/main/docs/public/outgoing-call-android.mp4" title="Click to watch — outgoing call on Android">
+        <img src="docs/public/outgoing-call-android-poster.jpg" alt="Outgoing call on Android (click to watch)" width="200">
+      </a>
     </td>
     <td align="center"><img src="docs/public/incoming-call-banner-android.png" alt="Incoming call banner on Android" width="200"></td>
     <td align="center"><img src="docs/public/incoming-call-fullscreen-android.png" alt="Incoming call full screen on Android" width="200"></td>
   </tr>
 </table>
+
+<p align="center"><sub>▶︎ Click an outgoing-call thumbnail above to watch the video. Or see the full demo on the <a href="https://mfairley.github.io/expo-callkit-telecom/">docs site</a>.</sub></p>
 
 ## ✨ Features
 
