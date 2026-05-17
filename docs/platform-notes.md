@@ -7,15 +7,15 @@ description: Platform requirements for expo-callkit-telecom — iOS 15.1+ (CallK
 ## iOS
 
 - Requires the `voip` background mode and a VoIP push certificate.
-- Uses CallKit + PushKit + WebRTC's `RTCAudioSession` for manual audio control.
+- Uses [CallKit](https://developer.apple.com/documentation/callkit) + [PushKit](https://developer.apple.com/documentation/pushkit) + [WebRTC](https://webrtc.org/)'s `RTCAudioSession` for manual audio control.
 - Minimum iOS version: **15.1**.
 
 ## Android
 
-- Requires `MANAGE_OWN_CALLS` permission.
+- Requires [`MANAGE_OWN_CALLS`](https://developer.android.com/reference/android/Manifest.permission#MANAGE_OWN_CALLS) permission.
 - Minimum SDK: **26** (Android 8.0).
-- Uses `androidx.core:core-telecom`.
-- Incoming calls come via FCM data messages — the config plugin registers `ExpoCallKitTelecomMessagingService` automatically.
+- Uses [`androidx.core:core-telecom`](https://developer.android.com/jetpack/androidx/releases/core-telecom).
+- Incoming calls come via [FCM](https://firebase.google.com/docs/cloud-messaging) data messages — the config plugin registers `ExpoCallKitTelecomMessagingService` automatically.
 
 ## VoIP push token types
 

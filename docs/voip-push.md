@@ -4,7 +4,7 @@ description: VoIP push payload shape for expo-callkit-telecom — APNs VoIP (Pus
 
 # VoIP push payload
 
-When the OS delivers a VoIP push (PushKit on iOS, an FCM data message on Android), the module parses the payload natively — before JS is running — and reports the call to the OS.
+When the OS delivers a VoIP push ([PushKit](https://developer.apple.com/documentation/pushkit) on iOS, an [FCM](https://firebase.google.com/docs/cloud-messaging) data message on Android), the module parses the payload natively — before JS is running — and reports the call to the OS.
 
 The event itself is the same shape on both transports. All keys are camelCase:
 
@@ -44,7 +44,7 @@ Both transports wrap the event under an `incomingCall` key, just at different la
 
 ## iOS — APNs VoIP push
 
-Send a VoIP push (`apns-push-type: voip`) whose dictionary payload nests the event under `incomingCall`:
+Send a [VoIP push through APNs](https://developer.apple.com/documentation/usernotifications/sending-voip-pushes) (`apns-push-type: voip`) whose dictionary payload nests the event under `incomingCall`:
 
 ```jsonc
 {
@@ -65,4 +65,4 @@ FCM data values must be strings, so JSON-encode the inner event and put it under
 }
 ```
 
-Non-`incomingCall` data messages are forwarded to `expo-notifications`'s service for normal handling.
+Non-`incomingCall` data messages are forwarded to [`expo-notifications`](https://docs.expo.dev/versions/latest/sdk/notifications/)'s service for normal handling.

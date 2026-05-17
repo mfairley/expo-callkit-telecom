@@ -14,6 +14,37 @@ The module is opinionated about *system integration* and unopinionated about *me
   <img alt="license" src="https://img.shields.io/npm/l/expo-callkit-telecom">
 </p>
 
+<h2 align="center">📱 See it in action</h2>
+
+<table align="center">
+  <tr>
+    <th></th>
+    <th align="center">Outgoing call</th>
+    <th align="center">Incoming (banner)</th>
+    <th align="center">Incoming (full screen)</th>
+  </tr>
+  <tr>
+    <td align="center"><strong>iOS</strong></td>
+    <td align="center">
+      <video src="https://github.com/mfairley/expo-callkit-telecom/raw/main/docs/public/outgoing-call-ios.mp4" controls muted playsinline width="200" poster="https://github.com/mfairley/expo-callkit-telecom/raw/main/docs/public/outgoing-call-ios-poster.jpg">
+        <img src="docs/public/outgoing-call-ios-poster.jpg" alt="Outgoing call on iOS" width="200">
+      </video>
+    </td>
+    <td align="center"><img src="docs/public/incoming-call-banner-ios.png" alt="Incoming call banner on iOS" width="200"></td>
+    <td align="center"><img src="docs/public/incoming-call-fullscreen-ios.png" alt="Incoming call full screen on iOS" width="200"></td>
+  </tr>
+  <tr>
+    <td align="center"><strong>Android</strong></td>
+    <td align="center">
+      <video src="https://github.com/mfairley/expo-callkit-telecom/raw/main/docs/public/outgoing-call-android.mp4" controls muted playsinline width="200" poster="https://github.com/mfairley/expo-callkit-telecom/raw/main/docs/public/outgoing-call-android-poster.jpg">
+        <img src="docs/public/outgoing-call-android-poster.jpg" alt="Outgoing call on Android" width="200">
+      </video>
+    </td>
+    <td align="center"><img src="docs/public/incoming-call-banner-android.png" alt="Incoming call banner on Android" width="200"></td>
+    <td align="center"><img src="docs/public/incoming-call-fullscreen-android.png" alt="Incoming call full screen on Android" width="200"></td>
+  </tr>
+</table>
+
 ## ✨ Features
 
 - 📱 **Native calling UI** — CallKit on iOS, Telecom incoming-call notification + full-screen intent on Android

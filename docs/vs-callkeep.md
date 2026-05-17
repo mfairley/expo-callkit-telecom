@@ -10,13 +10,13 @@ This page exists so you can pick the right one without reading both source trees
 
 ## What this module is built on
 
-- **Jetpack `androidx.core:core-telecom`** on Android — Google's recommended path for VoIP apps, introduced in 2023. It owns the foreground service, the incoming-call notification, and the full-screen intent on your behalf.
-- **Swift on iOS, Kotlin on Android** — the current first-party languages for each platform.
-- **The Expo Modules API**, distributed with a config plugin — handles entitlements, background modes, microphone permission, ringtone bundling, and FCM service registration at prebuild time.
-- **WebRTC's `RTCAudioSession` in manual-audio mode** — the coordination model that LiveKit's RN SDK (and most modern WebRTC stacks) expect.
-- **Native VoIP push parsing**, on both APNs VoIP (PushKit) and FCM data messages — incoming calls are reported to the OS before JS is running.
+- **[Jetpack `androidx.core:core-telecom`](https://developer.android.com/jetpack/androidx/releases/core-telecom)** on Android — Google's recommended path for VoIP apps, introduced in 2023. It owns the foreground service, the incoming-call notification, and the full-screen intent on your behalf.
+- **[Swift](https://www.swift.org/) on iOS, [Kotlin](https://kotlinlang.org/) on Android** — the current first-party languages for each platform.
+- **The [Expo Modules API](https://docs.expo.dev/modules/overview/)**, distributed with an [Expo config plugin](https://docs.expo.dev/config-plugins/introduction/) — handles entitlements, background modes, microphone permission, ringtone bundling, and FCM service registration at prebuild time.
+- **[WebRTC](https://webrtc.org/)'s `RTCAudioSession` in manual-audio mode** — the coordination model that [LiveKit](https://livekit.io/)'s [RN SDK](https://github.com/livekit/client-sdk-react-native) (and most modern WebRTC stacks) expect.
+- **Native VoIP push parsing**, on both [APNs VoIP](https://developer.apple.com/documentation/usernotifications/sending-voip-pushes) ([PushKit](https://developer.apple.com/documentation/pushkit)) and [FCM](https://firebase.google.com/docs/cloud-messaging) data messages — incoming calls are reported to the OS before JS is running.
 
-`react-native-callkeep` came out of an earlier era of the platform: Android's `android.telecom.ConnectionService` (the API that `core-telecom` wraps and supersedes), Objective-C + Java, and a design that leaves push parsing and `RTCAudioSession` coordination to the app.
+`react-native-callkeep` came out of an earlier era of the platform: Android's [`android.telecom.ConnectionService`](https://developer.android.com/reference/android/telecom/ConnectionService) (the API that `core-telecom` wraps and supersedes), Objective-C + Java, and a design that leaves push parsing and `RTCAudioSession` coordination to the app.
 
 ## Verified against
 
@@ -60,7 +60,7 @@ Pick **`react-native-callkeep`** if:
 
 ## On the iOS audio session specifically
 
-The iOS audio session is the part of CallKit integration that breaks most often, because two parties (`AVAudioSession` and WebRTC's `RTCAudioSession`) both want to own the route, and CallKit will deactivate the session in ways that can surprise both of them. `expo-callkit-telecom` coordinates with `RTCAudioSession` in manual-audio mode, which is what LiveKit (and any "I want to control the mic/speaker myself" WebRTC stack) expects. This is the integration that tends to cost teams the most calendar time when they roll it themselves.
+The iOS audio session is the part of [CallKit](https://developer.apple.com/documentation/callkit) integration that breaks most often, because two parties ([`AVAudioSession`](https://developer.apple.com/documentation/avfaudio/avaudiosession) and WebRTC's `RTCAudioSession`) both want to own the route, and CallKit will deactivate the session in ways that can surprise both of them. `expo-callkit-telecom` coordinates with `RTCAudioSession` in manual-audio mode, which is what LiveKit (and any "I want to control the mic/speaker myself" WebRTC stack) expects. This is the integration that tends to cost teams the most calendar time when they roll it themselves.
 
 ## On VoIP push specifically
 

@@ -16,6 +16,9 @@
       "ffmpeg": {
         "pkg-path": "ffmpeg"
       },
+      "imagemagick": {
+        "pkg-path": "imagemagick"
+      },
       "ktfmt": {
         "pkg-path": "ktfmt"
       },
@@ -358,6 +361,136 @@
         "lib": "/nix/store/c3q3hnqsp4b0l7fjx4q6ns4idw9pn6kv-ffmpeg-8.0.1-lib",
         "man": "/nix/store/x5pnf13md9xa4841ckdp9p0n192rlbwn-ffmpeg-8.0.1-man",
         "out": "/nix/store/26mpi27i6pj69dpk33fq61yhh46qi2id-ffmpeg-8.0.1"
+      },
+      "system": "x86_64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "imagemagick",
+      "broken": false,
+      "derivation": "/nix/store/jh4g5ls1ddmq83lrrhwxqj9968v4yjrd-imagemagick-7.1.2-19.drv",
+      "description": "Software suite to create, edit, compose, or convert bitmap images",
+      "install_id": "imagemagick",
+      "license": "Apache-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=da5ad661ba4e5ef59ba743f0d112cbc30e474f32",
+      "name": "imagemagick-7.1.2-19",
+      "pname": "imagemagick",
+      "rev": "da5ad661ba4e5ef59ba743f0d112cbc30e474f32",
+      "rev_count": 995699,
+      "rev_date": "2026-05-10T19:57:52Z",
+      "scrape_date": "2026-05-13T08:52:56.546401Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "7.1.2-19",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "dev": "/nix/store/5aqqkdj4f73paq3g2j4w4hzzr761ikxl-imagemagick-7.1.2-19-dev",
+        "doc": "/nix/store/nbsq26ilsasp7q30yi1a0wg7gphas4yd-imagemagick-7.1.2-19-doc",
+        "out": "/nix/store/wpzigcx7gxjlwwp37zarhvd3bqa80b8c-imagemagick-7.1.2-19"
+      },
+      "system": "aarch64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "imagemagick",
+      "broken": false,
+      "derivation": "/nix/store/vc837yidc1ymahd5hr61707rq1hi2jqz-imagemagick-7.1.2-19.drv",
+      "description": "Software suite to create, edit, compose, or convert bitmap images",
+      "install_id": "imagemagick",
+      "license": "Apache-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=da5ad661ba4e5ef59ba743f0d112cbc30e474f32",
+      "name": "imagemagick-7.1.2-19",
+      "pname": "imagemagick",
+      "rev": "da5ad661ba4e5ef59ba743f0d112cbc30e474f32",
+      "rev_count": 995699,
+      "rev_date": "2026-05-10T19:57:52Z",
+      "scrape_date": "2026-05-13T09:22:35.353971Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "7.1.2-19",
+      "outputs_to_install": [
+        "out",
+        "out"
+      ],
+      "outputs": {
+        "dev": "/nix/store/cbix8xr3hapw0gxnb9frs03pmk4qwg03-imagemagick-7.1.2-19-dev",
+        "doc": "/nix/store/0n8il9kwbiz0iv7v5i2lqgq0b74ysabl-imagemagick-7.1.2-19-doc",
+        "out": "/nix/store/fwzsk0k739njgrc6akds0gb9dlf35c7j-imagemagick-7.1.2-19"
+      },
+      "system": "aarch64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "imagemagick",
+      "broken": false,
+      "derivation": "/nix/store/dl3c6xd0cshqyj6mvn8aasrrrkdhylpq-imagemagick-7.1.2-19.drv",
+      "description": "Software suite to create, edit, compose, or convert bitmap images",
+      "install_id": "imagemagick",
+      "license": "Apache-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=da5ad661ba4e5ef59ba743f0d112cbc30e474f32",
+      "name": "imagemagick-7.1.2-19",
+      "pname": "imagemagick",
+      "rev": "da5ad661ba4e5ef59ba743f0d112cbc30e474f32",
+      "rev_count": 995699,
+      "rev_date": "2026-05-10T19:57:52Z",
+      "scrape_date": "2026-05-13T09:55:38.333616Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "7.1.2-19",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "dev": "/nix/store/lgixyf4qclp6bcm6z76ffpjmzlhvxa4l-imagemagick-7.1.2-19-dev",
+        "doc": "/nix/store/8lbb1bszlsbva3j87k24vmgznd8lnfzr-imagemagick-7.1.2-19-doc",
+        "out": "/nix/store/gg9cl0mxb1imfdswpfizk5dj7zrxrwh6-imagemagick-7.1.2-19"
+      },
+      "system": "x86_64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "imagemagick",
+      "broken": false,
+      "derivation": "/nix/store/dkpz2fsmrf98gdcgiqv2yym6ydy9bkiw-imagemagick-7.1.2-19.drv",
+      "description": "Software suite to create, edit, compose, or convert bitmap images",
+      "install_id": "imagemagick",
+      "license": "Apache-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=da5ad661ba4e5ef59ba743f0d112cbc30e474f32",
+      "name": "imagemagick-7.1.2-19",
+      "pname": "imagemagick",
+      "rev": "da5ad661ba4e5ef59ba743f0d112cbc30e474f32",
+      "rev_count": 995699,
+      "rev_date": "2026-05-10T19:57:52Z",
+      "scrape_date": "2026-05-13T10:36:23.797133Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "7.1.2-19",
+      "outputs_to_install": [
+        "out",
+        "out"
+      ],
+      "outputs": {
+        "dev": "/nix/store/hn59rqwq5j0z7l13yns903l6ibylwz1g-imagemagick-7.1.2-19-dev",
+        "doc": "/nix/store/ynxxq1m4789p30i1g8qjlkm9lp80h9c0-imagemagick-7.1.2-19-doc",
+        "out": "/nix/store/pjcg9z9zj4hqa7y8jjgsx06rc31q6r8s-imagemagick-7.1.2-19"
       },
       "system": "x86_64-linux",
       "group": "toplevel",

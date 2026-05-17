@@ -3,7 +3,7 @@ import type { ExpoConfig } from "expo/config";
 const BUNDLE_ID = "com.example.expocallkittelecom";
 
 const config: ExpoConfig = {
-  name: "expo-callkit-telecom-example",
+  name: "CallKit Tel",
   slug: "expo-callkit-telecom-example",
   version: "1.0.0",
   orientation: "portrait",
@@ -16,11 +16,13 @@ const config: ExpoConfig = {
   ios: {
     supportsTablet: true,
     bundleIdentifier: BUNDLE_ID,
+    icon: "./assets/app-icon.icon",
   },
   android: {
     adaptiveIcon: {
       foregroundImage: "./assets/adaptive-icon.png",
-      backgroundColor: "#ffffff",
+      backgroundImage: "./assets/adaptive-icon.png",
+      monochromeImage: "./assets/adaptive-icon.png",
     },
     predictiveBackGestureEnabled: false,
     package: BUNDLE_ID,

@@ -16,6 +16,8 @@ export default defineConfig({
   },
 
   head: [
+    ["link", { rel: "icon", type: "image/png", href: "/expo-callkit-telecom/favicon.png" }],
+    ["link", { rel: "apple-touch-icon", href: "/expo-callkit-telecom/apple-touch-icon.png" }],
     ["meta", { name: "theme-color", content: "#3c82f6" }],
     [
       "meta",
@@ -64,6 +66,23 @@ export default defineConfig({
     [
       "meta",
       {
+        property: "og:image",
+        content: "https://mfairley.github.io/expo-callkit-telecom/og-image.png",
+      },
+    ],
+    ["meta", { property: "og:image:width", content: "1200" }],
+    ["meta", { property: "og:image:height", content: "630" }],
+    [
+      "meta",
+      {
+        property: "og:image:alt",
+        content:
+          "expo-callkit-telecom — Native calling UI for Expo (CallKit · Core-Telecom · VoIP push · LiveKit-friendly)",
+      },
+    ],
+    [
+      "meta",
+      {
         name: "twitter:card",
         content: "summary_large_image",
       },
@@ -83,9 +102,30 @@ export default defineConfig({
           "Native call UI, VoIP push, LiveKit-friendly audio. A modern react-native-callkeep alternative.",
       },
     ],
+    [
+      "meta",
+      {
+        name: "twitter:image",
+        content: "https://mfairley.github.io/expo-callkit-telecom/og-image.png",
+      },
+    ],
+    [
+      "meta",
+      {
+        name: "twitter:image:alt",
+        content:
+          "expo-callkit-telecom — Native calling UI for Expo (CallKit · Core-Telecom · VoIP push · LiveKit-friendly)",
+      },
+    ],
   ],
 
   themeConfig: {
+    logo: {
+      light: "/app-icon-squircle-light.png",
+      dark: "/app-icon-squircle-dark.png",
+      alt: "expo-callkit-telecom",
+    },
+
     nav: [
       { text: "Guide", link: "/getting-started" },
       { text: "API", link: "/api/" },
