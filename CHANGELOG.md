@@ -5,6 +5,14 @@ All notable changes to `expo-callkit-telecom` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.3](https://github.com/mfairley/expo-callkit-telecom/compare/v0.3.2...v0.3.3) (2026-05-17)
+
+
+### Documentation
+
+* add Cloudflare Web Analytics ([36906d7](https://github.com/mfairley/expo-callkit-telecom/commit/36906d752aeef82639e50343a6a4044dc3ebb422))
+* tighten doc wording ([b841554](https://github.com/mfairley/expo-callkit-telecom/commit/b841554ddf7a8393d0818d3b5af9ed065628605e))
+
 ## [0.3.2](https://github.com/mfairley/expo-callkit-telecom/compare/v0.3.1...v0.3.2) (2026-05-17)
 
 
