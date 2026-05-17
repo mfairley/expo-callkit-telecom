@@ -5,6 +5,13 @@ All notable changes to `expo-callkit-telecom` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.4](https://github.com/mfairley/expo-callkit-telecom/compare/v0.3.3...v0.3.4) (2026-05-17)
+
+
+### Documentation
+
+* recommend wav audio format ([cdeed74](https://github.com/mfairley/expo-callkit-telecom/commit/cdeed74f38ee3072d6ab1382c8ec8ab019fa9403))
+
 ## [0.3.3](https://github.com/mfairley/expo-callkit-telecom/compare/v0.3.2...v0.3.3) (2026-05-17)
 
 
