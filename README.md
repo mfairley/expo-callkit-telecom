@@ -61,7 +61,7 @@ The module is opinionated about *system integration* and unopinionated about *me
 
 ## 🧪 Verified against
 
-This release is exercised end-to-end on real devices via the runnable `example/` app.
+This library was tested end-to-end on real devices via the runnable `example/` app.
 
 | | Tested against |
 | --- | --- |

@@ -46,7 +46,7 @@ The runnable `example/` app drives the system call UI on both platforms — outg
 
 ## Verified against
 
-This release is exercised end-to-end on real devices via the runnable `example/` app.
+This library was tested end-to-end on real devices via the runnable `example/` app.
 
 | | Tested against |
 | --- | --- |

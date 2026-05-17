@@ -20,7 +20,7 @@ This page exists so you can pick the right one without reading both source trees
 
 ## Verified against
 
-This release of `expo-callkit-telecom` is exercised end-to-end on real devices in the runnable `example/` app:
+This library was tested end-to-end on real devices via the runnable `example/` app.
 
 | | Tested against |
 | --- | --- |
@@ -48,7 +48,7 @@ This release of `expo-callkit-telecom` is exercised end-to-end on real devices i
 
 Pick **`expo-callkit-telecom`** if:
 
-- You're on Expo (managed or with EAS) and want the config-plugin experience for entitlements, background modes, permissions, ringtone bundling, and FCM service registration.
+- You're on Expo and want the config-plugin experience for entitlements, background modes, permissions, ringtone bundling, and FCM service registration.
 - You're on a manual-audio WebRTC stack — LiveKit, plain WebRTC, or anything else that wants to own its `RTCAudioSession`.
 - You want incoming calls to work from a terminated state without writing your own PushKit / FCM glue.
 - iOS 15.1+ and Android API 26+ cover your install base.
@@ -60,7 +60,7 @@ Pick **`react-native-callkeep`** if:
 
 ## On the iOS audio session specifically
 
-The iOS audio session is the part of [CallKit](https://developer.apple.com/documentation/callkit) integration that breaks most often, because two parties ([`AVAudioSession`](https://developer.apple.com/documentation/avfaudio/avaudiosession) and WebRTC's `RTCAudioSession`) both want to own the route, and CallKit will deactivate the session in ways that can surprise both of them. `expo-callkit-telecom` coordinates with `RTCAudioSession` in manual-audio mode, which is what LiveKit (and any "I want to control the mic/speaker myself" WebRTC stack) expects. This is the integration that tends to cost teams the most calendar time when they roll it themselves.
+The iOS audio session is the part of [CallKit](https://developer.apple.com/documentation/callkit) integration that breaks most often, because two parties ([`AVAudioSession`](https://developer.apple.com/documentation/avfaudio/avaudiosession) and WebRTC's `RTCAudioSession`) both want to own the route, and CallKit will deactivate the session in ways that can surprise both of them. `expo-callkit-telecom` coordinates with `RTCAudioSession` in manual-audio mode, which is what LiveKit (and any "I want to control the mic/speaker myself" WebRTC stack) expects.
 
 ## On VoIP push specifically
 
@@ -75,5 +75,3 @@ If you're moving from callkeep to this module:
 3. Replace `RNCallKeep.displayIncomingCall(...)` with `Calls.reportIncomingCall(...)` — though if your push parsing has moved into the module, you usually don't need to call this from JS at all.
 4. Replace the various `RNCallKeep.addEventListener('answerCall', ...)` calls with `Calls.addCallAnsweredListener(...)` and friends.
 5. Remove your PushKit / FCM glue.
-
-The most subtle change is on iOS: because callkeep leaves `RTCAudioSession` alone, apps in that stack tend to grow workarounds for audio-routing edge cases. With `expo-callkit-telecom` those workarounds are usually wrong for the new coordination model and should be removed before testing.
