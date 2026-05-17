@@ -36,12 +36,12 @@ With custom ringtone and dialtone:
         "expo-callkit-telecom",
         {
           "sounds": [
-            "./assets/sounds/ringtone.caf",
-            "./assets/sounds/dialtone.caf"
+            "./assets/sounds/ringtone.wav",
+            "./assets/sounds/dialtone.wav"
           ],
-          "defaultRingtoneIos": "ringtone.caf",
-          "defaultRingtoneAndroid": "ringtone.caf",
-          "defaultDialtone": "dialtone.caf",
+          "defaultRingtoneIos": "ringtone.wav",
+          "defaultRingtoneAndroid": "ringtone.wav",
+          "defaultDialtone": "dialtone.wav",
           "incomingCallTimeout": 45,
           "outgoingCallTimeout": 60,
           "microphonePermission": "$(PRODUCT_NAME) needs the microphone to make calls."

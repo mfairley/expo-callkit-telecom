@@ -39,7 +39,7 @@ export type ExpoCallKitTelecomPluginProps = {
   /**
    * Array of sound file paths (relative to project root) to include in the app.
    * These files will be copied into the iOS bundle and Android raw resources.
-   * Supported formats: .caf, .aiff, .wav (max 30 seconds for CallKit ringtones).
+   * .wav recommended
    * @platform ios
    * @platform android
    */
