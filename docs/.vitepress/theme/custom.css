@@ -1,0 +1,23 @@
+/* On small viewports, put the hero text above the phone video (default
+   VitePress order is image-then-text). Also size `.image-container` to its
+   content — the default 320x320 square is shorter than our portrait video,
+   which previously overflowed into the text block. */
+@media (max-width: 959px) {
+  .VPHero .main {
+    order: 1;
+  }
+
+  .VPHero .image {
+    order: 2;
+    margin: 24px -24px 0;
+  }
+
+  .VPHero .image-container {
+    width: auto;
+    height: auto;
+  }
+
+  .VPHero .image-bg {
+    display: none;
+  }
+}

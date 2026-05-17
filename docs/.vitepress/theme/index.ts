@@ -2,6 +2,7 @@ import DefaultTheme from "vitepress/theme";
 import { h } from "vue";
 import DemoGrid from "./DemoGrid.vue";
 import HeroDemo from "./HeroDemo.vue";
+import "./custom.css";
 
 export default {
   extends: DefaultTheme,
