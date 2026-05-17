@@ -37,16 +37,20 @@
     "callkeep",
     "telecom",
     "core-telecom",
-    "jetpack",
     "voip",
-    "calling",
     "incoming-call",
+    "native-calling",
     "webrtc",
     "livekit",
     "pushkit",
     "apns",
     "fcm",
-    "push-notifications"
+    "expo-callkit",
+    "expo-telecom",
+    "expo-voip",
+    "react-native-callkit",
+    "react-native-telecom",
+    "react-native-voip"
   ],
   "repository": {
     "type": "git",

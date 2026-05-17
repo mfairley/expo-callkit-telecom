@@ -1,0 +1,22 @@
+# expo-callkit-telecom
+
+> CallKit and Core-Telecom for React Native and Expo — VoIP push, incoming call UI, LiveKit-friendly audio. A modern react-native-callkeep alternative.
+
+`expo-callkit-telecom` is an Expo module (Swift + Kotlin) that wraps Apple's CallKit on iOS and Jetpack `androidx.core-telecom` on Android behind one typed TypeScript API. The module owns the system call UI, the audio session, and VoIP push parsing; the host app owns the media (LiveKit, plain WebRTC, etc.). An Expo config plugin handles entitlements, background modes, microphone permission, ringtone bundling, and FCM service registration at prebuild time.
+
+Minimum platforms: iOS 15.1, Android API 26. Verified end-to-end on iOS 26 + Android 15 with Expo SDK 55, React Native 0.83, the New Architecture enabled, and the LiveKit React Native SDK.
+
+## Docs
+
+- [Overview](https://mfairley.github.io/expo-callkit-telecom/): features, supported versions, and authoritative references for CallKit, Core-Telecom, VoIP push, and LiveKit.
+- [Getting started](https://mfairley.github.io/expo-callkit-telecom/getting-started): install, config plugin setup, the request/report/fulfill mental model, and VoIP push registration.
+- [VoIP push payload](https://mfairley.github.io/expo-callkit-telecom/voip-push): canonical `IncomingCallEvent` shape, APNs VoIP (PushKit) payload, and FCM data-message payload.
+- [Platform notes](https://mfairley.github.io/expo-callkit-telecom/platform-notes): iOS / Android requirements and background keep-alive guidance.
+- [vs react-native-callkeep](https://mfairley.github.io/expo-callkit-telecom/vs-callkeep): side-by-side comparison, when to pick which, and migration sketch.
+- [API reference](https://mfairley.github.io/expo-callkit-telecom/api/): generated TypeScript reference for sessions, requests, reporters, fulfillers, events, audio, capture, VoIP push, hooks, and permissions.
+
+## Source
+
+- [GitHub repository](https://github.com/mfairley/expo-callkit-telecom)
+- [npm package](https://www.npmjs.com/package/expo-callkit-telecom)
+- License: MIT

@@ -1,6 +1,6 @@
-# 📞 expo-callkit-telecom — native calling UI for Expo (CallKit + Jetpack Core-Telecom)
+# 📞 expo-callkit-telecom — CallKit & Core-Telecom for React Native + Expo (with VoIP push)
 
-> A modern Expo module — written in Swift and Kotlin — that wraps **CallKit** on iOS and **Jetpack Core-Telecom** on Android with API parity. It owns the system call UI, the audio session, and VoIP push — your app owns the media (e.g. LiveKit, plain WebRTC, etc.).
+> An Expo module — written in Swift and Kotlin — that wraps **CallKit** on iOS and **Jetpack Core-Telecom** on Android with API parity. It owns the system call UI, the audio session, and VoIP push — your app owns the media (LiveKit, plain WebRTC, etc.).
 
 The module is opinionated about *system integration* and unopinionated about *media*. You wire your media library to the events it emits.
 
@@ -49,7 +49,7 @@ The module is opinionated about *system integration* and unopinionated about *me
 
 ## ✨ Features
 
-- 📱 **Native calling UI** — CallKit on iOS, Telecom incoming-call notification + full-screen intent on Android
+- 📱 **Native calling UI** — CallKit on iOS, Core-Telecom incoming-call notification + full-screen intent on Android
 - 🔔 **VoIP notifications** — APNs VoIP on iOS (PushKit), FCM data messages on Android, parsed natively so calls can be reported from a terminated state
 - 🎵 **Ringtones** — system ringtone for incoming calls, configurable via the config plugin
 - ☎️ **Dialtone** — looped dialtone with fade-in for outgoing calls, configurable
@@ -61,16 +61,7 @@ The module is opinionated about *system integration* and unopinionated about *me
 
 ## 🧪 Verified against
 
-This library was tested end-to-end on real devices via the runnable `example/` app.
-
-| | Tested against |
-| --- | --- |
-| iOS | 26 (minimum 15.1) |
-| Android | 15 (minimum API 26) |
-| Expo SDK | 55 |
-| React Native | 0.83 |
-| New Architecture | Yes |
-| Media transport | LiveKit RN SDK |
+Tested end-to-end on real devices via the runnable `example/` app. Full compatibility matrix: **[Verified against](https://mfairley.github.io/expo-callkit-telecom/verified-against)**.
 
 ## 📦 Install
 
@@ -241,11 +232,11 @@ See `src/Calls.ts` for full JSDoc. Main areas:
 
 ## ⏰ Keeping connections alive in the background
 
-This module hands the OS a CallKit/Telecom call, which keeps the *process* alive during a call — but JS timers (`setInterval`, `setTimeout`) and JS-side network heartbeats are still subject to background throttling once the screen locks. If your media stack needs an app-level heartbeat (e.g. a WebSocket signalling channel) to survive the background, pair this module with [`react-native-nitro-keepalive-timer`](https://www.npmjs.com/package/react-native-nitro-keepalive-timer) to get native timers that fire reliably while a call is active.
+This module hands the OS a CallKit/Core-Telecom call, which keeps the *process* alive during a call — but JS timers (`setInterval`, `setTimeout`) and JS-side network heartbeats are still subject to background throttling once the screen locks. If your media stack needs an app-level heartbeat (e.g. a WebSocket signalling channel) to survive the background, pair this module with [`react-native-nitro-keepalive-timer`](https://www.npmjs.com/package/react-native-nitro-keepalive-timer) to get native timers that fire reliably while a call is active.
 
 ## 🆚 Comparison with `react-native-callkeep`
 
-[`react-native-callkeep`](https://github.com/react-native-webrtc/react-native-callkeep) is the long-standing React Native library in this space. `expo-callkit-telecom` solves the same problem but is built on the current generation of platform APIs: Jetpack `androidx.core:core-telecom` on Android, Swift + Kotlin, the Expo Modules API with a config plugin, and `RTCAudioSession` coordination for manual-audio WebRTC stacks like LiveKit. It also parses APNs VoIP and FCM data payloads natively, so the cold-start incoming-call case works without app-side glue.
+[`react-native-callkeep`](https://github.com/react-native-webrtc/react-native-callkeep) is the long-standing React Native library in this space. `expo-callkit-telecom` solves the same problem but is built on the current generation of platform APIs: CallKit on iOS, Jetpack `androidx.core:core-telecom` on Android, Swift + Kotlin, the Expo Modules API with a config plugin, and `RTCAudioSession` coordination for manual-audio WebRTC stacks like LiveKit. It also parses APNs VoIP and FCM data payloads natively, so the cold-start incoming-call case works without app-side glue.
 
 Full side-by-side, compatibility matrix, and migration notes: **[docs/vs-callkeep.md](docs/vs-callkeep.md)**.
 

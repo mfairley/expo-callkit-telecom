@@ -6,8 +6,8 @@ description: Install expo-callkit-telecom in an Expo or React Native app — con
 
 `expo-callkit-telecom` is opinionated about *system integration* and unopinionated about *media*. You wire your media library ([LiveKit](https://livekit.io/), plain [WebRTC](https://webrtc.org/), etc.) to the events the module emits.
 
-::: info Verified against
-This release is exercised end-to-end on real devices in the `example/` app against **[iOS](https://developer.apple.com/ios/) 26**, **[Android](https://developer.android.com/about/versions) 15**, **[Expo SDK 55](https://expo.dev/changelog/sdk-55)**, **[React Native](https://reactnative.dev/) 0.83**, and the **[LiveKit RN SDK](https://github.com/livekit/client-sdk-react-native)**, with the **[New Architecture](https://reactnative.dev/architecture/landing-page)** enabled. Minimum supported versions: iOS 15.1, Android API 26.
+::: info Tested against
+This library has been exercised end-to-end on real devices in the `example/` app. See [Verified against](./verified-against) for the full compatibility matrix (iOS, Android, Expo SDK, React Native, media transport).
 :::
 
 ## Install

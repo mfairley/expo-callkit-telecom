@@ -12,13 +12,19 @@
             v-if="item.type === 'video'"
             :src="withBase(item.src)"
             :poster="item.poster ? withBase(item.poster) : undefined"
+            :aria-label="`${item.label} on ${row.platform} — expo-callkit-telecom demo`"
             autoplay
             muted
             loop
             playsinline
             preload="metadata"
           />
-          <img v-else :src="withBase(item.src)" :alt="item.label" loading="lazy" />
+          <img
+            v-else
+            :src="withBase(item.src)"
+            :alt="`${item.label} on ${row.platform} — expo-callkit-telecom demo`"
+            loading="lazy"
+          />
           <figcaption>{{ item.label }}</figcaption>
         </figure>
       </div>

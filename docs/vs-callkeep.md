@@ -6,8 +6,6 @@ description: expo-callkit-telecom vs react-native-callkeep — architectural dif
 
 [`react-native-callkeep`](https://github.com/react-native-webrtc/react-native-callkeep) is the long-standing React Native library for putting a native call UI on top of WebRTC. `expo-callkit-telecom` solves the same problem but is built on the *current* generation of platform APIs that Apple, Google, and Expo are pushing forward.
 
-This page exists so you can pick the right one without reading both source trees. The differences below are **architectural** — they're load-bearing decisions about which platform APIs to build on, not feature-flags that could be added later.
-
 ## What this module is built on
 
 - **[Jetpack `androidx.core:core-telecom`](https://developer.android.com/jetpack/androidx/releases/core-telecom)** on Android — Google's recommended path for VoIP apps, introduced in 2023. It owns the foreground service, the incoming-call notification, and the full-screen intent on your behalf.
@@ -18,18 +16,7 @@ This page exists so you can pick the right one without reading both source trees
 
 `react-native-callkeep` came out of an earlier era of the platform: Android's [`android.telecom.ConnectionService`](https://developer.android.com/reference/android/telecom/ConnectionService) (the API that `core-telecom` wraps and supersedes), Objective-C + Java, and a design that leaves push parsing and `RTCAudioSession` coordination to the app.
 
-## Verified against
-
-This library was tested end-to-end on real devices via the runnable `example/` app.
-
-| | Tested against |
-| --- | --- |
-| iOS | 26 (minimum 15.1) |
-| Android | 15 (minimum API 26) |
-| Expo SDK | 55 |
-| React Native | 0.83 |
-| New Architecture | Yes |
-| Media transport | LiveKit RN SDK |
+See [Verified against](./verified-against) for the platform versions this library has been tested against.
 
 ## Side-by-side
 

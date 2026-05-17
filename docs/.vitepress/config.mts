@@ -3,7 +3,7 @@ import { defineConfig } from "vitepress";
 export default defineConfig({
   title: "expo-callkit-telecom",
   description:
-    "CallKit + Jetpack Core-Telecom for Expo / React Native — native call UI, VoIP push, LiveKit-friendly audio. A modern react-native-callkeep alternative.",
+    "CallKit and Core-Telecom for React Native and Expo — VoIP push, incoming call UI, LiveKit-friendly audio. A modern react-native-callkeep alternative.",
 
   // Served from https://mfairley.github.io/expo-callkit-telecom/
   base: "/expo-callkit-telecom/",
@@ -22,14 +22,6 @@ export default defineConfig({
     [
       "meta",
       {
-        name: "keywords",
-        content:
-          "expo callkit, expo voip, react native callkit, react native callkeep alternative, jetpack core-telecom, react native incoming call, expo livekit calling, pushkit expo, fcm voip android react native, expo native module callkit",
-      },
-    ],
-    [
-      "meta",
-      {
         property: "og:type",
         content: "website",
       },
@@ -45,7 +37,7 @@ export default defineConfig({
       "meta",
       {
         property: "og:title",
-        content: "expo-callkit-telecom — CallKit + Jetpack Core-Telecom for Expo",
+        content: "expo-callkit-telecom — CallKit & Core-Telecom for React Native + Expo",
       },
     ],
     [
@@ -53,7 +45,7 @@ export default defineConfig({
       {
         property: "og:description",
         content:
-          "Native call UI, VoIP push, LiveKit-friendly audio. A modern react-native-callkeep alternative.",
+          "VoIP push, incoming call UI, LiveKit-friendly audio. A modern react-native-callkeep alternative.",
       },
     ],
     [
@@ -77,7 +69,7 @@ export default defineConfig({
       {
         property: "og:image:alt",
         content:
-          "expo-callkit-telecom — Native calling UI for Expo (CallKit · Core-Telecom · VoIP push · LiveKit-friendly)",
+          "expo-callkit-telecom — CallKit & Core-Telecom for React Native and Expo (VoIP push · LiveKit-friendly audio)",
       },
     ],
     [
@@ -91,7 +83,7 @@ export default defineConfig({
       "meta",
       {
         name: "twitter:title",
-        content: "expo-callkit-telecom — CallKit + Jetpack Core-Telecom for Expo",
+        content: "expo-callkit-telecom — CallKit & Core-Telecom for React Native + Expo",
       },
     ],
     [
@@ -99,7 +91,7 @@ export default defineConfig({
       {
         name: "twitter:description",
         content:
-          "Native call UI, VoIP push, LiveKit-friendly audio. A modern react-native-callkeep alternative.",
+          "VoIP push, incoming call UI, LiveKit-friendly audio. A modern react-native-callkeep alternative.",
       },
     ],
     [
@@ -114,8 +106,29 @@ export default defineConfig({
       {
         name: "twitter:image:alt",
         content:
-          "expo-callkit-telecom — Native calling UI for Expo (CallKit · Core-Telecom · VoIP push · LiveKit-friendly)",
+          "expo-callkit-telecom — CallKit & Core-Telecom for React Native and Expo (VoIP push · LiveKit-friendly audio)",
       },
+    ],
+    [
+      "script",
+      { type: "application/ld+json" },
+      JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "SoftwareSourceCode",
+        name: "expo-callkit-telecom",
+        description:
+          "CallKit and Core-Telecom for React Native and Expo — VoIP push, incoming call UI, LiveKit-friendly audio. A modern react-native-callkeep alternative.",
+        codeRepository: "https://github.com/mfairley/expo-callkit-telecom",
+        url: "https://mfairley.github.io/expo-callkit-telecom/",
+        license: "https://opensource.org/licenses/MIT",
+        programmingLanguage: ["TypeScript", "Swift", "Kotlin"],
+        runtimePlatform: ["iOS", "Android", "React Native", "Expo"],
+        author: {
+          "@type": "Person",
+          name: "Michael Fairley",
+          url: "https://github.com/mfairley",
+        },
+      }),
     ],
   ],
 
@@ -146,6 +159,7 @@ export default defineConfig({
         items: [
           { text: "VoIP push payload", link: "/voip-push" },
           { text: "Platform notes", link: "/platform-notes" },
+          { text: "Verified against", link: "/verified-against" },
           { text: "API reference", link: "/api/" },
         ],
       },
