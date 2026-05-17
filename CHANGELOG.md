@@ -5,6 +5,18 @@ All notable changes to `expo-callkit-telecom` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0](https://github.com/mfairley/expo-callkit-telecom/compare/v0.2.8...v0.3.0) (2026-05-17)
+
+
+### Features
+
+* **docs:** branded icon, demo gallery, social cards, SEO outlinks ([33f8bc3](https://github.com/mfairley/expo-callkit-telecom/commit/33f8bc3d6329fe04ca6f76eca452b481941fef64))
+
+
+### Documentation
+
+* **readme:** swap &lt;video&gt; for clickable poster &lt;img&gt; ([584dd1f](https://github.com/mfairley/expo-callkit-telecom/commit/584dd1f717766536e87c3b4cef3196412e606045))
+
 ## [0.2.8](https://github.com/mfairley/expo-callkit-telecom/compare/v0.2.7...v0.2.8) (2026-05-16)
 
 
