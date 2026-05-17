@@ -130,6 +130,14 @@ export default defineConfig({
         },
       }),
     ],
+    [
+      "script",
+      {
+        defer: "",
+        src: "https://static.cloudflareinsights.com/beacon.min.js",
+        "data-cf-beacon": '{"token": "d527696ea03b4d9db1f8a65b45b6734f"}',
+      },
+    ],
   ],
 
   themeConfig: {
