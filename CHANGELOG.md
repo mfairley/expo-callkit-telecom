@@ -5,6 +5,13 @@ All notable changes to `expo-callkit-telecom` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.5](https://github.com/mfairley/expo-callkit-telecom/compare/v0.3.4...v0.3.5) (2026-05-18)
+
+
+### Documentation
+
+* clean up keywords ([92560e1](https://github.com/mfairley/expo-callkit-telecom/commit/92560e1549e1367d5ac2619769ee41a2054df4f1))
+
 ## [0.3.4](https://github.com/mfairley/expo-callkit-telecom/compare/v0.3.3...v0.3.4) (2026-05-17)
 
 
