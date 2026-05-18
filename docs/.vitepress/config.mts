@@ -1,8 +1,8 @@
 import { defineConfig } from "vitepress";
 
-// GitHub Pages serves under /expo-callkit-telecom/; Cloudflare Workers serves
-// from /. Set DOCS_BASE=/ when building for Cloudflare.
-const base = process.env.DOCS_BASE ?? "/expo-callkit-telecom/";
+// Cloudflare Workers serves from /; GitHub Pages serves under
+// /expo-callkit-telecom/ and sets DOCS_BASE accordingly in CI.
+const base = process.env.DOCS_BASE ?? "/";
 
 export default defineConfig({
   title: "expo-callkit-telecom",

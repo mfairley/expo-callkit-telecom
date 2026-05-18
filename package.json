@@ -28,8 +28,8 @@
     "docs:dev": "bun run docs:api && vitepress dev docs",
     "docs:build": "bun run docs:api && vitepress build docs",
     "docs:preview": "vitepress preview docs",
-    "deploy": "DOCS_BASE=/ bun run docs:build && wrangler deploy",
-    "preview": "DOCS_BASE=/ bun run docs:build && wrangler dev"
+    "deploy": "bun run docs:build && wrangler deploy",
+    "preview": "bun run docs:build && wrangler dev"
   },
   "keywords": [
     "callkit",

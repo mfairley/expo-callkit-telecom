@@ -29,6 +29,8 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Build docs site
+        env:
+          DOCS_BASE: /expo-callkit-telecom/
         run: bun run docs:build
 
       - uses: actions/configure-pages@v6
