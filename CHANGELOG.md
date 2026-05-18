@@ -5,6 +5,20 @@ All notable changes to `expo-callkit-telecom` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.6](https://github.com/mfairley/expo-callkit-telecom/compare/v0.3.5...v0.3.6) (2026-05-18)
+
+
+### Bug Fixes
+
+* change default docs path ([86aaeca](https://github.com/mfairley/expo-callkit-telecom/commit/86aaeca957ba1369151a00a98f5f1754a6daf0ae))
+* site paths for cloudflare pages ([23b0c92](https://github.com/mfairley/expo-callkit-telecom/commit/23b0c92dc8e192f4a0aa6412db7958dc6c05a169))
+
+
+### Documentation
+
+* add cloudflare wrangler config ([d12f3fb](https://github.com/mfairley/expo-callkit-telecom/commit/d12f3fb297bbad871e1beb2f7dc2be5d7ed58095))
+* redirect github pages to cloudflare ([806f52c](https://github.com/mfairley/expo-callkit-telecom/commit/806f52c17e3df4d49c160092d6edc4831a8f60ee))
+
 ## [0.3.5](https://github.com/mfairley/expo-callkit-telecom/compare/v0.3.4...v0.3.5) (2026-05-18)
 
 
