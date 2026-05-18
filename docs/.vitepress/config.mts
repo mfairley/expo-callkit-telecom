@@ -23,6 +23,14 @@ export default defineConfig({
     ["link", { rel: "apple-touch-icon", href: `${base}apple-touch-icon.png` }],
     ["meta", { name: "theme-color", content: "#3c82f6" }],
     [
+      "script",
+      {
+        defer: "",
+        src: "https://static.cloudflareinsights.com/beacon.min.js",
+        "data-cf-beacon": '{"token": "6cc3f5012232464fa4876d020cadc147"}',
+      },
+    ],
+    [
       "meta",
       {
         property: "og:type",
