@@ -1,4 +1,4 @@
-name: Deploy docs
+name: Redirect GitHub Pages to mfairley.com
 
 on:
   push:
@@ -21,23 +21,17 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      - name: Build docs site
-        env:
-          DOCS_BASE: /expo-callkit-telecom/
-        run: bun run docs:build
+      - name: Stage redirect site
+        run: |
+          mkdir -p _site
+          cp .github/pages-redirect.html _site/index.html
+          cp .github/pages-redirect.html _site/404.html
 
       - uses: actions/configure-pages@v6
 
       - uses: actions/upload-pages-artifact@v5
         with:
-          path: docs/.vitepress/dist
+          path: _site
 
   deploy:
     needs: build

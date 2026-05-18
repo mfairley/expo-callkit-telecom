@@ -15,7 +15,7 @@ export default defineConfig({
   lastUpdated: true,
 
   sitemap: {
-    hostname: "https://mfairley.github.io/expo-callkit-telecom/",
+    hostname: "https://expo-callkit-telecom.mfairley.com/",
   },
 
   head: [
@@ -55,14 +55,14 @@ export default defineConfig({
       "meta",
       {
         property: "og:url",
-        content: "https://mfairley.github.io/expo-callkit-telecom/",
+        content: "https://expo-callkit-telecom.mfairley.com/",
       },
     ],
     [
       "meta",
       {
         property: "og:image",
-        content: "https://mfairley.github.io/expo-callkit-telecom/og-image.png",
+        content: "https://expo-callkit-telecom.mfairley.com/og-image.png",
       },
     ],
     ["meta", { property: "og:image:width", content: "1200" }],
@@ -101,7 +101,7 @@ export default defineConfig({
       "meta",
       {
         name: "twitter:image",
-        content: "https://mfairley.github.io/expo-callkit-telecom/og-image.png",
+        content: "https://expo-callkit-telecom.mfairley.com/og-image.png",
       },
     ],
     [
@@ -122,7 +122,7 @@ export default defineConfig({
         description:
           "CallKit and Core-Telecom for React Native and Expo — VoIP push, incoming call UI, LiveKit-friendly audio. A modern react-native-callkeep alternative.",
         codeRepository: "https://github.com/mfairley/expo-callkit-telecom",
-        url: "https://mfairley.github.io/expo-callkit-telecom/",
+        url: "https://expo-callkit-telecom.mfairley.com/",
         license: "https://opensource.org/licenses/MIT",
         programmingLanguage: ["TypeScript", "Swift", "Kotlin"],
         runtimePlatform: ["iOS", "Android", "React Native", "Expo"],

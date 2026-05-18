@@ -4,12 +4,12 @@
 
 The module is opinionated about *system integration* and unopinionated about *media*. You wire your media library to the events it emits.
 
-📖 **Full documentation:** [mfairley.github.io/expo-callkit-telecom](https://mfairley.github.io/expo-callkit-telecom/)
+📖 **Full documentation:** [expo-callkit-telecom.mfairley.com](https://expo-callkit-telecom.mfairley.com/)
 
 <p>
   <a href="https://www.npmjs.com/package/expo-callkit-telecom"><img alt="npm version" src="https://img.shields.io/npm/v/expo-callkit-telecom.svg"></a>
   <a href="https://www.npmjs.com/package/expo-callkit-telecom"><img alt="npm downloads" src="https://img.shields.io/npm/dm/expo-callkit-telecom.svg"></a>
-  <a href="https://mfairley.github.io/expo-callkit-telecom/"><img alt="docs" src="https://img.shields.io/badge/docs-online-blue"></a>
+  <a href="https://expo-callkit-telecom.mfairley.com/"><img alt="docs" src="https://img.shields.io/badge/docs-online-blue"></a>
   <img alt="platform" src="https://img.shields.io/badge/platform-iOS%20%7C%20Android-blue">
   <img alt="license" src="https://img.shields.io/npm/l/expo-callkit-telecom">
 </p>
@@ -45,7 +45,7 @@ The module is opinionated about *system integration* and unopinionated about *me
   </tr>
 </table>
 
-<p align="center"><sub>▶︎ Click an outgoing-call thumbnail above to watch the video. Or see the full demo on the <a href="https://mfairley.github.io/expo-callkit-telecom/">docs site</a>.</sub></p>
+<p align="center"><sub>▶︎ Click an outgoing-call thumbnail above to watch the video. Or see the full demo on the <a href="https://expo-callkit-telecom.mfairley.com/">docs site</a>.</sub></p>
 
 ## ✨ Features
 
@@ -61,7 +61,7 @@ The module is opinionated about *system integration* and unopinionated about *me
 
 ## 🧪 Verified against
 
-Tested end-to-end on real devices via the runnable `example/` app. Full compatibility matrix: **[Verified against](https://mfairley.github.io/expo-callkit-telecom/verified-against)**.
+Tested end-to-end on real devices via the runnable `example/` app. Full compatibility matrix: **[Verified against](https://expo-callkit-telecom.mfairley.com/verified-against)**.
 
 ## 📦 Install
 

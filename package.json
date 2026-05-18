@@ -56,7 +56,7 @@
     "url": "https://github.com/mfairley"
   },
   "license": "MIT",
-  "homepage": "https://mfairley.github.io/expo-callkit-telecom/",
+  "homepage": "https://expo-callkit-telecom.mfairley.com/",
   "dependencies": {},
   "devDependencies": {
     "@types/react": "~19.2.14",

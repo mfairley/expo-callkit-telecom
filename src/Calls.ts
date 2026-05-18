@@ -434,7 +434,7 @@ export function addOutgoingCallStartedListener(
  *
  * @see {@link addIncomingCallReportedListener} — fires once the OS accepts the report.
  * @see {@link addCallAnsweredListener} — fires when the user answers from the system UI.
- * @see [VoIP push payload shape](https://mfairley.github.io/expo-callkit-telecom/voip-push) — the payload that drives this when called from a native push handler.
+ * @see [VoIP push payload shape](https://expo-callkit-telecom.mfairley.com/voip-push) — the payload that drives this when called from a native push handler.
  *
  * @category Reporters
  */
