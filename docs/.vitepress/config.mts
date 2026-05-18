@@ -1,12 +1,15 @@
 import { defineConfig } from "vitepress";
 
+// GitHub Pages serves under /expo-callkit-telecom/; Cloudflare Workers serves
+// from /. Set DOCS_BASE=/ when building for Cloudflare.
+const base = process.env.DOCS_BASE ?? "/expo-callkit-telecom/";
+
 export default defineConfig({
   title: "expo-callkit-telecom",
   description:
     "CallKit and Core-Telecom for React Native and Expo — VoIP push, incoming call UI, LiveKit-friendly audio. A modern react-native-callkeep alternative.",
 
-  // Served from https://mfairley.github.io/expo-callkit-telecom/
-  base: "/expo-callkit-telecom/",
+  base,
 
   cleanUrls: true,
   lastUpdated: true,
@@ -16,8 +19,8 @@ export default defineConfig({
   },
 
   head: [
-    ["link", { rel: "icon", type: "image/png", href: "/expo-callkit-telecom/favicon.png" }],
-    ["link", { rel: "apple-touch-icon", href: "/expo-callkit-telecom/apple-touch-icon.png" }],
+    ["link", { rel: "icon", type: "image/png", href: `${base}favicon.png` }],
+    ["link", { rel: "apple-touch-icon", href: `${base}apple-touch-icon.png` }],
     ["meta", { name: "theme-color", content: "#3c82f6" }],
     [
       "meta",
