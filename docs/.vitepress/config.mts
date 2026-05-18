@@ -196,7 +196,7 @@ export default defineConfig({
 
     footer: {
       message: "Released under the MIT License.",
-      copyright: "© 2026 Michael Fairley",
+      copyright: '© 2026 <a href="https://mfairley.com" target="_blank" rel="noopener">Michael Fairley</a>',
     },
   },
 });
