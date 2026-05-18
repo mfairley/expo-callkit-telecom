@@ -27,7 +27,9 @@
     "docs:api": "typedoc",
     "docs:dev": "bun run docs:api && vitepress dev docs",
     "docs:build": "bun run docs:api && vitepress build docs",
-    "docs:preview": "vitepress preview docs"
+    "docs:preview": "vitepress preview docs",
+    "deploy": "bun run docs:build && wrangler deploy",
+    "preview": "bun run docs:build && wrangler dev"
   },
   "keywords": [
     "callkit",
@@ -64,7 +66,8 @@
     "react-native": "0.83.6",
     "typedoc": "^0.28.19",
     "typedoc-plugin-markdown": "^4.11.0",
-    "vitepress": "^1.6.4"
+    "vitepress": "^1.6.4",
+    "wrangler": "^4.92.0"
   },
   "peerDependencies": {
     "expo": "*",
