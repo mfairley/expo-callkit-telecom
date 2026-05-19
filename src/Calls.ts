@@ -421,14 +421,15 @@ export function addOutgoingCallStartedListener(
  * @example
  * ```typescript
  * await reportIncomingCall({
- *   callId: '550e8400-e29b-41d4-a716-446655440000',
+ *   eventId: '550e8400-e29b-41d4-a716-446655440000',
+ *   serverCallId: 'srv-abc-123',
  *   caller: {
  *     id: 'user-456',
  *     displayName: 'Jane Smith',
  *     phoneNumber: '+1234567890',
  *   },
  *   hasVideo: false,
- *   startedAt: new Date(),
+ *   startedAt: '2026-01-15T19:42:11.000Z',
  * });
  * ```
  *
