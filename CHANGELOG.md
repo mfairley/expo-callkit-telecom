@@ -5,6 +5,19 @@ All notable changes to `expo-callkit-telecom` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.7](https://github.com/mfairley/expo-callkit-telecom/compare/v0.3.6...v0.3.7) (2026-05-19)
+
+
+### Bug Fixes
+
+* **docs:** update reportIncomingCall example in docs ([9505fa2](https://github.com/mfairley/expo-callkit-telecom/commit/9505fa266d7a2e55f5cf330a6452f95567da90b6))
+
+
+### Documentation
+
+* add cloudlfare web analytics script ([b558818](https://github.com/mfairley/expo-callkit-telecom/commit/b5588184f96fdab25baba05479f4d5f9cbecd07a))
+* add personal website link to docs footer ([e4cee8e](https://github.com/mfairley/expo-callkit-telecom/commit/e4cee8e1d0438abffe7cb393b6b0a4d1c367e3d6))
+
 ## [0.3.6](https://github.com/mfairley/expo-callkit-telecom/compare/v0.3.5...v0.3.6) (2026-05-18)
 
 
