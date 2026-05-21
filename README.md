@@ -27,21 +27,21 @@ The module is opinionated about *system integration* and unopinionated about *me
     <td align="center"><strong>iOS</strong></td>
     <td align="center">
       <a href="https://github.com/mfairley/expo-callkit-telecom/raw/main/docs/public/outgoing-call-ios.mp4" title="Click to watch — outgoing call on iOS">
-        <img src="docs/public/outgoing-call-ios-poster.jpg" alt="Outgoing call on iOS (click to watch)" width="200">
+        <img src="docs/public/outgoing-call-ios-poster.webp" alt="Outgoing call on iOS (click to watch)" width="200">
       </a>
     </td>
-    <td align="center"><img src="docs/public/incoming-call-banner-ios.png" alt="Incoming call banner on iOS" width="200"></td>
-    <td align="center"><img src="docs/public/incoming-call-fullscreen-ios.png" alt="Incoming call full screen on iOS" width="200"></td>
+    <td align="center"><img src="docs/public/incoming-call-banner-ios.webp" alt="Incoming call banner on iOS" width="200"></td>
+    <td align="center"><img src="docs/public/incoming-call-fullscreen-ios.webp" alt="Incoming call full screen on iOS" width="200"></td>
   </tr>
   <tr>
     <td align="center"><strong>Android</strong></td>
     <td align="center">
       <a href="https://github.com/mfairley/expo-callkit-telecom/raw/main/docs/public/outgoing-call-android.mp4" title="Click to watch — outgoing call on Android">
-        <img src="docs/public/outgoing-call-android-poster.jpg" alt="Outgoing call on Android (click to watch)" width="200">
+        <img src="docs/public/outgoing-call-android-poster.webp" alt="Outgoing call on Android (click to watch)" width="200">
       </a>
     </td>
-    <td align="center"><img src="docs/public/incoming-call-banner-android.png" alt="Incoming call banner on Android" width="200"></td>
-    <td align="center"><img src="docs/public/incoming-call-fullscreen-android.png" alt="Incoming call full screen on Android" width="200"></td>
+    <td align="center"><img src="docs/public/incoming-call-banner-android.webp" alt="Incoming call banner on Android" width="200"></td>
+    <td align="center"><img src="docs/public/incoming-call-fullscreen-android.webp" alt="Incoming call full screen on Android" width="200"></td>
   </tr>
 </table>
 
