@@ -5,6 +5,15 @@ All notable changes to `expo-callkit-telecom` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.8](https://github.com/mfairley/expo-callkit-telecom/compare/v0.3.7...v0.3.8) (2026-05-21)
+
+
+### Bug Fixes
+
+* **docs:** further reduce image sizes ([23b21c9](https://github.com/mfairley/expo-callkit-telecom/commit/23b21c9b5d2be0458c19d80952f9daac6f1a5f2d))
+* **docs:** reduce image sizes and fix accessibility issues ([4c7db67](https://github.com/mfairley/expo-callkit-telecom/commit/4c7db67b29120424d00bf21a4be4437d8178e804))
+* **docs:** update readme image references ([eb67ba1](https://github.com/mfairley/expo-callkit-telecom/commit/eb67ba1aabad4451d11898784abe5f5bcfbe7046))
+
 ## [0.3.7](https://github.com/mfairley/expo-callkit-telecom/compare/v0.3.6...v0.3.7) (2026-05-19)
 
 
