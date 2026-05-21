@@ -2,7 +2,7 @@
   <div class="hero-demo">
     <video
       class="hero-demo__video"
-      :poster="withBase('/outgoing-call-ios-poster.jpg')"
+      :poster="withBase('/outgoing-call-ios-poster.webp')"
       autoplay
       muted
       loop

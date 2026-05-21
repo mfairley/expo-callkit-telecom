@@ -2,6 +2,14 @@
 layout: home
 description: CallKit and Core-Telecom for React Native and Expo — VoIP push, incoming call UI, LiveKit-friendly audio. A modern react-native-callkeep alternative.
 
+# Preload the LCP candidate (hero video poster) so Lighthouse sees it early.
+head:
+  - - link
+    - rel: preload
+      as: image
+      href: /outgoing-call-ios-poster.webp
+      fetchpriority: high
+
 hero:
   name: expo-callkit-telecom
   text: CallKit & Core-Telecom for React Native + Expo

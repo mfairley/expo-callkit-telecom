@@ -167,8 +167,8 @@ export default defineConfig({
 
   themeConfig: {
     logo: {
-      light: "/app-icon-squircle-light.png",
-      dark: "/app-icon-squircle-dark.png",
+      light: "/app-icon-squircle-light.webp",
+      dark: "/app-icon-squircle-dark.webp",
       alt: "expo-callkit-telecom",
     },
 
