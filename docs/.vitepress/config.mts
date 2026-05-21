@@ -4,6 +4,9 @@ import { defineConfig } from "vitepress";
 // /expo-callkit-telecom/ and sets DOCS_BASE accordingly in CI.
 const base = process.env.DOCS_BASE ?? "/";
 
+const siteUrl = "https://expo-callkit-telecom.mfairley.com";
+const ogImage = `${siteUrl}/og-image.png`;
+
 export default defineConfig({
   title: "expo-callkit-telecom",
   description:
@@ -15,7 +18,18 @@ export default defineConfig({
   lastUpdated: true,
 
   sitemap: {
-    hostname: "https://expo-callkit-telecom.mfairley.com/",
+    hostname: `${siteUrl}/`,
+  },
+
+  transformPageData(pageData) {
+    const canonicalUrl = `${siteUrl}/${pageData.relativePath}`
+      .replace(/index\.md$/, "")
+      .replace(/\.md$/, "");
+    pageData.frontmatter.head ??= [];
+    pageData.frontmatter.head.push([
+      "link",
+      { rel: "canonical", href: canonicalUrl },
+    ]);
   },
 
   head: [
@@ -63,14 +77,14 @@ export default defineConfig({
       "meta",
       {
         property: "og:url",
-        content: "https://expo-callkit-telecom.mfairley.com/",
+        content: `${siteUrl}/`,
       },
     ],
     [
       "meta",
       {
         property: "og:image",
-        content: "https://expo-callkit-telecom.mfairley.com/og-image.png",
+        content: ogImage,
       },
     ],
     ["meta", { property: "og:image:width", content: "1200" }],
@@ -109,7 +123,7 @@ export default defineConfig({
       "meta",
       {
         name: "twitter:image",
-        content: "https://expo-callkit-telecom.mfairley.com/og-image.png",
+        content: ogImage,
       },
     ],
     [
@@ -130,7 +144,7 @@ export default defineConfig({
         description:
           "CallKit and Core-Telecom for React Native and Expo — VoIP push, incoming call UI, LiveKit-friendly audio. A modern react-native-callkeep alternative.",
         codeRepository: "https://github.com/mfairley/expo-callkit-telecom",
-        url: "https://expo-callkit-telecom.mfairley.com/",
+        url: `${siteUrl}/`,
         license: "https://opensource.org/licenses/MIT",
         programmingLanguage: ["TypeScript", "Swift", "Kotlin"],
         runtimePlatform: ["iOS", "Android", "React Native", "Expo"],
