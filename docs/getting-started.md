@@ -44,6 +44,7 @@ With custom ringtone and dialtone:
           "defaultDialtone": "dialtone.wav",
           "incomingCallTimeout": 45,
           "outgoingCallTimeout": 60,
+          "fulfillAnswerCallTimeout": 30,
           "microphonePermission": "$(PRODUCT_NAME) needs the microphone to make calls."
         }
       ]

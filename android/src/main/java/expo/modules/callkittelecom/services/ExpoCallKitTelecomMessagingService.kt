@@ -19,15 +19,17 @@ import org.json.JSONObject
  * by the existing notification delegate via [super], and call payloads are routed directly to
  * Telecom.
  *
- * Wire format (matches example/server/lib/fcm.ts): data["messageType"] = "incoming_call"
- * data["incoming_call"] = JSON string of the IncomingCallEvent (camelCase)
+ * Wire format (matches example/server/lib/fcm.ts): data["messageType"] = "incomingCall"
+ * data["incomingCall"] = JSON string of the IncomingCallEvent (camelCase). The snake_case envelope
+ * (messageType/key "incoming_call") is also accepted for backwards compatibility.
  */
 class ExpoCallKitTelecomMessagingService : ExpoFirebaseMessagingService() {
     companion object {
         private const val TAG = "ExpoCallKitTelecom.FCM"
         private const val KEY_MESSAGE_TYPE = "messageType"
-        private const val MESSAGE_TYPE_INCOMING_CALL = "incoming_call"
-        private const val KEY_INCOMING_CALL = "incoming_call"
+        // Canonical camelCase envelope plus the snake_case form accepted for backwards compatibility.
+        private val MESSAGE_TYPE_INCOMING_CALL = setOf("incomingCall", "incoming_call")
+        private val KEYS_INCOMING_CALL = listOf("incomingCall", "incoming_call")
         private const val DEDUP_WINDOW_MS = 120_000L
 
         private val dedupeLock = Any()
@@ -65,8 +67,8 @@ class ExpoCallKitTelecomMessagingService : ExpoFirebaseMessagingService() {
         try {
             CallManager.shared.initialize(applicationContext)
 
-            // Wrap under the envelope so we go through the same parser path as iOS.
-            val event = IncomingCallEvent.fromPayload(mapOf(KEY_INCOMING_CALL to eventMap))
+            // Wrap under the canonical envelope so we go through the same parser path as iOS.
+            val event = IncomingCallEvent.fromPayload(mapOf("incomingCall" to eventMap))
             if (event == null) {
                 Log.w(TAG, "Failed to validate incoming call event from FCM payload")
                 return
@@ -82,11 +84,11 @@ class ExpoCallKitTelecomMessagingService : ExpoFirebaseMessagingService() {
     }
 
     private fun parseIncomingCallEvent(data: Map<String, String>): Map<String, Any?>? {
-        if (data[KEY_MESSAGE_TYPE] != MESSAGE_TYPE_INCOMING_CALL) {
+        if (data[KEY_MESSAGE_TYPE] !in MESSAGE_TYPE_INCOMING_CALL) {
             return null
         }
 
-        val nestedPayload = data[KEY_INCOMING_CALL] ?: return null
+        val nestedPayload = KEYS_INCOMING_CALL.firstNotNullOfOrNull { data[it] } ?: return null
         return try {
             jsonObjectToMap(JSONObject(nestedPayload))
         } catch (error: Throwable) {

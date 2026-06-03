@@ -37,7 +37,7 @@ export async function sendApns(
   const host = config.production
     ? "api.push.apple.com"
     : "api.sandbox.push.apple.com";
-  const body = JSON.stringify({ incoming_call: event });
+  const body = JSON.stringify({ incomingCall: event });
 
   const client = http2Connect(`https://${host}`);
   try {

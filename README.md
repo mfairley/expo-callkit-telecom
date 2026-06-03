@@ -97,6 +97,7 @@ With custom ringtone and dialtone:
           "defaultDialtone": "dialtone.wav",
           "incomingCallTimeout": 45,
           "outgoingCallTimeout": 60,
+          "fulfillAnswerCallTimeout": 30,
           "microphonePermission": "$(PRODUCT_NAME) needs the microphone to make calls."
         }
       ]
@@ -158,7 +159,7 @@ Calls.addCallAnsweredListener(({ id }) => {
 });
 ```
 
-Both transports wrap the event under an `incomingCall` key, just at different layers — APNs in the push payload dictionary, FCM in the data block:
+Both transports wrap the event under an `incomingCall` key, just at different layers — APNs in the push payload dictionary, FCM in the data block. (The snake_case `incoming_call` is also accepted for backwards compatibility.)
 
 ### 🍎 iOS — APNs VoIP push
 

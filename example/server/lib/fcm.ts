@@ -75,8 +75,8 @@ export async function sendFcm(
         message: {
           token: config.deviceToken,
           data: {
-            messageType: "incoming_call",
-            incoming_call: JSON.stringify(event),
+            messageType: "incomingCall",
+            incomingCall: JSON.stringify(event),
           },
           android: { priority: "HIGH" },
         },

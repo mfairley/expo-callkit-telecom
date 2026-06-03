@@ -62,7 +62,7 @@ data class CallParticipant(
  *
  * Two construction paths:
  * - [fromMap]: parses JS camelCase dictionaries (used by `reportIncomingCall`).
- * - [fromPayload]: parses a push payload that wraps the event under the top-level `incoming_call`
+ * - [fromPayload]: parses a push payload that wraps the event under the top-level `incomingCall`
  *   key (used by VoIP push handling).
  */
 data class IncomingCallEvent(
@@ -164,15 +164,17 @@ data class IncomingCallEvent(
         /**
          * Parses an `IncomingCallEvent` from a push payload.
          *
-         * The payload MUST wrap the event under the top-level key `incoming_call`. There is no
-         * fallback to a flat top-level shape. Inner keys are camelCase, matching the TS contract
-         * and the example server.
+         * The payload MUST wrap the event under the top-level key `incomingCall`; the snake_case
+         * `incoming_call` is also accepted for backwards compatibility. There is no fallback to a
+         * flat top-level shape. Inner keys are camelCase, matching the TS contract.
          *
          * Returns `null` if the envelope is missing or required fields are absent.
          */
         @Suppress("UNCHECKED_CAST")
         fun fromPayload(payload: Map<String, Any?>): IncomingCallEvent? {
-            val event = payload["incoming_call"] as? Map<String, Any?> ?: return null
+            val event =
+                (payload["incomingCall"] ?: payload["incoming_call"]) as? Map<String, Any?>
+                    ?: return null
 
             val eventId = event["eventId"] as? String ?: ""
             val serverCallId = event["serverCallId"] as? String ?: ""

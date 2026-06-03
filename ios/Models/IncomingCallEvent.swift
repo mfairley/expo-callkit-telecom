@@ -132,12 +132,15 @@ struct IncomingCallEventRecord: Record {
 
 /// Parses an `IncomingCallEvent` from a VoIP push payload.
 ///
-/// The payload must wrap the event under the top-level key `"incoming_call"`.
-/// There is no fallback to a flat top-level shape. Inner keys are camelCase
-/// to match the TS contract and the example server's wire format.
+/// The payload must wrap the event under the top-level key `"incomingCall"`.
+/// The snake_case `"incoming_call"` is also accepted for backwards compatibility.
+/// There is no fallback to a flat top-level shape. Inner keys are camelCase to
+/// match the TS contract.
 enum IncomingCallEventParser {
   static func parse(from payload: [AnyHashable: Any]) -> IncomingCallEvent? {
-    guard let event = payload["incoming_call"] as? [AnyHashable: Any] else {
+    guard
+      let event = (payload["incomingCall"] ?? payload["incoming_call"]) as? [AnyHashable: Any]
+    else {
       return nil
     }
 

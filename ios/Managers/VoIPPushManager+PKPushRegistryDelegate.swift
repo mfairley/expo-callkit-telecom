@@ -40,7 +40,7 @@ extension VoIPPushManager: PKPushRegistryDelegate {
   ///
   /// This method MUST report a call to CallKit before returning, per Apple's requirements.
   /// The payload is expected to wrap an `IncomingCallEvent` under the top-level
-  /// key `"incoming_call"`, matching `IncomingCallEventParser`.
+  /// key `"incomingCall"`, matching `IncomingCallEventParser`.
   ///
   /// - Parameters:
   ///   - registry: The push registry.
