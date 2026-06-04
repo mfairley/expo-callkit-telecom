@@ -5,6 +5,13 @@ All notable changes to `expo-callkit-telecom` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.9](https://github.com/mfairley/expo-callkit-telecom/compare/v0.3.8...v0.3.9) (2026-06-04)
+
+
+### Bug Fixes
+
+* make incomingCall the canonical VoIP push key, accept incoming_call ([637fb83](https://github.com/mfairley/expo-callkit-telecom/commit/637fb835ba7675d17f2ed31e1842e9655c89d428)), closes [#15](https://github.com/mfairley/expo-callkit-telecom/issues/15)
+
 ## [0.3.8](https://github.com/mfairley/expo-callkit-telecom/compare/v0.3.7...v0.3.8) (2026-05-21)
 
 
