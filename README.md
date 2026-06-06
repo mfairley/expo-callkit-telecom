@@ -10,7 +10,7 @@ The module is opinionated about *system integration* and unopinionated about *me
   <a href="https://www.npmjs.com/package/expo-callkit-telecom"><img alt="npm version" src="https://img.shields.io/npm/v/expo-callkit-telecom.svg"></a>
   <a href="https://www.npmjs.com/package/expo-callkit-telecom"><img alt="npm downloads" src="https://img.shields.io/npm/dm/expo-callkit-telecom.svg"></a>
   <a href="https://expo-callkit-telecom.mfairley.com/"><img alt="docs" src="https://img.shields.io/badge/docs-online-blue"></a>
-  <img alt="platform" src="https://img.shields.io/badge/platform-iOS%20%7C%20Android-blue">
+  <img alt="platform" src="https://img.shields.io/badge/platform-iOS%20%7C%20Android%20%7C%20Web-blue">
   <img alt="license" src="https://img.shields.io/npm/l/expo-callkit-telecom">
 </p>
 
@@ -229,7 +229,8 @@ See `src/Calls.ts` for full JSDoc. Main areas:
 
 - 🍎 **iOS** — requires the `voip` background mode and a VoIP push certificate. Uses CallKit + PushKit + WebRTC's `RTCAudioSession` for manual audio control. Min iOS 15.1.
 - 🤖 **Android** — requires `MANAGE_OWN_CALLS` permission, min SDK 26. Uses `androidx.core:core-telecom`. Incoming calls come via FCM data messages — the config plugin registers `ExpoCallKitTelecomMessagingService` automatically.
-- 🎟️ VoIP push token type is reported as `"APNS_VOIP"` on iOS and `"FCM"` on Android — send both to your backend so it knows which transport to use.
+- 🌐 **Web** — best-effort. The same JS API and events run in the browser, backed by the Notifications API, `navigator.mediaSession`, and Web Push (token type `"WEB_PUSH"`). The browser has no native call layer, so this is a graceful fallback, not native parity — see **[docs/web.md](docs/web.md)**.
+- 🎟️ VoIP push token type is reported as `"APNS_VOIP"` on iOS, `"FCM"` on Android, and `"WEB_PUSH"` on web — send the type to your backend so it knows which transport to use.
 
 ## ⏰ Keeping connections alive in the background
 

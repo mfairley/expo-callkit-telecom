@@ -192,6 +192,7 @@ export default defineConfig({
         items: [
           { text: "VoIP push payload", link: "/voip-push" },
           { text: "Platform notes", link: "/platform-notes" },
+          { text: "Web support", link: "/web" },
           { text: "Verified against", link: "/verified-against" },
           { text: "API reference", link: "/api/" },
         ],

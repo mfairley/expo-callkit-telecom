@@ -3,10 +3,13 @@
  *
  * - `"APNS_VOIP"` — Apple Push Notification service VoIP channel (iOS)
  * - `"FCM"` — Firebase Cloud Messaging (Android)
+ * - `"WEB_PUSH"` — Web Push (browser `PushManager` subscription, JSON-encoded).
+ *   Best-effort only; the browser has no VoIP/lock-screen call channel. See the
+ *   web platform notes in the docs.
  *
  * @category VoIP Push
  */
-export type PushTokenType = "APNS_VOIP" | "FCM";
+export type PushTokenType = "APNS_VOIP" | "FCM" | "WEB_PUSH";
 
 // ============================================================================
 // Native event infrastructure
