@@ -17,9 +17,30 @@ description: Platform requirements for expo-callkit-telecom — iOS 15.1+ (CallK
 - Uses [`androidx.core:core-telecom`](https://developer.android.com/develop/connectivity/telecom/voip-app/telecom).
 - Incoming calls come via [FCM](https://firebase.google.com/docs/cloud-messaging) data messages — the config plugin registers `ExpoCallKitTelecomMessagingService` automatically.
 
+## Web
+
+Web support is **best-effort**, not a native-parity implementation. The browser
+has no equivalent of CallKit or Core-Telecom: there is no OS-owned call UI, no
+lock-screen incoming-call screen, and no VoIP channel that can wake a closed tab.
+See **[Web support](/web)** for what is and isn't possible, and how to wire it up.
+
+In short, on web the module:
+
+- Keeps the **same JavaScript API and events** working via an in-memory call
+  state machine, so your media wiring and UI run unchanged.
+- Surfaces incoming calls with the [Notifications API](https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API).
+- Exposes in-call controls (hang up, mute) via [`navigator.mediaSession`](https://developer.mozilla.org/en-US/docs/Web/API/MediaSession).
+- Bridges [Web Push](https://developer.mozilla.org/en-US/docs/Web/API/Push_API) for
+  incoming calls, reporting a token of type `"WEB_PUSH"`.
+
+As on iOS and Android, the module never touches media — your app captures and
+transports audio/video itself (`getUserMedia` + WebRTC).
+
 ## VoIP push token types
 
-The VoIP push token type is reported as `"APNS_VOIP"` on iOS and `"FCM"` on Android — send both to your backend so it knows which transport to use.
+The VoIP push token type is reported as `"APNS_VOIP"` on iOS, `"FCM"` on Android,
+and `"WEB_PUSH"` on web — send the type to your backend so it knows which
+transport to use.
 
 ## Keeping connections alive in the background
 
