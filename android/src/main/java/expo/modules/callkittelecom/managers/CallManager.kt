@@ -1,6 +1,7 @@
 package expo.modules.callkittelecom.managers
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.telecom.DisconnectCause
@@ -58,6 +59,12 @@ class CallManager private constructor() {
 
         /** Shared singleton instance used by module and notification receiver. */
         val shared = CallManager()
+
+        /**
+         * Package-internal broadcast action fired when an incoming call ends and no live JS
+         * observer exists to receive [CallEvents.CALL_ENDED]. See [maybeBroadcastCallEnded].
+         */
+        const val ACTION_CALL_ENDED = "expo.modules.callkittelecom.ACTION_CALL_ENDED"
     }
 
     private lateinit var context: Context
@@ -497,7 +504,11 @@ class CallManager private constructor() {
         }
 
         if (emitEnded) {
-            CallEventEmitter.send(CallEvents.CALL_ENDED, mapOf("id" to id.toString()))
+            val delivered =
+                CallEventEmitter.send(CallEvents.CALL_ENDED, mapOf("id" to id.toString()))
+            if (!delivered) {
+                maybeBroadcastCallEnded(id, existingSession)
+            }
         }
 
         if (reportedReason != null) {
@@ -516,6 +527,45 @@ class CallManager private constructor() {
 
         CallKitTelecomLog.d(TAG) {
             "Call finished - id: $id, emitEnded: $emitEnded, reason: ${reportedReason?.value}"
+        }
+    }
+
+    /**
+     * Fallback delivery of call-ended for apps with no live JS context.
+     *
+     * [CallEvents.CALL_ENDED] is intentionally excluded from the cold-start replay queue (a
+     * flushed ended event is not actionable by the time JS boots), so when the app process has
+     * no live observer — e.g. the user declines an incoming call while the app is killed — the
+     * event is dropped and the app never learns about it. Apps that must react in that state
+     * (typically: notify their backend of the decline so the caller stops ringing) can register
+     * a manifest BroadcastReceiver for [ACTION_CALL_ENDED].
+     *
+     * Called only when [CallEventEmitter.send] reported the event was not delivered to a live
+     * observer, and fires only for incoming calls (sessions carrying an [IncomingCallEvent]) —
+     * so an app with a mounted `onCallEnded` listener keeps using the regular event path and
+     * outgoing-call hangups never broadcast. The broadcast is package-internal
+     * ([Intent.setPackage]). Extras: `callId` (native UUID), `eventId`, `serverCallId`, and
+     * the push payload's `metadata` map when present.
+     */
+    private fun maybeBroadcastCallEnded(
+        id: UUID,
+        session: CallSession,
+    ) {
+        val event = session.incomingCallEvent ?: return
+        try {
+            val intent =
+                Intent(ACTION_CALL_ENDED)
+                    .setPackage(context.packageName)
+                    .putExtra("callId", id.toString())
+                    .putExtra("eventId", event.eventId)
+                    .putExtra("serverCallId", event.serverCallId)
+            event.metadata?.let { intent.putExtra("metadata", HashMap(it)) }
+            context.sendBroadcast(intent)
+            CallKitTelecomLog.d(TAG) {
+                "Sent call-ended broadcast (no live JS observer) - serverCallId: ${event.serverCallId}"
+            }
+        } catch (e: Exception) {
+            CallKitTelecomLog.w(TAG) { "Call-ended broadcast failed: ${e.message}" }
         }
     }
 
@@ -540,7 +590,10 @@ class CallManager private constructor() {
         if (session.status != CallSessionStatus.ENDED) {
             CallStore.updateStatus(id, CallSessionStatus.ENDED)
         }
-        CallEventEmitter.send(CallEvents.CALL_ENDED, mapOf("id" to id.toString()))
+        val delivered = CallEventEmitter.send(CallEvents.CALL_ENDED, mapOf("id" to id.toString()))
+        if (!delivered) {
+            maybeBroadcastCallEnded(id, session)
+        }
         CallStore.remove(id)
 
         if (CallStore.allSessions().isEmpty()) {

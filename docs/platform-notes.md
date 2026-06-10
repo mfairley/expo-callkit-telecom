@@ -17,6 +17,31 @@ description: Platform requirements for expo-callkit-telecom — iOS 15.1+ (CallK
 - Uses [`androidx.core:core-telecom`](https://developer.android.com/develop/connectivity/telecom/voip-app/telecom).
 - Incoming calls come via [FCM](https://firebase.google.com/docs/cloud-messaging) data messages — the config plugin registers `ExpoCallKitTelecomMessagingService` automatically.
 
+### Call ended while the app is killed
+
+On a killed app, Android shows the incoming-call UI fully natively — no React context ever starts unless the user answers. That means a **decline** (or any call end) in that state cannot be delivered as a JS event: `onCallEnded` is intentionally excluded from the cold-start replay queue, so the event is dropped and the app never learns about it. If your backend needs to know (so the caller stops ringing immediately instead of waiting for a server timeout), register a manifest `BroadcastReceiver` for the package-internal broadcast the module fires in exactly that case:
+
+```xml
+<receiver android:name=".CallEndedReceiver" android:exported="false">
+  <intent-filter>
+    <action android:name="expo.modules.callkittelecom.ACTION_CALL_ENDED" />
+  </intent-filter>
+</receiver>
+```
+
+```kotlin
+class CallEndedReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent) {
+        val serverCallId = intent.getStringExtra("serverCallId") ?: return
+        @Suppress("UNCHECKED_CAST", "DEPRECATION")
+        val metadata = intent.getSerializableExtra("metadata") as? Map<String, Any?>
+        // e.g. POST a decline to your backend (use goAsync() for the network call)
+    }
+}
+```
+
+Extras: `callId` (native session UUID), `eventId`, `serverCallId`, and the push payload's `metadata` map when present — so app-specific values (auth tokens, routing ids) can ride the push into the receiver. The broadcast fires **only** for incoming calls and **only** when the `onCallEnded` event was not delivered to a live JS observer; an alive app with a mounted `onCallEnded` listener keeps receiving the normal event instead.
+
 ## VoIP push token types
 
 The VoIP push token type is reported as `"APNS_VOIP"` on iOS and `"FCM"` on Android — send both to your backend so it knows which transport to use.

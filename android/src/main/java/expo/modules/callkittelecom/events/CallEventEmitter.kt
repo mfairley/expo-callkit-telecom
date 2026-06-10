@@ -47,8 +47,13 @@ object CallEventEmitter {
      *
      * All delivered events are augmented with a `meta` object containing timestamp and flush
      * status.
+     *
+     * @return true when the event was delivered to a live JS observer, false when it was
+     *   queued (or dropped by the event's queue limit). Lets native code provide a fallback
+     *   for events that would otherwise be lost — e.g. the app process was started by a push
+     *   or Telecom with no React context.
      */
-    fun send(eventName: String, body: Map<String, Any?>) {
+    fun send(eventName: String, body: Map<String, Any?>): Boolean {
         val timestamp = Instant.now()
         val senderRef = sender
         val isObserving = synchronized(lock) { observingEvents.contains(eventName) }
@@ -56,9 +61,10 @@ object CallEventEmitter {
         if (senderRef != null && isObserving) {
             CallKitTelecomLog.d(TAG) { "Sending event to JS - name: $eventName" }
             senderRef(eventName, buildEventBody(body, flushed = false, timestamp = timestamp))
-            return
+            return true
         }
         queueEvent(eventName, body, timestamp)
+        return false
     }
 
     /** Marks an event as observed and flushes any pending queue for that event. */
