@@ -51,6 +51,7 @@ const config: ExpoConfig = {
         defaultDialtone: "dialtone.wav",
       },
     ],
+    "./plugins/withCallEndedReceiver",
   ],
 };
 

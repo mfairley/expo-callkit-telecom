@@ -35,6 +35,7 @@ A few flows are best exercised by interacting with the system UI directly rather
 - Plug in / unplug headphones, connect a Bluetooth device, etc. — `AudioRouteChanged` fires.
 - On iOS, tap a contact in the **Recents** list or say *"call <displayName>"* to Siri — `CallIntentReceived` fires.
 - Force-quit the app and send a push via `example/server/` — the native parser shows the call without JS running.
+- (Android) Force-quit the app, send a push, then **decline** it — no JS observer exists, so instead of the (undeliverable) `onCallEnded` event the module fires the package-internal call-ended broadcast, which the example's `CallEndedReceiver` (see `plugins/`) logs: `adb logcat -s CallEndedReceiver`. Send the push with `--metadata '{"declineToken":"abc"}'` to see app-specific values ride the push into the receiver.
 
 ## Running
 

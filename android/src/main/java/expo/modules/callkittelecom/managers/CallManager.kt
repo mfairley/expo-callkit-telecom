@@ -63,6 +63,11 @@ class CallManager private constructor() {
         /**
          * Package-internal broadcast action fired when an incoming call ends and no live JS
          * observer exists to receive [CallEvents.CALL_ENDED]. See [maybeBroadcastCallEnded].
+         *
+         * Apps declare their receiver in the manifest, so this string is necessarily duplicated
+         * as a literal outside this constant: `docs/platform-notes.md` and
+         * `example/client/plugins/withCallEndedReceiver.js` both carry it. Renaming it here
+         * gives those no build-time signal — update them in the same change.
          */
         const val ACTION_CALL_ENDED = "expo.modules.callkittelecom.ACTION_CALL_ENDED"
     }

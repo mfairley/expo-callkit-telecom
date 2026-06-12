@@ -14,6 +14,9 @@
  *   bun send-test-push.ts --display "Alice"
  *   bun send-test-push.ts --phoneNumber +14155551234   # E.164; lets the OS match a contact
  *   bun send-test-push.ts --video
+ *   bun send-test-push.ts --metadata '{"declineToken":"abc"}'   # JSON object; rides into
+ *                                                               # the killed-app call-ended
+ *                                                               # broadcast on Android
  *   bun send-test-push.ts --production     # iOS prod APNs (default: sandbox)
  *
  * Required env (.env auto-loaded by bun):
@@ -49,6 +52,22 @@ const arg = (name: string): string | undefined => {
   return i >= 0 ? args[i + 1] : undefined;
 };
 
+const parseMetadata = (raw: string | undefined) => {
+  if (raw === undefined) return undefined;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch (e) {
+    throw new Error(`--metadata is not valid JSON (${(e as Error).message}), got: ${raw}`);
+  }
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+    throw new Error(
+      `--metadata must be a JSON object (e.g. '{"declineToken":"abc"}'), got: ${raw}`,
+    );
+  }
+  return parsed as Record<string, unknown>;
+};
+
 const event = buildEvent({
   eventId: arg("--eventId"),
   serverCallId: arg("--serverCallId"),
@@ -56,6 +75,7 @@ const event = buildEvent({
   callerId: arg("--callerId"),
   displayName: arg("--display"),
   phoneNumber: arg("--phoneNumber"),
+  metadata: parseMetadata(arg("--metadata")),
 });
 
 const forceIos = flag("--ios");

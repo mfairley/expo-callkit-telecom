@@ -42,6 +42,8 @@ class CallEndedReceiver : BroadcastReceiver() {
 
 Extras: `callId` (native session UUID), `eventId`, `serverCallId`, and the push payload's `metadata` map when present — so app-specific values (auth tokens, routing ids) can ride the push into the receiver. The broadcast fires **only** for incoming calls and **only** when the `onCallEnded` event was not delivered to a live JS observer; an alive app with a mounted `onCallEnded` listener keeps receiving the normal event instead.
 
+A complete working setup ships in the example app: `example/client/plugins/` has the receiver plus a config plugin that registers the manifest entry and copies the source into the generated android project — see "Testing system → app paths" in the example README for how to exercise it.
+
 ## VoIP push token types
 
 The VoIP push token type is reported as `"APNS_VOIP"` on iOS and `"FCM"` on Android — send both to your backend so it knows which transport to use.

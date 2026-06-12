@@ -22,6 +22,7 @@ export interface BuildEventArgs {
   callerId?: string;
   displayName?: string;
   phoneNumber?: string;
+  metadata?: Record<string, unknown>;
 }
 
 export function buildEvent(args: BuildEventArgs = {}): IncomingCallEvent {
@@ -40,5 +41,6 @@ export function buildEvent(args: BuildEventArgs = {}): IncomingCallEvent {
       displayName: args.displayName ?? "Test Caller",
       ...(args.phoneNumber ? { phoneNumber: args.phoneNumber } : {}),
     },
+    ...(args.metadata ? { metadata: args.metadata } : {}),
   };
 }

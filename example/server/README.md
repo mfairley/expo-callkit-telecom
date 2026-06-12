@@ -51,6 +51,7 @@ bun send-test-push.ts --android             # force FCM only
 bun send-test-push.ts --display Alice       # customise caller display name
 bun send-test-push.ts --phoneNumber +14155551234   # E.164; the OS will match against contacts
 bun send-test-push.ts --video               # video call
+bun send-test-push.ts --metadata '{"declineToken":"abc"}'   # opaque JSON object passed through to the app
 bun send-test-push.ts --eventId <uuid>      # custom event id (default: random)
 bun send-test-push.ts --serverCallId <id>   # custom server-side call id
 bun send-test-push.ts --production          # iOS prod APNs (default: sandbox)
