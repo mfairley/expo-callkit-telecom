@@ -566,8 +566,13 @@ class CallManager: NSObject {
 
     provider.reportCall(with: id, endedAt: Date(), reason: reason)
 
-    await MainActor.run {
-      CallEventEmitter.shared.send(CallReportedEnded(id: id, reason: reason))
+    // Snapshot the session as ended so the embedded session reflects the terminal state.
+    if var session = await store.session(for: id) {
+      session.status = .ended
+      await MainActor.run {
+        CallEventEmitter.shared.send(
+          CallReportedEnded(id: id, reason: reason, session: session))
+      }
     }
 
     await store.remove(for: id)

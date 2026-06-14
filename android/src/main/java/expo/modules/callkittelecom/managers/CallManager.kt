@@ -1,7 +1,6 @@
 package expo.modules.callkittelecom.managers
 
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.telecom.DisconnectCause
@@ -59,17 +58,6 @@ class CallManager private constructor() {
 
         /** Shared singleton instance used by module and notification receiver. */
         val shared = CallManager()
-
-        /**
-         * Package-internal broadcast action fired when an incoming call ends and no live JS
-         * observer exists to receive [CallEvents.CALL_ENDED]. See [maybeBroadcastCallEnded].
-         *
-         * Apps declare their receiver in the manifest, so this string is necessarily duplicated
-         * as a literal outside this constant: `docs/platform-notes.md` and
-         * `example/client/plugins/withCallEndedReceiver.js` both carry it. Renaming it here
-         * gives those no build-time signal — update them in the same change.
-         */
-        const val ACTION_CALL_ENDED = "expo.modules.callkittelecom.ACTION_CALL_ENDED"
     }
 
     private lateinit var context: Context
@@ -125,6 +113,10 @@ class CallManager private constructor() {
         CallEventEmitter.setQueueLimit(INCOMING_CALL_REPORTED, 1)
         CallEventEmitter.setQueueLimit(CALL_ANSWERED, 1)
         CallEventEmitter.setQueueLimit(VOIP_PUSH_TOKEN_UPDATED, 1)
+
+        // Broadcast any event that can't reach a live JS observer (e.g. killed-app decline),
+        // so a JS-less process can still react via a manifest BroadcastReceiver.
+        CallEventEmitter.setBroadcastContext(context)
 
         callsManager = CallsManager(context)
         callsManager.registerAppWithTelecom(
@@ -508,18 +500,18 @@ class CallManager private constructor() {
             CallStore.updateStatus(id, CallSessionStatus.ENDED)
         }
 
+        // Read the just-updated session back from the store (the source of truth) so the
+        // embedded session reflects the terminal state. Read before remove().
+        val endedSession = CallStore.session(id) ?: existingSession
+
         if (emitEnded) {
-            val delivered =
-                CallEventEmitter.send(CallEvents.CALL_ENDED, mapOf("id" to id.toString()))
-            if (!delivered) {
-                maybeBroadcastCallEnded(id, existingSession)
-            }
+            CallEventEmitter.send(CallEvents.CALL_ENDED, sessionEventBody(endedSession))
         }
 
         if (reportedReason != null) {
             CallEventEmitter.send(
                 CallEvents.CALL_REPORTED_ENDED,
-                mapOf("id" to id.toString(), "reason" to reportedReason.value),
+                sessionEventBody(endedSession, "reason" to reportedReason.value),
             )
         }
 
@@ -536,42 +528,19 @@ class CallManager private constructor() {
     }
 
     /**
-     * Fallback delivery of call-ended for apps with no live JS context.
+     * Builds an event body carrying the call id plus a full session snapshot.
      *
-     * [CallEvents.CALL_ENDED] is intentionally excluded from the cold-start replay queue (a
-     * flushed ended event is not actionable by the time JS boots), so when the app process has
-     * no live observer — e.g. the user declines an incoming call while the app is killed — the
-     * event is dropped and the app never learns about it. Apps that must react in that state
-     * (typically: notify their backend of the decline so the caller stops ringing) can register
-     * a manifest BroadcastReceiver for [ACTION_CALL_ENDED].
-     *
-     * Called only when [CallEventEmitter.send] reported the event was not delivered to a live
-     * observer, and fires only for incoming calls (sessions carrying an [IncomingCallEvent]) —
-     * so an app with a mounted `onCallEnded` listener keeps using the regular event path and
-     * outgoing-call hangups never broadcast. The broadcast is package-internal
-     * ([Intent.setPackage]). Extras: `callId` (native UUID), `eventId`, `serverCallId`, and
-     * the push payload's `metadata` map when present.
+     * Terminal events embed the session so JS consumers — and the [CallEventEmitter] broadcast for
+     * a JS-less process — get full context (e.g. `serverCallId`/`metadata` via `incomingCallEvent`)
+     * without a separate lookup.
      */
-    private fun maybeBroadcastCallEnded(
-        id: UUID,
+    private fun sessionEventBody(
         session: CallSession,
-    ) {
-        val event = session.incomingCallEvent ?: return
-        try {
-            val intent =
-                Intent(ACTION_CALL_ENDED)
-                    .setPackage(context.packageName)
-                    .putExtra("callId", id.toString())
-                    .putExtra("eventId", event.eventId)
-                    .putExtra("serverCallId", event.serverCallId)
-            event.metadata?.let { intent.putExtra("metadata", HashMap(it)) }
-            context.sendBroadcast(intent)
-            CallKitTelecomLog.d(TAG) {
-                "Sent call-ended broadcast (no live JS observer) - serverCallId: ${event.serverCallId}"
-            }
-        } catch (e: Exception) {
-            CallKitTelecomLog.w(TAG) { "Call-ended broadcast failed: ${e.message}" }
-        }
+        vararg extra: Pair<String, Any?>,
+    ): Map<String, Any?> = buildMap {
+        put("id", session.id.toString())
+        put("session", session.toMap())
+        putAll(extra)
     }
 
     /**
@@ -595,10 +564,9 @@ class CallManager private constructor() {
         if (session.status != CallSessionStatus.ENDED) {
             CallStore.updateStatus(id, CallSessionStatus.ENDED)
         }
-        val delivered = CallEventEmitter.send(CallEvents.CALL_ENDED, mapOf("id" to id.toString()))
-        if (!delivered) {
-            maybeBroadcastCallEnded(id, session)
-        }
+        // Read the just-updated session back from the store (the source of truth). Before remove().
+        val endedSession = CallStore.session(id) ?: session
+        CallEventEmitter.send(CallEvents.CALL_ENDED, sessionEventBody(endedSession))
         CallStore.remove(id)
 
         if (CallStore.allSessions().isEmpty()) {

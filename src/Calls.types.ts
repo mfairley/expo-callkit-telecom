@@ -313,6 +313,22 @@ export interface CallActionEvent extends NativeEvent {
 }
 
 /**
+ * Mixin for events that carry a full {@link CallSession} snapshot alongside the
+ * event-specific fields.
+ *
+ * Terminal events embed the session so consumers without access to the session
+ * store still get full context. On Android this is also what makes the
+ * package-internal call-event broadcast self-contained when no JS observer is
+ * alive (see "Call ended while the app is killed" in the docs) — the broadcast
+ * payload is exactly this event body.
+ *
+ * @category Call Events
+ */
+export interface WithSession {
+  session: CallSession;
+}
+
+/**
  * Fired after `startOutgoingCall`, once the OS has accepted the call request.
  *
  * @category Call Events
@@ -371,7 +387,7 @@ export interface CallAnsweredEvent extends CallActionEvent {
  *
  * @category Call Events
  */
-export interface CallEndedEvent extends CallActionEvent {}
+export interface CallEndedEvent extends CallActionEvent, WithSession {}
 
 /**
  * Reason a call was ended, reported on {@link CallReportedEnded}.
@@ -392,7 +408,7 @@ export type CallEndedReason =
  *
  * @category Call Events
  */
-export interface CallReportedEnded extends CallActionEvent {
+export interface CallReportedEnded extends CallActionEvent, WithSession {
   reason: CallEndedReason;
 }
 

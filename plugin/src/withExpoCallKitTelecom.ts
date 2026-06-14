@@ -67,6 +67,19 @@ export type ExpoCallKitTelecomPluginProps = {
    * @platform android
    */
   defaultDialtone?: string;
+  /**
+   * Class name of a `BroadcastReceiver` to register for the module's call-event
+   * broadcast, fired when a call event can't reach a live JS observer (e.g. the
+   * user declines an incoming call while the app is killed). The plugin writes
+   * the manifest `<receiver>` + `<intent-filter>`. You supply the receiver class
+   * (e.g. via a local Expo module); the plugin does not generate it.
+   *
+   * Accepts a manifest-relative name (`.CallEventReceiver`) or a fully-qualified
+   * one (`com.acme.app.CallEventReceiver`). See "Call ended while the app is
+   * killed" in the docs.
+   * @platform android
+   */
+  androidEventReceiver?: string;
 };
 
 const withExpoCallKitTelecom: ConfigPlugin<ExpoCallKitTelecomPluginProps | void> = (

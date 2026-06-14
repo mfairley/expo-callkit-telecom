@@ -8,6 +8,7 @@ import { copyFileSync, existsSync, mkdirSync } from "fs";
 import { basename, resolve } from "path";
 
 import {
+  ANDROID_CALL_EVENT_ACTION,
   DEFAULT_FULFILL_ANSWER_CALL_TIMEOUT,
   DEFAULT_INCOMING_CALL_TIMEOUT,
   DEFAULT_OUTGOING_CALL_TIMEOUT,
@@ -277,6 +278,47 @@ const withFirebaseMessagingService: ConfigPlugin<ExpoCallKitTelecomPluginProps> 
   });
 };
 
+/**
+ * Registers a manifest BroadcastReceiver for the module's call-event broadcast.
+ *
+ * Fired when a call event can't reach a live JS observer (e.g. a killed-app
+ * decline). The receiver entry uses {@link ANDROID_CALL_EVENT_ACTION}. The app
+ * supplies the receiver class itself (the plugin does not generate it).
+ */
+const withEventReceiver: ConfigPlugin<{ androidEventReceiver?: string }> = (
+  config,
+  { androidEventReceiver },
+) => {
+  if (!androidEventReceiver) {
+    return config;
+  }
+
+  return withAndroidManifest(config, (config) => {
+    const app = AndroidConfig.Manifest.getMainApplicationOrThrow(
+      config.modResults,
+    );
+
+    // Remove any existing entry first (idempotent across repeated prebuilds).
+    app.receiver = (app.receiver ?? []).filter(
+      (receiver) => receiver.$["android:name"] !== androidEventReceiver,
+    );
+
+    app.receiver.push({
+      $: {
+        "android:name": androidEventReceiver,
+        "android:exported": "false",
+      },
+      "intent-filter": [
+        {
+          action: [{ $: { "android:name": ANDROID_CALL_EVENT_ACTION } }],
+        },
+      ],
+    });
+
+    return config;
+  });
+};
+
 export const withExpoCallKitTelecomAndroid: ConfigPlugin<ExpoCallKitTelecomPluginProps> = (
   config,
   props,
@@ -289,5 +331,6 @@ export const withExpoCallKitTelecomAndroid: ConfigPlugin<ExpoCallKitTelecomPlugi
   });
   config = withDefaultDialtone(config, props);
   config = withFirebaseMessagingService(config, props);
+  config = withEventReceiver(config, props);
   return config;
 };

@@ -4,8 +4,10 @@
   "main": "index.ts",
   "scripts": {
     "start": "expo start",
-    "android": "expo run:android",
-    "ios": "expo run:ios",
+    "prebuild:plugin": "(cd ../.. && bun run build:plugin)",
+    "prebuild": "bun run prebuild:plugin && expo prebuild",
+    "android": "bun run prebuild:plugin && expo run:android",
+    "ios": "bun run prebuild:plugin && expo run:ios",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

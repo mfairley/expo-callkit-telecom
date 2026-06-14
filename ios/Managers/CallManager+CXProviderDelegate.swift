@@ -104,8 +104,13 @@ extension CallManager: CXProviderDelegate {
     cancelCallTimeout(for: action.callUUID)
 
     Task {
-      await MainActor.run {
-        CallEventEmitter.shared.send(CallEndedEvent(id: action.callUUID))
+      // Snapshot the session as ended so the embedded session reflects the terminal state.
+      if var session = await store.session(for: action.callUUID) {
+        session.status = .ended
+        await MainActor.run {
+          CallEventEmitter.shared.send(
+            CallEndedEvent(id: action.callUUID, session: session))
+        }
       }
 
       await store.remove(for: action.callUUID)

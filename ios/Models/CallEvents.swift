@@ -159,9 +159,13 @@ struct CallEndedEvent: CallEvent {
   static let name = "onCallEnded"
 
   let id: UUID
+  let session: CallSession
 
   var body: [String: Any] {
-    [CallEventKeys.id: id.uuidString]
+    [
+      CallEventKeys.id: id.uuidString,
+      "session": session.toDictionary(),
+    ]
   }
 }
 
@@ -170,11 +174,13 @@ struct CallReportedEnded: CallEvent {
 
   let id: UUID
   let reason: CXCallEndedReason
+  let session: CallSession
 
   var body: [String: Any] {
     [
       CallEventKeys.id: id.uuidString,
       "reason": Self.reasonString(for: reason),
+      "session": session.toDictionary(),
     ]
   }
 

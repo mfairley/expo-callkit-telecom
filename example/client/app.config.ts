@@ -49,8 +49,11 @@ const config: ExpoConfig = {
         defaultRingtoneIos: "ringtone.wav",
         defaultRingtoneAndroid: "ringtone.wav",
         defaultDialtone: "dialtone.wav",
+        androidEventReceiver: ".CallEndedReceiver",
       },
     ],
+    // Copies CallEndedReceiver.kt into the android project; the manifest <receiver>
+    // entry itself is registered by the plugin above via androidEventReceiver.
     "./plugins/withCallEndedReceiver",
   ],
 };
