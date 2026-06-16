@@ -5,6 +5,15 @@ All notable changes to `expo-callkit-telecom` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0](https://github.com/mfairley/expo-callkit-telecom/compare/v0.3.9...v0.4.0) (2026-06-16)
+
+
+### Features
+
+* **android:** broadcast call-ended when no JS observer can receive it ([a98b6ee](https://github.com/mfairley/expo-callkit-telecom/commit/a98b6ee20cd4ddd06cb0d520e0604328a33312a3))
+* **android:** embed session in call events and broadcast undelivered events ([24dd9e0](https://github.com/mfairley/expo-callkit-telecom/commit/24dd9e00f16b746d2aa71591ec98b4d607bf0726))
+* **example:** demonstrate the call-ended broadcast receiver ([a032691](https://github.com/mfairley/expo-callkit-telecom/commit/a032691b5d804f7e6d3b9ba18448bd3637a4353c))
+
 ## [0.3.9](https://github.com/mfairley/expo-callkit-telecom/compare/v0.3.8...v0.3.9) (2026-06-04)
 
 
