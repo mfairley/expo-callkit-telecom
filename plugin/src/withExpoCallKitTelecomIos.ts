@@ -123,6 +123,41 @@ const withTimeouts: ConfigPlugin<{
 };
 
 /**
+ * Copies a resource file into the iOS project directory and registers it in the
+ * Xcode project so it lands in the app bundle. Shared by the sound-file and
+ * icon-template plugins. The caller validates that `sourcePath` exists first, so
+ * it can emit a context-specific error message.
+ */
+function copyResourceFileToProject(
+  config: Parameters<Parameters<typeof withXcodeProject>[1]>[0],
+  sourcePath: string,
+  projectName: string,
+) {
+  const filename = basename(sourcePath);
+  const destinationPath = resolve(
+    config.modRequest.projectRoot,
+    "ios",
+    projectName,
+    filename,
+  );
+
+  // Copy the file to the iOS project directory
+  copyFileSync(sourcePath, destinationPath);
+
+  // Add the file to the Xcode project if not already present
+  if (!config.modResults.hasFile(`${projectName}/${filename}`)) {
+    config.modResults = IOSConfig.XcodeUtils.addResourceFileToGroup({
+      filepath: `${projectName}/${filename}`,
+      groupName: projectName,
+      isBuildFile: true,
+      project: config.modResults,
+    });
+  }
+
+  return config;
+}
+
+/**
  * Copies sound files into the iOS project bundle.
  */
 function setSoundFiles(
@@ -136,29 +171,14 @@ function setSoundFiles(
     throw new Error(`${ERROR_MSG_PREFIX}Unable to find iOS project name.`);
   }
 
-  const sourceRoot = resolve(projectRoot, "ios", projectName);
-
   for (const soundPath of sounds) {
-    const filename = basename(soundPath);
     const sourcePath = resolve(projectRoot, soundPath);
-    const destinationPath = resolve(sourceRoot, filename);
 
     if (!existsSync(sourcePath)) {
       throw new Error(`${ERROR_MSG_PREFIX}Sound file not found: ${sourcePath}`);
     }
 
-    // Copy the file to the iOS project directory
-    copyFileSync(sourcePath, destinationPath);
-
-    // Add the file to the Xcode project if not already present
-    if (!config.modResults.hasFile(`${projectName}/${filename}`)) {
-      config.modResults = IOSConfig.XcodeUtils.addResourceFileToGroup({
-        filepath: `${projectName}/${filename}`,
-        groupName: projectName,
-        isBuildFile: true,
-        project: config.modResults,
-      });
-    }
+    config = copyResourceFileToProject(config, sourcePath, projectName);
   }
 
   return config;
@@ -262,16 +282,13 @@ const withIconTemplate: ConfigPlugin<{ iconTemplateIos?: string }> = (
 
   // Copy the file into the iOS project and add it as a bundle resource.
   config = withXcodeProject(config, (config) => {
-    const projectRoot = config.modRequest.projectRoot;
     const projectName = config.modRequest.projectName;
 
     if (!projectName) {
       throw new Error(`${ERROR_MSG_PREFIX}Unable to find iOS project name.`);
     }
 
-    const filename = basename(iconTemplateIos);
-    const sourcePath = resolve(projectRoot, iconTemplateIos);
-    const destinationPath = resolve(projectRoot, "ios", projectName, filename);
+    const sourcePath = resolve(config.modRequest.projectRoot, iconTemplateIos);
 
     if (!existsSync(sourcePath)) {
       throw new Error(
@@ -279,18 +296,7 @@ const withIconTemplate: ConfigPlugin<{ iconTemplateIos?: string }> = (
       );
     }
 
-    copyFileSync(sourcePath, destinationPath);
-
-    if (!config.modResults.hasFile(`${projectName}/${filename}`)) {
-      config.modResults = IOSConfig.XcodeUtils.addResourceFileToGroup({
-        filepath: `${projectName}/${filename}`,
-        groupName: projectName,
-        isBuildFile: true,
-        project: config.modResults,
-      });
-    }
-
-    return config;
+    return copyResourceFileToProject(config, sourcePath, projectName);
   });
 
   // Record the filename so the native side can resolve it from the bundle.
