@@ -68,6 +68,15 @@ export type ExpoCallKitTelecomPluginProps = {
    */
   defaultDialtone?: string;
   /**
+   * Path (relative to project root) to a PNG shown as the app's icon on the
+   * iOS CallKit call screen (`CXProviderConfiguration.iconTemplateImageData`).
+   * CallKit renders it as a *template*: only the alpha channel is used (RGB is
+   * ignored) and the system tints it. A ~40x40pt square PNG whose alpha
+   * describes the glyph is recommended. When omitted, CallKit shows no icon.
+   * @platform ios
+   */
+  iconTemplateIos?: string;
+  /**
    * Class name of a `BroadcastReceiver` to register for the module's call-event
    * broadcast, fired when a call event can't reach a live JS observer (e.g. the
    * user declines an incoming call while the app is killed). The plugin writes

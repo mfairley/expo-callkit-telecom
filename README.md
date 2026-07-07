@@ -53,6 +53,7 @@ The module is opinionated about *system integration* and unopinionated about *me
 - 🔔 **VoIP notifications** — APNs VoIP on iOS (PushKit), FCM data messages on Android, parsed natively so calls can be reported from a terminated state
 - 🎵 **Ringtones** — system ringtone for incoming calls, configurable via the config plugin
 - ☎️ **Dialtone** — looped dialtone with fade-in for outgoing calls, configurable
+- 🖼️ **Branded CallKit icon** — show your app's icon on the iOS call screen via `iconTemplateIos`
 - 🎧 **Audio session management** — cross-platform port types (`builtInReceiver`, `builtInSpeaker`, `headphones`, `bluetoothA2DP`, `bluetoothHFP`, `bluetoothLE`, `airPlay`, `hdmi`, `carAudio`, `usbAudio`, `lineOut`)
 - 🔊 **Speaker override** and live route-change events
 - 🎚️ **Mute, hold, video, DTMF** — both directions: app → system and system → app (e.g. native mute button → your media)
@@ -95,6 +96,7 @@ With custom ringtone and dialtone:
           "defaultRingtoneIos": "ringtone.wav",
           "defaultRingtoneAndroid": "ringtone.wav",
           "defaultDialtone": "dialtone.wav",
+          "iconTemplateIos": "./assets/callkit-icon.png",
           "incomingCallTimeout": 45,
           "outgoingCallTimeout": 60,
           "fulfillAnswerCallTimeout": 30,
@@ -108,6 +110,7 @@ With custom ringtone and dialtone:
 
 Files in `sounds` are copied into the iOS bundle and Android raw resources at prebuild time. The full prop type is `ExpoCallKitTelecomPluginProps` in `plugin/src/`.
 
+`iconTemplateIos` is the app's icon on the iOS CallKit call screen (`CXProviderConfiguration.iconTemplateImageData`). CallKit renders it as a **template** — only the image's alpha channel is used (RGB is ignored) and the system tints it — so provide a ~40×40pt square PNG whose alpha describes the glyph. Android brands the incoming-call UI from the launcher icon automatically, so this option is iOS-only.
 
 ## 🧠 Concepts
 

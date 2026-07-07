@@ -243,6 +243,65 @@ const withDefaultDialtone: ConfigPlugin<{
   });
 };
 
+/**
+ * Bundles a CallKit icon template into the iOS app and records its filename in
+ * Info.plist, so the native side can load it into
+ * `CXProviderConfiguration.iconTemplateImageData`.
+ *
+ * CallKit renders this image as a *template*: only the alpha channel is used
+ * (RGB is ignored) and the system tints it. Provide a ~40x40pt square PNG whose
+ * alpha describes the glyph.
+ */
+const withIconTemplate: ConfigPlugin<{ iconTemplateIos?: string }> = (
+  config,
+  { iconTemplateIos },
+) => {
+  if (!iconTemplateIos) {
+    return config;
+  }
+
+  // Copy the file into the iOS project and add it as a bundle resource.
+  config = withXcodeProject(config, (config) => {
+    const projectRoot = config.modRequest.projectRoot;
+    const projectName = config.modRequest.projectName;
+
+    if (!projectName) {
+      throw new Error(`${ERROR_MSG_PREFIX}Unable to find iOS project name.`);
+    }
+
+    const filename = basename(iconTemplateIos);
+    const sourcePath = resolve(projectRoot, iconTemplateIos);
+    const destinationPath = resolve(projectRoot, "ios", projectName, filename);
+
+    if (!existsSync(sourcePath)) {
+      throw new Error(
+        `${ERROR_MSG_PREFIX}Icon template file not found: ${sourcePath}`,
+      );
+    }
+
+    copyFileSync(sourcePath, destinationPath);
+
+    if (!config.modResults.hasFile(`${projectName}/${filename}`)) {
+      config.modResults = IOSConfig.XcodeUtils.addResourceFileToGroup({
+        filepath: `${projectName}/${filename}`,
+        groupName: projectName,
+        isBuildFile: true,
+        project: config.modResults,
+      });
+    }
+
+    return config;
+  });
+
+  // Record the filename so the native side can resolve it from the bundle.
+  config = withInfoPlist(config, (config) => {
+    config.modResults.ExpoCallKitTelecomIconTemplate = basename(iconTemplateIos);
+    return config;
+  });
+
+  return config;
+};
+
 export const withExpoCallKitTelecomIos: ConfigPlugin<ExpoCallKitTelecomPluginProps> = (
   config,
   {
@@ -254,6 +313,7 @@ export const withExpoCallKitTelecomIos: ConfigPlugin<ExpoCallKitTelecomPluginPro
     sounds,
     defaultRingtoneIos,
     defaultDialtone,
+    iconTemplateIos,
   },
 ) => {
   config = withPermissions(config, { cameraPermission, microphonePermission });
@@ -271,6 +331,7 @@ export const withExpoCallKitTelecomIos: ConfigPlugin<ExpoCallKitTelecomPluginPro
     defaultRingtone: defaultRingtoneIos,
   });
   config = withDefaultDialtone(config, { sounds, defaultDialtone });
+  config = withIconTemplate(config, { iconTemplateIos });
 
   return config;
 };
