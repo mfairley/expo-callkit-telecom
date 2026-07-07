@@ -53,6 +53,7 @@ With custom ringtone and dialtone:
           "defaultRingtoneIos": "ringtone.wav",
           "defaultRingtoneAndroid": "ringtone.wav",
           "defaultDialtone": "dialtone.wav",
+          "iconTemplateIos": "./assets/callkit-icon.png",
           "incomingCallTimeout": 45,
           "outgoingCallTimeout": 60,
           "fulfillAnswerCallTimeout": 30,
@@ -66,6 +67,8 @@ With custom ringtone and dialtone:
 ```
 
 Files in `sounds` are copied into the iOS bundle and Android raw resources at prebuild time. Set `includesCallsInRecents: false` to keep calls out of the phone's Recents/call log (iOS — defaults to `true`; Android self-managed calls are never logged, so no flag is needed there). The full prop type is `ExpoCallKitTelecomPluginProps` in `plugin/src/`.
+
+`iconTemplateIos` sets the app's icon on the iOS CallKit call screen. CallKit renders it as a **template** — only the alpha channel is used (RGB is ignored) and the system tints it — so provide a ~40×40pt square PNG whose alpha describes the glyph. It's iOS-only; Android brands the incoming-call UI from the launcher icon automatically.
 
 ## Concepts
 

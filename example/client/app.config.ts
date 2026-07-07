@@ -49,6 +49,7 @@ const config: ExpoConfig = {
         defaultRingtoneIos: "ringtone.wav",
         defaultRingtoneAndroid: "ringtone.wav",
         defaultDialtone: "dialtone.wav",
+        iconTemplateIos: "./assets/callkit-icon.png",
         androidEventReceiver: ".CallEndedReceiver",
       },
     ],
