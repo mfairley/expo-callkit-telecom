@@ -16,6 +16,14 @@ This library has been exercised end-to-end on real devices in the `example/` app
 bun add expo-callkit-telecom
 ```
 
+This package declares `@livekit/react-native-webrtc` and `expo-notifications` as peer dependencies — install them alongside it:
+
+```sh
+bun add @livekit/react-native-webrtc expo-notifications
+```
+
+> If your app already depends on plain `react-native-webrtc`, replace it with `@livekit/react-native-webrtc`. They expose the same native module surface and can't coexist — having both installed will fail at `pod install` with a missing/duplicate pod error.
+
 Add the config plugin to `app.json` / `app.config.ts`. Minimal form:
 
 ```jsonc
