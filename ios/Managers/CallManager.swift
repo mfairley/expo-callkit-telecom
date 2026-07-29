@@ -355,11 +355,7 @@ class CallManager: NSObject {
   /// - Parameters:
   ///   - event: The incoming call event containing caller info.
   ///   - completion: Called when the CallKit report completes (success or failure).
-  ///     Receives the CallKit UUID assigned to this call, so the caller can end
-  ///     EXACTLY this session later. Ending `store.firstSession` instead ended the
-  ///     wrong session whenever another call (e.g. the user's own outgoing call)
-  ///     was already active — the reported call then rang forever.
-  func reportIncomingCall(event: IncomingCallEvent, completion: @escaping (UUID, Error?) -> Void) {
+  func reportIncomingCall(event: IncomingCallEvent, completion: @escaping (Error?) -> Void) {
     let id = UUID()
     Log.call.debug("Reporting incoming call (sync) - id: \(id)")
 
@@ -404,7 +400,7 @@ class CallManager: NSObject {
           "Failed to report incoming call to CallKit - id: \(id), error: \(error.localizedDescription)"
         )
         AudioManager.shared.restoreAudioSession()
-        completion(id, error)
+        completion(error)
         return
       }
 
@@ -421,7 +417,39 @@ class CallManager: NSObject {
         self?.startCallTimeout(for: id, timeout: Self.incomingCallTimeout)
       }
 
-      completion(id, nil)
+      completion(nil)
+    }
+  }
+
+  /// Reports the placeholder call PushKit requires for an unparseable payload
+  /// and immediately ends it.
+  ///
+  /// Deliberately bypasses the session machinery: no `CallSession` is stored,
+  /// no timeout is armed, no JS events are emitted, and the audio session is
+  /// not touched — there is nothing here to connect. `provider.reportCall`
+  /// needs no session lookup to dismiss the CallKit UI.
+  ///
+  /// - Parameter completion: Called after CallKit has processed the report.
+  func reportAndEndInvalidCall(completion: @escaping () -> Void) {
+    let id = UUID()
+    Log.call.debug("Reporting invalid-payload placeholder call - id: \(id)")
+
+    let update = CXCallUpdate()
+    update.hasVideo = false
+    update.remoteHandle = CXHandle(type: .generic, value: "invalid")
+    update.localizedCallerName = "Invalid Call"
+
+    provider.reportNewIncomingCall(with: id, update: update) { [weak self] error in
+      if let error = error {
+        // CallKit disallowed the call: it was never displayed, so per the
+        // CXProvider contract we must not proceed with it — nothing to end.
+        Log.call.error(
+          "Failed to report invalid-payload call - id: \(id), error: \(error.localizedDescription)"
+        )
+      } else {
+        self?.provider.reportCall(with: id, endedAt: Date(), reason: .failed)
+      }
+      completion()
     }
   }
 

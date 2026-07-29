@@ -141,12 +141,23 @@ enum IncomingCallEventParser {
     guard
       let event = (payload["incomingCall"] ?? payload["incoming_call"]) as? [AnyHashable: Any]
     else {
+      Log.voipPush.error(
+        "Push payload has no parseable incomingCall envelope - top-level keys: \(payload.keys)"
+      )
       return nil
     }
+    // Which envelope key matched: "incomingCall" is canonical, "incoming_call"
+    // is back-compat — an integrator debugging a malformed push wants to know.
+    let envelopeKey =
+      payload["incomingCall"] is [AnyHashable: Any] ? "incomingCall" : "incoming_call"
 
     let eventId = event["eventId"] as? String ?? ""
     let serverCallId = event["serverCallId"] as? String ?? ""
     guard !eventId.isEmpty, !serverCallId.isEmpty else {
+      Log.voipPush.error(
+        "Envelope '\(envelopeKey)' rejected - eventId: \(describe(event["eventId"])), "
+          + "serverCallId: \(describe(event["serverCallId"]))"
+      )
       return nil
     }
 
@@ -154,6 +165,11 @@ enum IncomingCallEventParser {
       let callerId = callerDict["id"] as? String,
       !callerId.isEmpty
     else {
+      let rawCallerId = (event["caller"] as? [AnyHashable: Any])?["id"]
+      Log.voipPush.error(
+        "Envelope '\(envelopeKey)' rejected - caller present: \(event["caller"] != nil), "
+          + "caller.id: \(describe(rawCallerId))"
+      )
       return nil
     }
     let caller = IncomingCallEvent.Caller(
@@ -183,6 +199,16 @@ enum IncomingCallEventParser {
       startedAt: startedAt,
       metadata: metadata
     )
+  }
+
+  /// Renders a rejected payload value for diagnostics. Quoted so an empty
+  /// string (rejected by the guards) is distinguishable from a missing key,
+  /// and length-capped because a value that just failed validation cannot be
+  /// assumed to be a well-formed identifier.
+  private static func describe(_ value: Any?) -> String {
+    guard let value = value else { return "<missing>" }
+    guard let string = value as? String else { return "<non-string>" }
+    return "\"\(string.prefix(64))\""
   }
 
   /// Parses an RFC 3339 timestamp. Handles optional fractional seconds.
