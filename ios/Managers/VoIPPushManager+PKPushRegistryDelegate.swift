@@ -63,7 +63,20 @@ extension VoIPPushManager: PKPushRegistryDelegate {
     Log.voipPush.debug("Received VoIP push - payload keys: \(dictionaryPayload.keys)")
 
     guard let event = IncomingCallEventParser.parse(from: dictionaryPayload) else {
-      Log.voipPush.error("Failed to parse VoIP push payload as IncomingCallEvent")
+      // Say WHICH parse guard failed — GUIDs only, no display names, so this is
+      // safe to log and enough to identify the offending payload shape.
+      let inner = (dictionaryPayload["incomingCall"] ?? dictionaryPayload["incoming_call"])
+        as? [AnyHashable: Any]
+      let callerId = (inner?["caller"] as? [AnyHashable: Any])?["id"] as? String
+      Log.voipPush.error(
+        """
+        Failed to parse VoIP push payload as IncomingCallEvent - \
+        wrapper: \(inner != nil), \
+        eventId: \(inner?["eventId"] as? String ?? "<missing>"), \
+        serverCallId: \(inner?["serverCallId"] as? String ?? "<missing>"), \
+        callerId: \(callerId ?? "<missing>")
+        """
+      )
       // We must still report a call to CallKit even on parse failure, or the
       // app will be terminated.
       reportFailedIncomingCall(completion: completion)
@@ -76,7 +89,7 @@ extension VoIPPushManager: PKPushRegistryDelegate {
 
     // Report the incoming call to CallKit using callback-based API
     // (async/await may not work reliably when app is launched from terminated state)
-    CallManager.shared.reportIncomingCall(event: event) { error in
+    CallManager.shared.reportIncomingCall(event: event) { _, error in
       if let error = error {
         Log.voipPush.error("Failed to report incoming call: \(error.localizedDescription)")
       } else {
@@ -106,16 +119,22 @@ extension VoIPPushManager: PKPushRegistryDelegate {
       metadata: nil
     )
 
-    // Use callback-based API for reliability when app is launched from terminated state
-    CallManager.shared.reportIncomingCall(event: fallbackEvent) { error in
+    // Use callback-based API for reliability when app is launched from terminated state.
+    // End the fallback session by ITS OWN id (delivered via the completion):
+    // ending `firstSession` here ended the WRONG session whenever another call
+    // was already active (the user's own outgoing call got reported ended while
+    // the "Invalid Call" rang on), and when no session existed yet it raced the
+    // store add and ended nothing.
+    CallManager.shared.reportIncomingCall(event: fallbackEvent) { id, error in
       if let error = error {
         Log.voipPush.error("Failed to report fallback incoming call: \(error.localizedDescription)")
       }
       // Immediately end the call since it's invalid
       Task {
-        if let session = await CallManager.shared.store.firstSession {
-          await CallManager.shared.reportCallEnded(for: session.id, reason: .failed)
-        }
+        // Dismisses the CallKit UI by id (no store dependency), then sweeps the
+        // store in case the report path's async add landed after the removal.
+        await CallManager.shared.reportCallEnded(for: id, reason: .failed)
+        await CallManager.shared.store.remove(for: id)
       }
       completion()
     }

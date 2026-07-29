@@ -355,7 +355,11 @@ class CallManager: NSObject {
   /// - Parameters:
   ///   - event: The incoming call event containing caller info.
   ///   - completion: Called when the CallKit report completes (success or failure).
-  func reportIncomingCall(event: IncomingCallEvent, completion: @escaping (Error?) -> Void) {
+  ///     Receives the CallKit UUID assigned to this call, so the caller can end
+  ///     EXACTLY this session later. Ending `store.firstSession` instead ended the
+  ///     wrong session whenever another call (e.g. the user's own outgoing call)
+  ///     was already active — the reported call then rang forever.
+  func reportIncomingCall(event: IncomingCallEvent, completion: @escaping (UUID, Error?) -> Void) {
     let id = UUID()
     Log.call.debug("Reporting incoming call (sync) - id: \(id)")
 
@@ -400,7 +404,7 @@ class CallManager: NSObject {
           "Failed to report incoming call to CallKit - id: \(id), error: \(error.localizedDescription)"
         )
         AudioManager.shared.restoreAudioSession()
-        completion(error)
+        completion(id, error)
         return
       }
 
@@ -417,7 +421,7 @@ class CallManager: NSObject {
         self?.startCallTimeout(for: id, timeout: Self.incomingCallTimeout)
       }
 
-      completion(nil)
+      completion(id, nil)
     }
   }
 
