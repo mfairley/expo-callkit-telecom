@@ -19,6 +19,10 @@
  *   bun send-test-push.ts --metadata '{"declineToken":"abc"}'   # JSON object; rides into
  *                                                               # the killed-app call-ended
  *                                                               # broadcast on Android
+ *   bun send-test-push.ts --raw-payload '{"notACall":{}}'       # iOS only: send this JSON
+ *                                                               # verbatim as the APNs body —
+ *                                                               # exercises the native parser's
+ *                                                               # rejection paths
  *   bun send-test-push.ts --production     # iOS prod APNs (default: sandbox)
  *
  * Required env (.env auto-loaded by bun):
@@ -91,7 +95,24 @@ const forceIos = flag("--ios");
 const forceAndroid = flag("--android");
 const usePrd = flag("--production");
 
+const rawPayload = arg("--raw-payload");
+if (rawPayload !== undefined) {
+  try {
+    JSON.parse(rawPayload);
+  } catch (e) {
+    throw new Error(`--raw-payload is not valid JSON (${(e as Error).message}), got: ${rawPayload}`);
+  }
+  if (forceAndroid) {
+    // FCM wraps the event differently (data message); a verbatim-body override
+    // is only meaningful for the APNs path.
+    throw new Error("--raw-payload is iOS-only; drop --android");
+  }
+}
+
 const want = (target: "ios" | "android") => {
+  // --raw-payload is an APNs-body override; never fan out a normal FCM push
+  // alongside it.
+  if (rawPayload !== undefined) return target === "ios";
   if (endCall) return target === "android";
   if (forceIos) return target === "ios";
   if (forceAndroid) return target === "android";
@@ -109,6 +130,7 @@ async function runApns(): Promise<void> {
     topic: `${env.BUNDLE_ID}.voip`,
     deviceToken: env.APNS_DEVICE_TOKEN,
     production: usePrd,
+    rawBody: rawPayload,
   });
 }
 

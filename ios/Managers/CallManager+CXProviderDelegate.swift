@@ -58,6 +58,17 @@ extension CallManager: CXProviderDelegate {
   func provider(_ provider: CXProvider, perform action: CXAnswerCallAction) {
     Log.call.debug("CXAnswerCallAction - id: \(action.callUUID)")
 
+    // An invalid-payload placeholder (reported and immediately ended) can
+    // still receive a fast answer in its display window. There is no session
+    // and never will be — fail fast instead of creating a fulfill request that
+    // times out in 30s and emitting a CallAnswered event for an id JS has
+    // never seen.
+    guard !isInvalidCallId(action.callUUID) else {
+      Log.call.debug("CXAnswerCallAction for invalid-payload placeholder - id: \(action.callUUID)")
+      action.fail()
+      return
+    }
+
     // Cancel the incoming call timeout since user answered
     cancelCallTimeout(for: action.callUUID)
 
@@ -98,6 +109,15 @@ extension CallManager: CXProviderDelegate {
 
   func provider(_ provider: CXProvider, perform action: CXEndCallAction) {
     Log.call.debug("CXEndCallAction - id: \(action.callUUID)")
+
+    // A decline aimed at an invalid-payload placeholder must not reach the
+    // real-call teardown below — DialtonePlayer is process-wide, so stopping
+    // it here would silence a concurrently ringing outgoing call.
+    guard !isInvalidCallId(action.callUUID) else {
+      Log.call.debug("CXEndCallAction for invalid-payload placeholder - id: \(action.callUUID)")
+      action.fulfill()
+      return
+    }
 
     // Stop dialtone and cancel timeout
     DialtonePlayer.shared.stop()
