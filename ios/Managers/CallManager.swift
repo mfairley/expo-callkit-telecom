@@ -53,6 +53,31 @@ class CallManager: NSObject {
   /// Lock for thread-safe access to call timeout tasks.
   private let timeoutTasksLock = NSLock()
 
+  /// CallKit UUIDs of invalid-payload placeholder calls (see
+  /// `reportAndEndInvalidCall`). CallKit can deliver user actions for a
+  /// placeholder in the window between its report and its end; the action
+  /// handlers must not route those through real-call state (fulfill requests,
+  /// JS events, the process-wide dialtone). Entries are never pruned — 16
+  /// bytes each, bounded by malformed pushes per process lifetime.
+  private var invalidCallIds = Set<UUID>()
+
+  /// Lock for thread-safe access to invalid call IDs.
+  private let invalidCallIdsLock = NSLock()
+
+  /// Marks a CallKit UUID as an invalid-payload placeholder (thread-safe).
+  func markInvalidCallId(_ id: UUID) {
+    invalidCallIdsLock.lock()
+    defer { invalidCallIdsLock.unlock() }
+    invalidCallIds.insert(id)
+  }
+
+  /// Whether a CallKit UUID is an invalid-payload placeholder (thread-safe).
+  func isInvalidCallId(_ id: UUID) -> Bool {
+    invalidCallIdsLock.lock()
+    defer { invalidCallIdsLock.unlock() }
+    return invalidCallIds.contains(id)
+  }
+
   private override init() {
     let configuration = CXProviderConfiguration()
     configuration.supportsVideo = true
@@ -433,6 +458,11 @@ class CallManager: NSObject {
   func reportAndEndInvalidCall(completion: @escaping () -> Void) {
     let id = UUID()
     Log.call.debug("Reporting invalid-payload placeholder call - id: \(id)")
+
+    // Marked BEFORE the report so an answer/decline delivered in the window
+    // between display and the .failed report below is recognized and rejected
+    // by the action handlers instead of touching real-call state.
+    markInvalidCallId(id)
 
     let update = CXCallUpdate()
     update.hasVideo = false
