@@ -56,6 +56,7 @@ With custom ringtone and dialtone:
           "incomingCallTimeout": 45,
           "outgoingCallTimeout": 60,
           "fulfillAnswerCallTimeout": 30,
+          "includesCallsInRecents": true,
           "microphonePermission": "$(PRODUCT_NAME) needs the microphone to make calls."
         }
       ]
@@ -64,7 +65,7 @@ With custom ringtone and dialtone:
 }
 ```
 
-Files in `sounds` are copied into the iOS bundle and Android raw resources at prebuild time. The full prop type is `ExpoCallKitTelecomPluginProps` in `plugin/src/`.
+Files in `sounds` are copied into the iOS bundle and Android raw resources at prebuild time. Set `includesCallsInRecents: false` to keep calls out of the phone's Recents/call log (iOS — defaults to `true`; Android self-managed calls are never logged, so no flag is needed there). The full prop type is `ExpoCallKitTelecomPluginProps` in `plugin/src/`.
 
 ## Concepts
 
