@@ -18,7 +18,7 @@
     "build:plugin": "expo-module build plugin",
     "clean": "expo-module clean",
     "lint": "expo-module lint",
-    "test": "expo-module test",
+    "test": "expo-module test plugin",
     "typecheck": "tsc --noEmit && tsc --noEmit -p plugin",
     "prepare": "expo-module prepare",
     "prepublishOnly": "expo-module prepublishOnly",

@@ -105,6 +105,7 @@ With custom ringtone and dialtone:
           "incomingCallTimeout": 45,
           "outgoingCallTimeout": 60,
           "fulfillAnswerCallTimeout": 30,
+          "includesCallsInRecents": true,
           "microphonePermission": "$(PRODUCT_NAME) needs the microphone to make calls."
         }
       ]

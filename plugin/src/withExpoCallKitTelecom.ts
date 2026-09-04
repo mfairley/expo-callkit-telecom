@@ -37,6 +37,13 @@ export type ExpoCallKitTelecomPluginProps = {
    */
   fulfillAnswerCallTimeout?: number;
   /**
+   * Whether completed calls appear in the phone's call history (Recents).
+   * Maps to CallKit's `CXProviderConfiguration.includesCallsInRecents`.
+   * @default true
+   * @platform ios
+   */
+  includesCallsInRecents?: boolean;
+  /**
    * Array of sound file paths (relative to project root) to include in the app.
    * These files will be copied into the iOS bundle and Android raw resources.
    * .wav recommended

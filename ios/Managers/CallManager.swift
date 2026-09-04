@@ -59,7 +59,10 @@ class CallManager: NSObject {
     configuration.maximumCallGroups = 1
     configuration.maximumCallsPerCallGroup = 1
     configuration.supportedHandleTypes = [.phoneNumber, .generic]
-    configuration.includesCallsInRecents = true
+    configuration.includesCallsInRecents =
+      Bundle.main.object(
+        forInfoDictionaryKey: "ExpoCallKitTelecomIncludesCallsInRecents"
+      ) as? Bool ?? true
 
     if let ringtone = Bundle.main.object(
       forInfoDictionaryKey: "ExpoCallKitTelecomDefaultRingtone"

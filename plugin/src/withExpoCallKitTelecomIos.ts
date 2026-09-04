@@ -10,6 +10,7 @@ import { basename, resolve } from "path";
 
 import {
   DEFAULT_FULFILL_ANSWER_CALL_TIMEOUT,
+  DEFAULT_INCLUDES_CALLS_IN_RECENTS,
   DEFAULT_INCOMING_CALL_TIMEOUT,
   DEFAULT_OUTGOING_CALL_TIMEOUT,
 } from "./constants";
@@ -118,6 +119,20 @@ const withTimeouts: ConfigPlugin<{
       outgoingCallTimeout ?? DEFAULT_OUTGOING_CALL_TIMEOUT;
     config.modResults.ExpoCallKitTelecomFulfillAnswerCallTimeout =
       fulfillAnswerCallTimeout ?? DEFAULT_FULFILL_ANSWER_CALL_TIMEOUT;
+    return config;
+  });
+};
+
+/**
+ * Configures whether calls appear in the phone's call history (Recents).
+ */
+const withRecents: ConfigPlugin<{ includesCallsInRecents?: boolean }> = (
+  config,
+  { includesCallsInRecents },
+) => {
+  return withInfoPlist(config, (config) => {
+    config.modResults.ExpoCallKitTelecomIncludesCallsInRecents =
+      includesCallsInRecents ?? DEFAULT_INCLUDES_CALLS_IN_RECENTS;
     return config;
   });
 };
@@ -251,6 +266,7 @@ export const withExpoCallKitTelecomIos: ConfigPlugin<ExpoCallKitTelecomPluginPro
     incomingCallTimeout,
     outgoingCallTimeout,
     fulfillAnswerCallTimeout,
+    includesCallsInRecents,
     sounds,
     defaultRingtoneIos,
     defaultDialtone,
@@ -265,6 +281,7 @@ export const withExpoCallKitTelecomIos: ConfigPlugin<ExpoCallKitTelecomPluginPro
     outgoingCallTimeout,
     fulfillAnswerCallTimeout,
   });
+  config = withRecents(config, { includesCallsInRecents });
   config = withSounds(config, { sounds });
   config = withDefaultRingtone(config, {
     sounds,
