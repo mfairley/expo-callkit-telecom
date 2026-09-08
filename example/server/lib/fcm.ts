@@ -22,6 +22,32 @@ export async function sendFcm(
   event: IncomingCallEvent,
   config: FcmConfig,
 ): Promise<void> {
+  await send(config, {
+    messageType: "incomingCall",
+    incomingCall: JSON.stringify(event),
+  });
+  console.log("✓ FCM sent");
+}
+
+/**
+ * Withdraws a call that is still ringing, so a killed app stops ringing at
+ * once instead of waiting out incomingCallTimeout.
+ */
+export async function sendFcmCallEnded(
+  serverCallId: string,
+  config: FcmConfig,
+): Promise<void> {
+  await send(config, {
+    messageType: "callEnded",
+    callEnded: JSON.stringify({ serverCallId }),
+  });
+  console.log("✓ FCM call-ended sent");
+}
+
+async function send(
+  config: FcmConfig,
+  data: Record<string, string>,
+): Promise<void> {
   const raw = await readFile(config.keyPath, "utf8");
   let account: ServiceAccount;
   try {
@@ -74,10 +100,7 @@ export async function sendFcm(
       body: JSON.stringify({
         message: {
           token: config.deviceToken,
-          data: {
-            messageType: "incomingCall",
-            incomingCall: JSON.stringify(event),
-          },
+          data,
           android: { priority: "HIGH" },
         },
       }),
@@ -86,5 +109,4 @@ export async function sendFcm(
   if (!fcmRes.ok) {
     throw new Error(`FCM: ${fcmRes.status} ${await fcmRes.text()}`);
   }
-  console.log("✓ FCM sent");
 }
