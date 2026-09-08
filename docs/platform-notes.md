@@ -49,6 +49,28 @@ The broadcast carries two extras: `eventName` (the call event that couldn't reac
 
 A complete working setup ships in the example app: `example/client/` sets `androidEventReceiver` in `app.config.ts` and copies `plugins/CallEndedReceiver.kt` into the generated android project — see "Testing system → app paths" in the example README for how to exercise it.
 
+### Withdrawing a ringing call
+
+The reverse direction has the same problem. If the caller hangs up while the callee's phone is
+still ringing, a killed app has no way to act on it: the ring was reported natively, so there is no
+JS observer to call `reportCallEnded`, and the phone rings on until `incomingCallTimeout`.
+
+Send a second data message and the module ends the call natively:
+
+```json
+{
+  "messageType": "callEnded",
+  "callEnded": "{\"serverCallId\":\"call-123\"}"
+}
+```
+
+`serverCallId` is the one you set on the `IncomingCallEvent` when you started the call. The module
+looks up the matching session and reports it ended with reason `remoteEnded`, which is the same
+path `reportCallEnded` takes from JS. A `serverCallId` with no ringing session is ignored, so a
+withdrawal that arrives late, or for a call that was already answered elsewhere, does nothing.
+
+The example server sends it with `bun send-test-push.ts --end --serverCallId call-123`.
+
 ## VoIP push token types
 
 The VoIP push token type is reported as `"APNS_VOIP"` on iOS and `"FCM"` on Android — send both to your backend so it knows which transport to use.

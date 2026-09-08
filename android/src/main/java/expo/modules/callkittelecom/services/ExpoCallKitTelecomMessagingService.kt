@@ -6,7 +6,9 @@ import android.util.Log
 import com.google.firebase.messaging.RemoteMessage
 import expo.modules.callkittelecom.managers.CallManager
 import expo.modules.callkittelecom.managers.VoIPPushManager
+import expo.modules.callkittelecom.models.CallEndedReason
 import expo.modules.callkittelecom.models.IncomingCallEvent
+import expo.modules.callkittelecom.store.CallStore
 import expo.modules.notifications.service.ExpoFirebaseMessagingService
 import java.util.concurrent.ConcurrentHashMap
 import org.json.JSONArray
@@ -22,6 +24,11 @@ import org.json.JSONObject
  * Wire format (matches example/server/lib/fcm.ts): data["messageType"] = "incomingCall"
  * data["incomingCall"] = JSON string of the IncomingCallEvent (camelCase). The snake_case envelope
  * (messageType/key "incoming_call") is also accepted for backwards compatibility.
+ *
+ * data["messageType"] = "callEnded" with data["callEnded"] = {"serverCallId": "..."} withdraws a
+ * call that is still ringing. On a killed app nothing else can: the ring is reported natively, so
+ * there is no JS observer to call reportCallEnded, and the phone would ring on until
+ * incomingCallTimeout even though the caller has hung up.
  */
 class ExpoCallKitTelecomMessagingService : ExpoFirebaseMessagingService() {
     companion object {
@@ -31,6 +38,8 @@ class ExpoCallKitTelecomMessagingService : ExpoFirebaseMessagingService() {
         // compatibility.
         private val MESSAGE_TYPE_INCOMING_CALL = setOf("incomingCall", "incoming_call")
         private val KEYS_INCOMING_CALL = listOf("incomingCall", "incoming_call")
+        private val MESSAGE_TYPE_CALL_ENDED = setOf("callEnded", "call_ended")
+        private val KEYS_CALL_ENDED = listOf("callEnded", "call_ended")
         private const val DEDUP_WINDOW_MS = 120_000L
 
         private val dedupeLock = Any()
@@ -39,6 +48,11 @@ class ExpoCallKitTelecomMessagingService : ExpoFirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         val data = message.data
+
+        if (data[KEY_MESSAGE_TYPE] in MESSAGE_TYPE_CALL_ENDED) {
+            Handler(Looper.getMainLooper()).post { processCallEnded(data) }
+            return
+        }
 
         // Try to parse as an incoming call payload.
         val eventMap = if (data.isNotEmpty()) parseIncomingCallEvent(data) else null
@@ -82,6 +96,28 @@ class ExpoCallKitTelecomMessagingService : ExpoFirebaseMessagingService() {
         } catch (error: Throwable) {
             Log.e(TAG, "Failed to process incoming call push: ${error.message}", error)
         }
+    }
+
+    /**
+     * Ends the session whose serverCallId matches, so a call the caller has abandoned stops
+     * ringing at once rather than running to the timeout.
+     */
+    private fun processCallEnded(data: Map<String, String>) {
+        val raw = KEYS_CALL_ENDED.firstNotNullOfOrNull { data[it] } ?: return
+        val serverCallId = runCatching { JSONObject(raw).optString("serverCallId") }
+            .getOrNull()
+            ?.takeIf { it.isNotBlank() }
+            ?: return
+
+        CallManager.shared.initialize(applicationContext)
+        val session = CallStore.allSessions()
+            .firstOrNull { it.incomingCallEvent?.serverCallId == serverCallId }
+        if (session == null) {
+            Log.d(TAG, "No ringing call matches serverCallId $serverCallId")
+            return
+        }
+        CallManager.shared.reportCallEnded(session.id, CallEndedReason.REMOTE_ENDED)
+        Log.d(TAG, "Withdrew a ringing call from FCM payload")
     }
 
     private fun parseIncomingCallEvent(data: Map<String, String>): Map<String, Any?>? {
