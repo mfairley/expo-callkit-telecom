@@ -65,7 +65,7 @@ class IncomingCallActivity : Activity() {
         val caller = session.remoteParticipants.firstOrNull()
 
         bindAppBranding()
-        bindCallerInfo(caller?.displayName, session.options.hasVideo)
+        bindCallerInfo(caller?.label, session.options.hasVideo)
         loadAvatar(caller?.avatarUrl)
         bindButtons(id, session.options.hasVideo)
         observeSessionChanges(id)
