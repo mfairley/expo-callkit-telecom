@@ -43,11 +43,8 @@ final class CaptureSessionManager {
       "cameraPermission": cameraPermission
     ]
 
-    // Check multitasking camera access support (iOS 16+)
-    if #available(iOS 16.0, *) {
-      let session = AVCaptureSession()
-      state["isMultitaskingCameraAccessSupported"] = session.isMultitaskingCameraAccessSupported
-    }
+    state["isMultitaskingCameraAccessSupported"] =
+      AVCaptureSession().isMultitaskingCameraAccessSupported
 
     return state
   }
