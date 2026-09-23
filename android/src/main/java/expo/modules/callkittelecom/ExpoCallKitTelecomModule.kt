@@ -81,9 +81,9 @@ class ExpoCallKitTelecomModule : Module() {
 
             CallManager.shared.initialize(context)
 
-            VoIPPushManager.register()
-
             CallEventEmitter.setSender { eventName, body -> sendEvent(eventName, body) }
+
+            VoIPPushManager.register()
 
             // Handle the launch intent for cold-start answer actions.
             // OnNewIntent only fires when the activity is already running.

@@ -22,10 +22,21 @@ object VoIPPushManager {
     var token: String? = null
         private set
 
-    /** Registers for FCM push tokens by fetching the current token. */
+    /**
+     * Registers for FCM push tokens by fetching the current token.
+     *
+     * No-ops with a warning when Firebase isn't configured (e.g. no google-services.json), so apps
+     * that deliver calls without FCM can still use the rest of the module.
+     */
     fun register() {
-        FirebaseMessaging.getInstance()
-            .token
+        val messaging =
+            try {
+                FirebaseMessaging.getInstance()
+            } catch (_: IllegalStateException) {
+                Log.w(TAG, "Firebase is not configured; skipping VoIP push registration")
+                return
+            }
+        messaging.token
             .addOnSuccessListener { newToken -> updateToken(newToken) }
             .addOnFailureListener { error ->
                 Log.e(TAG, "Failed to get FCM token: ${error.message}", error)
