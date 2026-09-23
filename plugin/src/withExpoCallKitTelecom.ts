@@ -79,7 +79,8 @@ export type ExpoCallKitTelecomPluginProps = {
    * iOS CallKit call screen (`CXProviderConfiguration.iconTemplateImageData`).
    * CallKit renders it as a *template*: only the alpha channel is used (RGB is
    * ignored) and the system tints it. A ~40x40pt square PNG whose alpha
-   * describes the glyph is recommended. When omitted, CallKit shows no icon.
+   * describes the glyph is recommended. When omitted, CallKit derives a mask
+   * from the app icon, which renders as a solid square for opaque icons.
    * @platform ios
    */
   iconTemplateIos?: string;

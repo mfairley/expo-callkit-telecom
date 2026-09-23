@@ -77,17 +77,14 @@ class CallManager: NSObject {
     // name here. CallKit uses only the image's alpha channel (template).
     if let iconTemplate = Bundle.main.object(
       forInfoDictionaryKey: "ExpoCallKitTelecomIconTemplate"
-    ) as? String {
-      let name = (iconTemplate as NSString).deletingPathExtension
-      let ext = (iconTemplate as NSString).pathExtension
-      if let iconURL = Bundle.main.url(
-        forResource: name,
-        withExtension: ext.isEmpty ? nil : ext
+    ) as? String,
+      let iconURL = Bundle.main.url(
+        forResource: iconTemplate,
+        withExtension: nil
       ),
-        let iconData = try? Data(contentsOf: iconURL)
-      {
-        configuration.iconTemplateImageData = iconData
-      }
+      let iconData = try? Data(contentsOf: iconURL)
+    {
+      configuration.iconTemplateImageData = iconData
     }
 
     provider = CXProvider(configuration: configuration)

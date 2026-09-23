@@ -287,12 +287,23 @@ const withDefaultDialtone: ConfigPlugin<{
  * (RGB is ignored) and the system tints it. Provide a ~40x40pt square PNG whose
  * alpha describes the glyph.
  */
-const withIconTemplate: ConfigPlugin<{ iconTemplateIos?: string }> = (
-  config,
-  { iconTemplateIos },
-) => {
+const withIconTemplate: ConfigPlugin<{
+  sounds?: string[];
+  iconTemplateIos?: string;
+}> = (config, { sounds, iconTemplateIos }) => {
   if (!iconTemplateIos) {
     return config;
+  }
+
+  const iconFilename = basename(iconTemplateIos);
+
+  // Sounds and the icon are copied flat into the same directory by filename,
+  // so a shared name would silently overwrite one with the other.
+  if (sounds?.some((s) => basename(s) === iconFilename)) {
+    throw new Error(
+      `${ERROR_MSG_PREFIX}"iconTemplateIos" filename "${iconFilename}" ` +
+        `collides with a file in "sounds".`,
+    );
   }
 
   // Copy the file into the iOS project and add it as a bundle resource.
@@ -316,7 +327,7 @@ const withIconTemplate: ConfigPlugin<{ iconTemplateIos?: string }> = (
 
   // Record the filename so the native side can resolve it from the bundle.
   config = withInfoPlist(config, (config) => {
-    config.modResults.ExpoCallKitTelecomIconTemplate = basename(iconTemplateIos);
+    config.modResults.ExpoCallKitTelecomIconTemplate = iconFilename;
     return config;
   });
 
@@ -354,7 +365,7 @@ export const withExpoCallKitTelecomIos: ConfigPlugin<ExpoCallKitTelecomPluginPro
     defaultRingtone: defaultRingtoneIos,
   });
   config = withDefaultDialtone(config, { sounds, defaultDialtone });
-  config = withIconTemplate(config, { iconTemplateIos });
+  config = withIconTemplate(config, { sounds, iconTemplateIos });
 
   return config;
 };

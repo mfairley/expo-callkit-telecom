@@ -37,7 +37,7 @@ Add the config plugin to `app.json` / `app.config.ts`. Minimal form:
 }
 ```
 
-With custom ringtone and dialtone:
+With custom sounds and options:
 
 ```jsonc
 {
