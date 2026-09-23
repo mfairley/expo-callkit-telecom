@@ -138,6 +138,41 @@ const withRecents: ConfigPlugin<{ includesCallsInRecents?: boolean }> = (
 };
 
 /**
+ * Copies a resource file into the iOS project directory and registers it in the
+ * Xcode project so it lands in the app bundle. Shared by the sound-file and
+ * icon-template plugins. The caller validates that `sourcePath` exists first, so
+ * it can emit a context-specific error message.
+ */
+function copyResourceFileToProject(
+  config: Parameters<Parameters<typeof withXcodeProject>[1]>[0],
+  sourcePath: string,
+  projectName: string,
+) {
+  const filename = basename(sourcePath);
+  const destinationPath = resolve(
+    config.modRequest.projectRoot,
+    "ios",
+    projectName,
+    filename,
+  );
+
+  // Copy the file to the iOS project directory
+  copyFileSync(sourcePath, destinationPath);
+
+  // Add the file to the Xcode project if not already present
+  if (!config.modResults.hasFile(`${projectName}/${filename}`)) {
+    config.modResults = IOSConfig.XcodeUtils.addResourceFileToGroup({
+      filepath: `${projectName}/${filename}`,
+      groupName: projectName,
+      isBuildFile: true,
+      project: config.modResults,
+    });
+  }
+
+  return config;
+}
+
+/**
  * Copies sound files into the iOS project bundle.
  */
 function setSoundFiles(
@@ -151,29 +186,14 @@ function setSoundFiles(
     throw new Error(`${ERROR_MSG_PREFIX}Unable to find iOS project name.`);
   }
 
-  const sourceRoot = resolve(projectRoot, "ios", projectName);
-
   for (const soundPath of sounds) {
-    const filename = basename(soundPath);
     const sourcePath = resolve(projectRoot, soundPath);
-    const destinationPath = resolve(sourceRoot, filename);
 
     if (!existsSync(sourcePath)) {
       throw new Error(`${ERROR_MSG_PREFIX}Sound file not found: ${sourcePath}`);
     }
 
-    // Copy the file to the iOS project directory
-    copyFileSync(sourcePath, destinationPath);
-
-    // Add the file to the Xcode project if not already present
-    if (!config.modResults.hasFile(`${projectName}/${filename}`)) {
-      config.modResults = IOSConfig.XcodeUtils.addResourceFileToGroup({
-        filepath: `${projectName}/${filename}`,
-        groupName: projectName,
-        isBuildFile: true,
-        project: config.modResults,
-      });
-    }
+    config = copyResourceFileToProject(config, sourcePath, projectName);
   }
 
   return config;
@@ -258,6 +278,62 @@ const withDefaultDialtone: ConfigPlugin<{
   });
 };
 
+/**
+ * Bundles a CallKit icon template into the iOS app and records its filename in
+ * Info.plist, so the native side can load it into
+ * `CXProviderConfiguration.iconTemplateImageData`.
+ *
+ * CallKit renders this image as a *template*: only the alpha channel is used
+ * (RGB is ignored) and the system tints it. Provide a ~40x40pt square PNG whose
+ * alpha describes the glyph.
+ */
+const withIconTemplate: ConfigPlugin<{
+  sounds?: string[];
+  iconTemplateIos?: string;
+}> = (config, { sounds, iconTemplateIos }) => {
+  if (!iconTemplateIos) {
+    return config;
+  }
+
+  const iconFilename = basename(iconTemplateIos);
+
+  // Sounds and the icon are copied flat into the same directory by filename,
+  // so a shared name would silently overwrite one with the other.
+  if (sounds?.some((s) => basename(s) === iconFilename)) {
+    throw new Error(
+      `${ERROR_MSG_PREFIX}"iconTemplateIos" filename "${iconFilename}" ` +
+        `collides with a file in "sounds".`,
+    );
+  }
+
+  // Copy the file into the iOS project and add it as a bundle resource.
+  config = withXcodeProject(config, (config) => {
+    const projectName = config.modRequest.projectName;
+
+    if (!projectName) {
+      throw new Error(`${ERROR_MSG_PREFIX}Unable to find iOS project name.`);
+    }
+
+    const sourcePath = resolve(config.modRequest.projectRoot, iconTemplateIos);
+
+    if (!existsSync(sourcePath)) {
+      throw new Error(
+        `${ERROR_MSG_PREFIX}Icon template file not found: ${sourcePath}`,
+      );
+    }
+
+    return copyResourceFileToProject(config, sourcePath, projectName);
+  });
+
+  // Record the filename so the native side can resolve it from the bundle.
+  config = withInfoPlist(config, (config) => {
+    config.modResults.ExpoCallKitTelecomIconTemplate = iconFilename;
+    return config;
+  });
+
+  return config;
+};
+
 export const withExpoCallKitTelecomIos: ConfigPlugin<ExpoCallKitTelecomPluginProps> = (
   config,
   {
@@ -270,6 +346,7 @@ export const withExpoCallKitTelecomIos: ConfigPlugin<ExpoCallKitTelecomPluginPro
     sounds,
     defaultRingtoneIos,
     defaultDialtone,
+    iconTemplateIos,
   },
 ) => {
   config = withPermissions(config, { cameraPermission, microphonePermission });
@@ -288,6 +365,7 @@ export const withExpoCallKitTelecomIos: ConfigPlugin<ExpoCallKitTelecomPluginPro
     defaultRingtone: defaultRingtoneIos,
   });
   config = withDefaultDialtone(config, { sounds, defaultDialtone });
+  config = withIconTemplate(config, { sounds, iconTemplateIos });
 
   return config;
 };

@@ -72,6 +72,21 @@ class CallManager: NSObject {
       configuration.ringtoneSound = ringtone
     }
 
+    // App-icon template shown on the CallKit call screen. Configured via the
+    // `iconTemplateIos` plugin option, which bundles the file and records its
+    // name here. CallKit uses only the image's alpha channel (template).
+    if let iconTemplate = Bundle.main.object(
+      forInfoDictionaryKey: "ExpoCallKitTelecomIconTemplate"
+    ) as? String,
+      let iconURL = Bundle.main.url(
+        forResource: iconTemplate,
+        withExtension: nil
+      ),
+      let iconData = try? Data(contentsOf: iconURL)
+    {
+      configuration.iconTemplateImageData = iconData
+    }
+
     provider = CXProvider(configuration: configuration)
 
     super.init()
