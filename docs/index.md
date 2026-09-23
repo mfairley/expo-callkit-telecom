@@ -43,7 +43,7 @@ features:
     details: '<a href="https://docs.expo.dev/config-plugins/introduction/">Expo config plugin</a> handles entitlements, background modes, microphone permission, ringtone bundling, and FCM service registration at prebuild.'
   - icon: 🆕
     title: Current platform APIs
-    details: '<a href="https://www.swift.org/">Swift</a> on iOS (15.1+), <a href="https://kotlinlang.org/">Kotlin</a> + <a href="https://developer.android.com/jetpack/androidx/releases/core-telecom">androidx.core-telecom</a> on Android (minSdk 26). The path Google and Apple are pushing forward.'
+    details: '<a href="https://www.swift.org/">Swift</a> on iOS (16.0+), <a href="https://kotlinlang.org/">Kotlin</a> + <a href="https://developer.android.com/jetpack/androidx/releases/core-telecom">androidx.core-telecom</a> on Android (minSdk 26). The path Google and Apple are pushing forward.'
 ---
 
 ## See it in action on iOS and Android
@@ -72,7 +72,7 @@ Yes. The module owns the iOS audio session: it puts WebRTC's `RTCAudioSession` i
 
 ### What are the minimum platform versions?
 
-iOS 15.1 and Android API 26 (Android 8.0). The example app is exercised end-to-end against iOS 26 and Android 15 with Expo SDK 55, React Native 0.83, and the New Architecture enabled.
+iOS 16.0 and Android API 26 (Android 8.0), on Expo SDK 55 or later. The example app is exercised end-to-end against iOS 26 and Android 15 with Expo SDK 55, React Native 0.83, and the New Architecture enabled.
 
 ### Does it handle incoming calls when the app is terminated?
 

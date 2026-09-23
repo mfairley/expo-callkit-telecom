@@ -38,7 +38,7 @@ Pick **`expo-callkit-telecom`** if:
 - You're on Expo and want the config-plugin experience for entitlements, background modes, permissions, ringtone bundling, and FCM service registration.
 - You're on a manual-audio WebRTC stack — LiveKit, plain WebRTC, or anything else that wants to own its `RTCAudioSession`.
 - You want incoming calls to work from a terminated state without writing your own PushKit / FCM glue.
-- iOS 15.1+ and Android API 26+ cover your install base.
+- iOS 16.0+ and Android API 26+ cover your install base.
 
 Pick **`react-native-callkeep`** if:
 

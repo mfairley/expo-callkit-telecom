@@ -40,35 +40,44 @@
       "on-activate": "  # Keep git hooks wired up (idempotent) so commits run the formatters.\n  lefthook install\n"
     },
     "profile": {},
-    "options": {}
+    "options": {
+      "systems": [
+        "aarch64-darwin",
+        "aarch64-linux",
+        "x86_64-darwin",
+        "x86_64-linux"
+      ]
+    }
   },
   "packages": [
     {
       "attr_path": "bun",
       "broken": false,
-      "derivation": "/nix/store/j1bb0sq4v6ayl9qsa3ba7c9c0lzd80gr-bun-1.3.13.drv",
+      "derivation": "/nix/store/jw6h2fipps5s6lszymvh54mx7i6b7a2l-bun-1.3.13.drv",
       "description": "Incredibly fast JavaScript runtime, bundler, transpiler and package manager – all in one",
       "install_id": "bun",
       "license": "[ MIT, LGPL-2.1-only ]",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
       "name": "bun-1.3.13",
       "pname": "bun",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T07:05:50.655223Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T03:13:13.715410Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
       "version": "1.3.13",
       "outputs_to_install": [
         "out",
+        "out",
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/i4rqz2p2bayrl6pv9l36y4fzhqx7k1zv-bun-1.3.13"
+        "out": "/nix/store/jgl1hjr0cf6s32jcnqmkp44av4flamap-bun-1.3.13"
       },
       "system": "aarch64-darwin",
       "group": "toplevel",
@@ -77,20 +86,21 @@
     {
       "attr_path": "bun",
       "broken": false,
-      "derivation": "/nix/store/gkg0piqp2ixdd4m4c8867br5a427qbq5-bun-1.3.13.drv",
+      "derivation": "/nix/store/05kg2c8div5xcsnkj8pa9ppaq1g1c3yb-bun-1.3.13.drv",
       "description": "Incredibly fast JavaScript runtime, bundler, transpiler and package manager – all in one",
       "install_id": "bun",
       "license": "[ MIT, LGPL-2.1-only ]",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
       "name": "bun-1.3.13",
       "pname": "bun",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T07:33:29.002704Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T03:44:08.062537Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
       "version": "1.3.13",
@@ -99,7 +109,7 @@
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/1q2xsp98qhjy6rsz3nga795c3mgsjhia-bun-1.3.13"
+        "out": "/nix/store/ywc7zrq5vr32ashfgc7dp84a2f3rzic6-bun-1.3.13"
       },
       "system": "aarch64-linux",
       "group": "toplevel",
@@ -108,20 +118,21 @@
     {
       "attr_path": "bun",
       "broken": false,
-      "derivation": "/nix/store/9gf5awmx65pypdap8qklv9vrq3w4kifj-bun-1.3.13.drv",
+      "derivation": "/nix/store/5z4543rqly7khnfq2vq1kngv9hbqhl2z-bun-1.3.13.drv",
       "description": "Incredibly fast JavaScript runtime, bundler, transpiler and package manager – all in one",
       "install_id": "bun",
       "license": "[ MIT, LGPL-2.1-only ]",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
       "name": "bun-1.3.13",
       "pname": "bun",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T08:01:17.183526Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T04:13:05.974170Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
       "version": "1.3.13",
@@ -130,7 +141,7 @@
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/31jsiwr1nq8pi4jvyjpq0zi28a4fyay0-bun-1.3.13"
+        "out": "/nix/store/1nphhxm1h3pya9j86kql2gpsvy6nizr4-bun-1.3.13"
       },
       "system": "x86_64-darwin",
       "group": "toplevel",
@@ -139,20 +150,21 @@
     {
       "attr_path": "bun",
       "broken": false,
-      "derivation": "/nix/store/6562698mpnycyajfbgbis82qa9i55r7n-bun-1.3.13.drv",
+      "derivation": "/nix/store/pymjz37lyh092z3r60q6h826rxqljfzz-bun-1.3.13.drv",
       "description": "Incredibly fast JavaScript runtime, bundler, transpiler and package manager – all in one",
       "install_id": "bun",
       "license": "[ MIT, LGPL-2.1-only ]",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
       "name": "bun-1.3.13",
       "pname": "bun",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T08:32:09.200008Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T04:47:04.080549Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
       "version": "1.3.13",
@@ -161,7 +173,7 @@
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/g0zlmqvkvn41xqva3460jfzpazivywvi-bun-1.3.13"
+        "out": "/nix/store/z1cxjx705fswwjjns0sw2ysbd5jqxfgm-bun-1.3.13"
       },
       "system": "x86_64-linux",
       "group": "toplevel",
@@ -170,20 +182,21 @@
     {
       "attr_path": "cocoapods",
       "broken": false,
-      "derivation": "/nix/store/ahknnm8j1w5jz12m1rm0xghk175mnfzy-cocoapods-1.16.2.drv",
+      "derivation": "/nix/store/pj8gw0ra614vk9182h548p2lvbicdd8y-cocoapods-1.16.2.drv",
       "description": "Manages dependencies for your Xcode projects",
       "install_id": "cocoapods",
       "license": "MIT",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
       "name": "cocoapods-1.16.2",
       "pname": "cocoapods",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T07:05:50.894874Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T03:13:13.960290Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
       "version": "1.16.2",
@@ -191,7 +204,7 @@
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/sgbrbfkwi2zgnyk3sbnwasmfflqhivvv-cocoapods-1.16.2"
+        "out": "/nix/store/9hr5wfk4ry3l900blhd4a4n82dgsh5lg-cocoapods-1.16.2"
       },
       "system": "aarch64-darwin",
       "group": "toplevel",
@@ -200,20 +213,21 @@
     {
       "attr_path": "cocoapods",
       "broken": false,
-      "derivation": "/nix/store/an36801rifras8791zi6qrap0bn3kfhf-cocoapods-1.16.2.drv",
+      "derivation": "/nix/store/yqpa8fplzfh1grsmqx2fr1444l8svgq9-cocoapods-1.16.2.drv",
       "description": "Manages dependencies for your Xcode projects",
       "install_id": "cocoapods",
       "license": "MIT",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
       "name": "cocoapods-1.16.2",
       "pname": "cocoapods",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T08:01:17.422219Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T04:13:06.219998Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
       "version": "1.16.2",
@@ -221,7 +235,7 @@
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/fgslxgfiillqi59zfhzbljl2dfz2pkl2-cocoapods-1.16.2"
+        "out": "/nix/store/3jpm8hbhsa01w9zqcsmnw7x0q8pr8jdb-cocoapods-1.16.2"
       },
       "system": "x86_64-darwin",
       "group": "toplevel",
@@ -230,35 +244,37 @@
     {
       "attr_path": "ffmpeg",
       "broken": false,
-      "derivation": "/nix/store/82kss9qfl1syy42f31fdhiys83nj5v2l-ffmpeg-8.0.1.drv",
+      "derivation": "/nix/store/nbmzy84iai0rsjkzlnrcn0147i26pp1s-ffmpeg-8.1.drv",
       "description": "Complete, cross-platform solution to record, convert and stream audio and video",
       "install_id": "ffmpeg",
       "license": "[ LGPL-2.1-or-later, GPL-2.0-or-later, LGPL-3.0-or-later, GPL-3.0-or-later ]",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
-      "name": "ffmpeg-8.0.1",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "name": "ffmpeg-8.1",
       "pname": "ffmpeg",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T07:05:51.480864Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T03:13:14.520317Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
-      "version": "8.0.1",
+      "version": "8.1",
       "outputs_to_install": [
+        "bin",
         "bin",
         "man"
       ],
       "outputs": {
-        "bin": "/nix/store/h6fbp9mf3asvqqrpfa76259nyxsk3wi4-ffmpeg-8.0.1-bin",
-        "data": "/nix/store/59jc9i19x0pggr30r80caxv9hlfwfmmm-ffmpeg-8.0.1-data",
-        "dev": "/nix/store/5rw0vz79g0k10innml94a6cahk0zdq0c-ffmpeg-8.0.1-dev",
-        "doc": "/nix/store/08j6rfcgjxb4n6yw7cc2viggdm5hrb23-ffmpeg-8.0.1-doc",
-        "lib": "/nix/store/xwrdkxphjw7dcvijz7hmjshgdh00pb8y-ffmpeg-8.0.1-lib",
-        "man": "/nix/store/hgc8k86j30cxdmpad937kw6p1fnfh418-ffmpeg-8.0.1-man",
-        "out": "/nix/store/7x8affiw23mjygfdxp1h00rg5j9k1cpk-ffmpeg-8.0.1"
+        "bin": "/nix/store/ngfvm0mvlcl3qy4c0va1xk7ik7hf5z5d-ffmpeg-8.1-bin",
+        "data": "/nix/store/svw1lk5s6hgfvmndi7klg9kp9p65h4wi-ffmpeg-8.1-data",
+        "dev": "/nix/store/arhfvajz4160hqrvllcjri0zlshyl43m-ffmpeg-8.1-dev",
+        "doc": "/nix/store/f8f02xn2j8qjcii07ig0x3jwcd1qd7r9-ffmpeg-8.1-doc",
+        "lib": "/nix/store/rz9xhl5q5v9gh7lhk6z8zgi98h9xzx7n-ffmpeg-8.1-lib",
+        "man": "/nix/store/7i34r2xda7qh2y9jsnm8jxgh31d1nk57-ffmpeg-8.1-man",
+        "out": "/nix/store/wl1lb6gb6isnglzmwvdn55hi48ac1mcl-ffmpeg-8.1"
       },
       "system": "aarch64-darwin",
       "group": "toplevel",
@@ -267,35 +283,37 @@
     {
       "attr_path": "ffmpeg",
       "broken": false,
-      "derivation": "/nix/store/p9xc3xc2lncfl55z45cjiqqr4dgm14h7-ffmpeg-8.0.1.drv",
+      "derivation": "/nix/store/d67byl13q55pmnqlaj7fz8j442hr3hi9-ffmpeg-8.1.drv",
       "description": "Complete, cross-platform solution to record, convert and stream audio and video",
       "install_id": "ffmpeg",
       "license": "[ LGPL-2.1-or-later, GPL-2.0-or-later, LGPL-3.0-or-later, GPL-3.0-or-later ]",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
-      "name": "ffmpeg-8.0.1",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "name": "ffmpeg-8.1",
       "pname": "ffmpeg",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T07:33:30.140967Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T03:44:09.291917Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
-      "version": "8.0.1",
+      "version": "8.1",
       "outputs_to_install": [
+        "bin",
         "bin",
         "man"
       ],
       "outputs": {
-        "bin": "/nix/store/gg5fq58jr9scw9f0k0n29gwz82xjqwcn-ffmpeg-8.0.1-bin",
-        "data": "/nix/store/sf329hswmdr00kgbmxlq0jwisnfp9kj4-ffmpeg-8.0.1-data",
-        "dev": "/nix/store/vfw6xffwgs4lg607hskbl53krwmqy0mn-ffmpeg-8.0.1-dev",
-        "doc": "/nix/store/lm0h9yll1fgaic68m2aqicqpd17vxk6w-ffmpeg-8.0.1-doc",
-        "lib": "/nix/store/dr8zxnra7jpnz92d41282s4i51rqsqgf-ffmpeg-8.0.1-lib",
-        "man": "/nix/store/xz033zsph4csl2c0ks6x06rzyk9qzlry-ffmpeg-8.0.1-man",
-        "out": "/nix/store/hmy40l2dy0hx3vfljb44srl5lfykg2l6-ffmpeg-8.0.1"
+        "bin": "/nix/store/9189pnq5pjzsbqmp9l8rkr9kwbwmg2w6-ffmpeg-8.1-bin",
+        "data": "/nix/store/fgjpgi3vfl2ayqfmddfq45wzp5q09q9s-ffmpeg-8.1-data",
+        "dev": "/nix/store/amsa6czh5400dxq2giif31vlnbcjp09z-ffmpeg-8.1-dev",
+        "doc": "/nix/store/8anck5absahqjvikpxb87yn1inpb4fdv-ffmpeg-8.1-doc",
+        "lib": "/nix/store/x57wbkqyx80h7lhdziqh7ikwg8lgraxc-ffmpeg-8.1-lib",
+        "man": "/nix/store/mk17rxwak2j48qrs3axccsknhzwl5733-ffmpeg-8.1-man",
+        "out": "/nix/store/wdrpm09qjhb155kwch9b19pag9wagpkz-ffmpeg-8.1"
       },
       "system": "aarch64-linux",
       "group": "toplevel",
@@ -304,35 +322,37 @@
     {
       "attr_path": "ffmpeg",
       "broken": false,
-      "derivation": "/nix/store/sajb5j3k5g3bszkxnw69pd85fskh7fja-ffmpeg-8.0.1.drv",
+      "derivation": "/nix/store/g0savvq5i50kawp9bgjx71c9f1qyi692-ffmpeg-8.1.drv",
       "description": "Complete, cross-platform solution to record, convert and stream audio and video",
       "install_id": "ffmpeg",
       "license": "[ LGPL-2.1-or-later, GPL-2.0-or-later, LGPL-3.0-or-later, GPL-3.0-or-later ]",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
-      "name": "ffmpeg-8.0.1",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "name": "ffmpeg-8.1",
       "pname": "ffmpeg",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T08:01:17.981967Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T04:13:06.857980Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
-      "version": "8.0.1",
+      "version": "8.1",
       "outputs_to_install": [
+        "bin",
         "bin",
         "man"
       ],
       "outputs": {
-        "bin": "/nix/store/jzf5nkzr21p13gbim6xhm17fs2cibhd6-ffmpeg-8.0.1-bin",
-        "data": "/nix/store/ji5fnjviz7d0w281015z6w4wlp7hn3qj-ffmpeg-8.0.1-data",
-        "dev": "/nix/store/4ldbi1idfy5w4x9vqydjs7xr8d5imy39-ffmpeg-8.0.1-dev",
-        "doc": "/nix/store/97q6hqzlyc2gfr02amnjh9gx5jxp2f83-ffmpeg-8.0.1-doc",
-        "lib": "/nix/store/670zzi96flss4x3f8d4hpik9ydz61kiz-ffmpeg-8.0.1-lib",
-        "man": "/nix/store/6lrs6d13m2ab8xw7rkpqqisqp6vqnnaj-ffmpeg-8.0.1-man",
-        "out": "/nix/store/bpfx18fi8blpfg1r60vci24j9zis4fhy-ffmpeg-8.0.1"
+        "bin": "/nix/store/qjil0v0y05rcrs2bzyijwyb90d5zfbzw-ffmpeg-8.1-bin",
+        "data": "/nix/store/hrvdbg19nsdh94rzvgxcvvkkq6rkph2k-ffmpeg-8.1-data",
+        "dev": "/nix/store/8r42iwc8pcz420gjczzgmgy86kn8wc39-ffmpeg-8.1-dev",
+        "doc": "/nix/store/mwn24al75gjgm42nck1bckmplv2zdz8h-ffmpeg-8.1-doc",
+        "lib": "/nix/store/7vy887l5yhwaisic91xj6rdp7m7vd8jm-ffmpeg-8.1-lib",
+        "man": "/nix/store/481y1x104ril85y1fdvpf55yk6r9n732-ffmpeg-8.1-man",
+        "out": "/nix/store/his8zz9p0mc0azz3rwjyknydn0d67n6s-ffmpeg-8.1"
       },
       "system": "x86_64-darwin",
       "group": "toplevel",
@@ -341,35 +361,37 @@
     {
       "attr_path": "ffmpeg",
       "broken": false,
-      "derivation": "/nix/store/3s5zzmnsqj8yhvmgaiihvjcycxwg4bms-ffmpeg-8.0.1.drv",
+      "derivation": "/nix/store/58is4l87fzs3kyw60azlc9h98f8jwfn7-ffmpeg-8.1.drv",
       "description": "Complete, cross-platform solution to record, convert and stream audio and video",
       "install_id": "ffmpeg",
       "license": "[ LGPL-2.1-or-later, GPL-2.0-or-later, LGPL-3.0-or-later, GPL-3.0-or-later ]",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
-      "name": "ffmpeg-8.0.1",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "name": "ffmpeg-8.1",
       "pname": "ffmpeg",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T08:32:10.477958Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T04:47:05.432312Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
-      "version": "8.0.1",
+      "version": "8.1",
       "outputs_to_install": [
+        "bin",
         "bin",
         "man"
       ],
       "outputs": {
-        "bin": "/nix/store/nih4c7knfj2mgjz6jp5l0fqn86xdwmhc-ffmpeg-8.0.1-bin",
-        "data": "/nix/store/5q7nx3scq02s4wnjg028i9iv77ihqjz5-ffmpeg-8.0.1-data",
-        "dev": "/nix/store/28zawmnigadf607pbhmd3l775gafaf98-ffmpeg-8.0.1-dev",
-        "doc": "/nix/store/9ld21n4la75hpd4jijxdrl2cjmv5fjcm-ffmpeg-8.0.1-doc",
-        "lib": "/nix/store/c3q3hnqsp4b0l7fjx4q6ns4idw9pn6kv-ffmpeg-8.0.1-lib",
-        "man": "/nix/store/x5pnf13md9xa4841ckdp9p0n192rlbwn-ffmpeg-8.0.1-man",
-        "out": "/nix/store/26mpi27i6pj69dpk33fq61yhh46qi2id-ffmpeg-8.0.1"
+        "bin": "/nix/store/281zx8sanx5fcp8j6advwics7gwdvdaz-ffmpeg-8.1-bin",
+        "data": "/nix/store/pxxjhd9y7z2anp67bp6j4002r9bnwizf-ffmpeg-8.1-data",
+        "dev": "/nix/store/7rv05vh6qh1sfiirhjkfjp2gskqhxdp9-ffmpeg-8.1-dev",
+        "doc": "/nix/store/m0k08lknppyyk6dh58157i835da3qnxx-ffmpeg-8.1-doc",
+        "lib": "/nix/store/xvrjmskfrp07gmh1zzlyfkv50nw40dcv-ffmpeg-8.1-lib",
+        "man": "/nix/store/dnnz7b0444c6pb6q8rippk90sl0pnz1n-ffmpeg-8.1-man",
+        "out": "/nix/store/84h52wlvlvb2y7hmm6338m7i4m1mpi0v-ffmpeg-8.1"
       },
       "system": "x86_64-linux",
       "group": "toplevel",
@@ -378,30 +400,31 @@
     {
       "attr_path": "imagemagick",
       "broken": false,
-      "derivation": "/nix/store/jh4g5ls1ddmq83lrrhwxqj9968v4yjrd-imagemagick-7.1.2-19.drv",
+      "derivation": "/nix/store/zh8qr4kp5ns6dq01ydij2dwm8c1c6klr-imagemagick-7.1.2-23.drv",
       "description": "Software suite to create, edit, compose, or convert bitmap images",
       "install_id": "imagemagick",
       "license": "Apache-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
-      "name": "imagemagick-7.1.2-19",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "name": "imagemagick-7.1.2-23",
       "pname": "imagemagick",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T07:06:07.122203Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T03:13:30.655038Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
-      "version": "7.1.2-19",
+      "version": "7.1.2-23",
       "outputs_to_install": [
         "out"
       ],
       "outputs": {
-        "dev": "/nix/store/5aqqkdj4f73paq3g2j4w4hzzr761ikxl-imagemagick-7.1.2-19-dev",
-        "doc": "/nix/store/nbsq26ilsasp7q30yi1a0wg7gphas4yd-imagemagick-7.1.2-19-doc",
-        "out": "/nix/store/wpzigcx7gxjlwwp37zarhvd3bqa80b8c-imagemagick-7.1.2-19"
+        "dev": "/nix/store/4as8dc7lb02lnnqdi7278705h7ayc4zg-imagemagick-7.1.2-23-dev",
+        "doc": "/nix/store/kmzihbxg9n3j6l12fr1l4mz0lqmqrim9-imagemagick-7.1.2-23-doc",
+        "out": "/nix/store/paxfk2s1gb9qylklxdlvicc5x0hf3fy7-imagemagick-7.1.2-23"
       },
       "system": "aarch64-darwin",
       "group": "toplevel",
@@ -410,31 +433,32 @@
     {
       "attr_path": "imagemagick",
       "broken": false,
-      "derivation": "/nix/store/vc837yidc1ymahd5hr61707rq1hi2jqz-imagemagick-7.1.2-19.drv",
+      "derivation": "/nix/store/95zp3w1f4vs5qyp52klrqjlqx0mqrvxr-imagemagick-7.1.2-23.drv",
       "description": "Software suite to create, edit, compose, or convert bitmap images",
       "install_id": "imagemagick",
       "license": "Apache-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
-      "name": "imagemagick-7.1.2-19",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "name": "imagemagick-7.1.2-23",
       "pname": "imagemagick",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T07:33:49.655830Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T03:44:30.013704Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
-      "version": "7.1.2-19",
+      "version": "7.1.2-23",
       "outputs_to_install": [
         "out",
         "out"
       ],
       "outputs": {
-        "dev": "/nix/store/cbix8xr3hapw0gxnb9frs03pmk4qwg03-imagemagick-7.1.2-19-dev",
-        "doc": "/nix/store/0n8il9kwbiz0iv7v5i2lqgq0b74ysabl-imagemagick-7.1.2-19-doc",
-        "out": "/nix/store/fwzsk0k739njgrc6akds0gb9dlf35c7j-imagemagick-7.1.2-19"
+        "dev": "/nix/store/z77shkv7hqjffi2zygbl9gxspswmrqvs-imagemagick-7.1.2-23-dev",
+        "doc": "/nix/store/fk4qf1lj4yv486hk2v55p3yddxgskkl8-imagemagick-7.1.2-23-doc",
+        "out": "/nix/store/nqqi92858bzd9sx119kcyrybbriaz4ab-imagemagick-7.1.2-23"
       },
       "system": "aarch64-linux",
       "group": "toplevel",
@@ -443,30 +467,31 @@
     {
       "attr_path": "imagemagick",
       "broken": false,
-      "derivation": "/nix/store/dl3c6xd0cshqyj6mvn8aasrrrkdhylpq-imagemagick-7.1.2-19.drv",
+      "derivation": "/nix/store/qi8qsrnhddf1apf31wpxipqbyw0ykhmm-imagemagick-7.1.2-23.drv",
       "description": "Software suite to create, edit, compose, or convert bitmap images",
       "install_id": "imagemagick",
       "license": "Apache-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
-      "name": "imagemagick-7.1.2-19",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "name": "imagemagick-7.1.2-23",
       "pname": "imagemagick",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T08:01:34.168535Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T04:13:23.417042Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
-      "version": "7.1.2-19",
+      "version": "7.1.2-23",
       "outputs_to_install": [
         "out"
       ],
       "outputs": {
-        "dev": "/nix/store/lgixyf4qclp6bcm6z76ffpjmzlhvxa4l-imagemagick-7.1.2-19-dev",
-        "doc": "/nix/store/8lbb1bszlsbva3j87k24vmgznd8lnfzr-imagemagick-7.1.2-19-doc",
-        "out": "/nix/store/gg9cl0mxb1imfdswpfizk5dj7zrxrwh6-imagemagick-7.1.2-19"
+        "dev": "/nix/store/yxdrxin5kv207nmhgg1sgf5va467b0z9-imagemagick-7.1.2-23-dev",
+        "doc": "/nix/store/90naf9g7bjbhjj544wdql90dm7yad2bg-imagemagick-7.1.2-23-doc",
+        "out": "/nix/store/52dp7qa7c566z1px4fq50in87jx6s3yb-imagemagick-7.1.2-23"
       },
       "system": "x86_64-darwin",
       "group": "toplevel",
@@ -475,31 +500,32 @@
     {
       "attr_path": "imagemagick",
       "broken": false,
-      "derivation": "/nix/store/dkpz2fsmrf98gdcgiqv2yym6ydy9bkiw-imagemagick-7.1.2-19.drv",
+      "derivation": "/nix/store/x1g85vwspf4h7a7q1h7dm5q1dfshh8g2-imagemagick-7.1.2-23.drv",
       "description": "Software suite to create, edit, compose, or convert bitmap images",
       "install_id": "imagemagick",
       "license": "Apache-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
-      "name": "imagemagick-7.1.2-19",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "name": "imagemagick-7.1.2-23",
       "pname": "imagemagick",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T08:32:31.355527Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T04:47:27.264982Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
-      "version": "7.1.2-19",
+      "version": "7.1.2-23",
       "outputs_to_install": [
         "out",
         "out"
       ],
       "outputs": {
-        "dev": "/nix/store/hn59rqwq5j0z7l13yns903l6ibylwz1g-imagemagick-7.1.2-19-dev",
-        "doc": "/nix/store/ynxxq1m4789p30i1g8qjlkm9lp80h9c0-imagemagick-7.1.2-19-doc",
-        "out": "/nix/store/pjcg9z9zj4hqa7y8jjgsx06rc31q6r8s-imagemagick-7.1.2-19"
+        "dev": "/nix/store/mqn50k3viz5wb0gwbdfwb23v7l32kfxf-imagemagick-7.1.2-23-dev",
+        "doc": "/nix/store/fqly9ymadz5cj8kq18wv2flq45m00rs1-imagemagick-7.1.2-23-doc",
+        "out": "/nix/store/vwalk1kcnb5mr5c5c8100a96r9kgq4g2-imagemagick-7.1.2-23"
       },
       "system": "x86_64-linux",
       "group": "toplevel",
@@ -508,28 +534,29 @@
     {
       "attr_path": "ktfmt",
       "broken": false,
-      "derivation": "/nix/store/8qk3syy2s17zxi9zxinb2x7milc0xnx4-ktfmt-0.61.drv",
+      "derivation": "/nix/store/81y5xf1hg8r212syl1h5z3mijgaln2d1-ktfmt-0.63.drv",
       "description": "Program that reformats Kotlin source code to comply with the common community standard for Kotlin code conventions",
       "install_id": "ktfmt",
       "license": "Apache-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
-      "name": "ktfmt-0.61",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "name": "ktfmt-0.63",
       "pname": "ktfmt",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T07:06:08.400957Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T03:13:31.967175Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
-      "version": "0.61",
+      "version": "0.63",
       "outputs_to_install": [
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/5m19ch7xar86ilbjaaa1ll3wrgwbng0q-ktfmt-0.61"
+        "out": "/nix/store/6qibvax0rxix124nbyr40c2v2qhvn5cj-ktfmt-0.63"
       },
       "system": "aarch64-darwin",
       "group": "toplevel",
@@ -538,28 +565,29 @@
     {
       "attr_path": "ktfmt",
       "broken": false,
-      "derivation": "/nix/store/im8nh6s7lgr1ixb1kp48flnrf65nyx8n-ktfmt-0.61.drv",
+      "derivation": "/nix/store/h9v8fg5l1rnqasxg44w9z3y3hpwnq60l-ktfmt-0.63.drv",
       "description": "Program that reformats Kotlin source code to comply with the common community standard for Kotlin code conventions",
       "install_id": "ktfmt",
       "license": "Apache-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
-      "name": "ktfmt-0.61",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "name": "ktfmt-0.63",
       "pname": "ktfmt",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T07:33:52.320279Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T03:44:32.877264Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
-      "version": "0.61",
+      "version": "0.63",
       "outputs_to_install": [
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/alc3fv63a3hnjpwsdvqzmk1ib7lj0hv9-ktfmt-0.61"
+        "out": "/nix/store/rr9xq9aak2rrq92d0h8srii8sdhd8jff-ktfmt-0.63"
       },
       "system": "aarch64-linux",
       "group": "toplevel",
@@ -568,28 +596,29 @@
     {
       "attr_path": "ktfmt",
       "broken": false,
-      "derivation": "/nix/store/igqya66r0gggzl3fhmx2h831amzkn3gn-ktfmt-0.61.drv",
+      "derivation": "/nix/store/kwcszyk6rdc41z1pgr0k035b9rg8gdnf-ktfmt-0.63.drv",
       "description": "Program that reformats Kotlin source code to comply with the common community standard for Kotlin code conventions",
       "install_id": "ktfmt",
       "license": "Apache-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
-      "name": "ktfmt-0.61",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "name": "ktfmt-0.63",
       "pname": "ktfmt",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T08:01:35.519163Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T04:13:24.833766Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
-      "version": "0.61",
+      "version": "0.63",
       "outputs_to_install": [
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/ncak70jfxy8vnvb686377mywajnbiny5-ktfmt-0.61"
+        "out": "/nix/store/jn6rbs69isxnccg1p3hr19f3f2nyykh4-ktfmt-0.63"
       },
       "system": "x86_64-darwin",
       "group": "toplevel",
@@ -598,28 +627,29 @@
     {
       "attr_path": "ktfmt",
       "broken": false,
-      "derivation": "/nix/store/p5haq03v3l86ca6yisxag38y4p0igdg8-ktfmt-0.61.drv",
+      "derivation": "/nix/store/7k9p8frpr0isbk1x2j2v430wihxlpnfx-ktfmt-0.63.drv",
       "description": "Program that reformats Kotlin source code to comply with the common community standard for Kotlin code conventions",
       "install_id": "ktfmt",
       "license": "Apache-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
-      "name": "ktfmt-0.61",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "name": "ktfmt-0.63",
       "pname": "ktfmt",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T08:32:34.265491Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T04:47:30.488418Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
-      "version": "0.61",
+      "version": "0.63",
       "outputs_to_install": [
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/n79gff7da457rv4kkillccsx65ry0yvg-ktfmt-0.61"
+        "out": "/nix/store/q9s481j0jfynyby0pb2yggai3vyx2rn4-ktfmt-0.63"
       },
       "system": "x86_64-linux",
       "group": "toplevel",
@@ -628,20 +658,21 @@
     {
       "attr_path": "lefthook",
       "broken": false,
-      "derivation": "/nix/store/6625z3k57b618fl16187znn162iz7g9r-lefthook-2.1.5.drv",
+      "derivation": "/nix/store/5ay5gwzy4pmy3kfsi78khbzlnp8zh3qv-lefthook-2.1.5.drv",
       "description": "Fast and powerful Git hooks manager for any type of projects",
       "install_id": "lefthook",
       "license": "MIT",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
       "name": "lefthook-2.1.5",
       "pname": "lefthook",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T07:06:08.726840Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T03:13:32.299899Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
       "version": "2.1.5",
@@ -649,7 +680,7 @@
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/3c2xhwg7r7v50z8w7pwzv6y3qmb0r0y7-lefthook-2.1.5"
+        "out": "/nix/store/j5j34q2kqyz09kf0wwlgnnsgn3h881cp-lefthook-2.1.5"
       },
       "system": "aarch64-darwin",
       "group": "toplevel",
@@ -658,20 +689,21 @@
     {
       "attr_path": "lefthook",
       "broken": false,
-      "derivation": "/nix/store/90957l0i05gccnnxnl87fp4slsf22zrg-lefthook-2.1.5.drv",
+      "derivation": "/nix/store/vad7b0wnnailq99pd0jmpx4yqimlbrsk-lefthook-2.1.5.drv",
       "description": "Fast and powerful Git hooks manager for any type of projects",
       "install_id": "lefthook",
       "license": "MIT",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
       "name": "lefthook-2.1.5",
       "pname": "lefthook",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T07:33:52.766144Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T03:44:33.385926Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
       "version": "2.1.5",
@@ -679,7 +711,7 @@
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/zgsbcgs7pa7ds9287bmrzb1zscmfa3rr-lefthook-2.1.5"
+        "out": "/nix/store/cr3rfs80hfyc7ciq875k9h1ajrf0ydy5-lefthook-2.1.5"
       },
       "system": "aarch64-linux",
       "group": "toplevel",
@@ -688,20 +720,21 @@
     {
       "attr_path": "lefthook",
       "broken": false,
-      "derivation": "/nix/store/n8ikjs9hvwsr4p32nybc72m4sndh1jjg-lefthook-2.1.5.drv",
+      "derivation": "/nix/store/ml0vvbz1p0fc02cyi6r6p2xqj651hh29-lefthook-2.1.5.drv",
       "description": "Fast and powerful Git hooks manager for any type of projects",
       "install_id": "lefthook",
       "license": "MIT",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
       "name": "lefthook-2.1.5",
       "pname": "lefthook",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T08:01:35.861243Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T04:13:25.192509Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
       "version": "2.1.5",
@@ -709,7 +742,7 @@
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/r82vm15yz821raw2kp5wh7n2sbijkap7-lefthook-2.1.5"
+        "out": "/nix/store/0s5jzsamiwrl8lgzacf7i5msyajcl44k-lefthook-2.1.5"
       },
       "system": "x86_64-darwin",
       "group": "toplevel",
@@ -718,20 +751,21 @@
     {
       "attr_path": "lefthook",
       "broken": false,
-      "derivation": "/nix/store/d4zvyc1j4ywimb3zzzw75s4id4hjdv9y-lefthook-2.1.5.drv",
+      "derivation": "/nix/store/8lp45dwmhfhakird4wwxprxmzssz6b1j-lefthook-2.1.5.drv",
       "description": "Fast and powerful Git hooks manager for any type of projects",
       "install_id": "lefthook",
       "license": "MIT",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
       "name": "lefthook-2.1.5",
       "pname": "lefthook",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T08:32:34.769970Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T04:47:31.024155Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
       "version": "2.1.5",
@@ -739,7 +773,7 @@
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/j162rss74q5j1jbsskg9xs5kjp11gim8-lefthook-2.1.5"
+        "out": "/nix/store/nyg44d492znkg1bqa1i3dvxy2dw29xcy-lefthook-2.1.5"
       },
       "system": "x86_64-linux",
       "group": "toplevel",
@@ -748,29 +782,32 @@
     {
       "attr_path": "nodejs",
       "broken": false,
-      "derivation": "/nix/store/1m7745r13n7wk43fzx5yr3jjr3vdc1db-nodejs-24.14.1.drv",
+      "derivation": "/nix/store/vbx35am7lar9zvwhk4nfl3lysmbd0ils-nodejs-24.15.0.drv",
       "description": "Event-driven I/O framework for the V8 JavaScript engine",
       "install_id": "nodejs",
       "license": "MIT",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
-      "name": "nodejs-24.14.1",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "name": "nodejs-24.15.0",
       "pname": "nodejs",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T07:06:15.323831Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T03:13:39.213888Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
-      "version": "24.14.1",
+      "version": "24.15.0",
       "outputs_to_install": [
+        "out",
+        "out",
         "out",
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/sf85v1qd1glkmsyfxwn9p8wridb4qf6y-nodejs-24.14.1"
+        "out": "/nix/store/3mvbmkd7lmxi3xlka1avra24flwbgjv9-nodejs-24.15.0"
       },
       "system": "aarch64-darwin",
       "group": "toplevel",
@@ -779,29 +816,31 @@
     {
       "attr_path": "nodejs",
       "broken": false,
-      "derivation": "/nix/store/3h5ymdg61db3f9xwhwclj05afipbxiq2-nodejs-24.14.1.drv",
+      "derivation": "/nix/store/zc41z1042wi0d1gmyc8mlwv5av8fds2q-nodejs-24.15.0.drv",
       "description": "Event-driven I/O framework for the V8 JavaScript engine",
       "install_id": "nodejs",
       "license": "MIT",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
-      "name": "nodejs-24.14.1",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "name": "nodejs-24.15.0",
       "pname": "nodejs",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T07:34:06.207991Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T03:44:48.128392Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
-      "version": "24.14.1",
+      "version": "24.15.0",
       "outputs_to_install": [
+        "out",
         "out",
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/amh21igq2gjg6ai42f3ksan8fh89qvpm-nodejs-24.14.1"
+        "out": "/nix/store/rmdjmd0iy5zlyg0j2i1cd0s7ha1562fs-nodejs-24.15.0"
       },
       "system": "aarch64-linux",
       "group": "toplevel",
@@ -810,29 +849,31 @@
     {
       "attr_path": "nodejs",
       "broken": false,
-      "derivation": "/nix/store/aarkp2y0aj12skgji58mbf5va0dcf9bd-nodejs-24.14.1.drv",
+      "derivation": "/nix/store/f0ay9hny5gn4c0lfrb95xrakm7yf3s2q-nodejs-24.15.0.drv",
       "description": "Event-driven I/O framework for the V8 JavaScript engine",
       "install_id": "nodejs",
       "license": "MIT",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
-      "name": "nodejs-24.14.1",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "name": "nodejs-24.15.0",
       "pname": "nodejs",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T08:01:42.769829Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T04:13:32.462339Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
-      "version": "24.14.1",
+      "version": "24.15.0",
       "outputs_to_install": [
+        "out",
         "out",
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/w9axwcpzxv1cd78d6v748az2j08k6vfw-nodejs-24.14.1"
+        "out": "/nix/store/rhv8jiklgw2bw4ljh4nm3h3r3bpnkcl3-nodejs-24.15.0"
       },
       "system": "x86_64-darwin",
       "group": "toplevel",
@@ -841,29 +882,31 @@
     {
       "attr_path": "nodejs",
       "broken": false,
-      "derivation": "/nix/store/8l6p07vmrcj7lsry0jz2ayp1rmpyjdai-nodejs-24.14.1.drv",
+      "derivation": "/nix/store/f8i8jydaqs0ngxm97c091zna2mnjb43f-nodejs-24.15.0.drv",
       "description": "Event-driven I/O framework for the V8 JavaScript engine",
       "install_id": "nodejs",
       "license": "MIT",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
-      "name": "nodejs-24.14.1",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "name": "nodejs-24.15.0",
       "pname": "nodejs",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T08:32:50.624798Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T04:47:47.914293Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
-      "version": "24.14.1",
+      "version": "24.15.0",
       "outputs_to_install": [
+        "out",
         "out",
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/785jidgnryzj566s25s3rb262d4g5znb-nodejs-24.14.1"
+        "out": "/nix/store/5a8ysg1jnj8jmzzyfcfw7rvpvnp5rfpa-nodejs-24.15.0"
       },
       "system": "x86_64-linux",
       "group": "toplevel",
@@ -872,20 +915,21 @@
     {
       "attr_path": "swift-format",
       "broken": false,
-      "derivation": "/nix/store/dd5b84d6clg7sshwzyjlr5624xyq366a-swift-format-5.10.1.drv",
+      "derivation": "/nix/store/bx32k417x3dd765rzczh7i6sfyh43xx3-swift-format-5.10.1.drv",
       "description": "Formatting technology for Swift source code",
       "install_id": "swift-format",
       "license": "Apache-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
       "name": "swift-format-5.10.1",
       "pname": "swift-format",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T07:07:40.646045Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T03:15:15.523943Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
       "version": "5.10.1",
@@ -893,7 +937,7 @@
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/s5ygfqql9k53i5szg93fsdaxq3grp1ym-swift-format-5.10.1"
+        "out": "/nix/store/6yk77j42x6bqmbrh22qajm2ymdvccmbf-swift-format-5.10.1"
       },
       "system": "aarch64-darwin",
       "group": "toplevel",
@@ -902,20 +946,21 @@
     {
       "attr_path": "swift-format",
       "broken": false,
-      "derivation": "/nix/store/g1al79j765cbjjkinxp12x6kfdvia0a2-swift-format-5.10.1.drv",
+      "derivation": "/nix/store/12x7y6q3qc0p7nbsc7c58h6m0wbxlp56-swift-format-5.10.1.drv",
       "description": "Formatting technology for Swift source code",
       "install_id": "swift-format",
       "license": "Apache-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
       "name": "swift-format-5.10.1",
       "pname": "swift-format",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T07:35:54.397984Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T03:46:42.967330Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
       "version": "5.10.1",
@@ -923,7 +968,7 @@
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/3iqhk310xvhjiw8aascg7jp9ygf1px8d-swift-format-5.10.1"
+        "out": "/nix/store/20y0g44pq3grmngxiavg1xrk8x5z9lk9-swift-format-5.10.1"
       },
       "system": "aarch64-linux",
       "group": "toplevel",
@@ -932,20 +977,21 @@
     {
       "attr_path": "swift-format",
       "broken": false,
-      "derivation": "/nix/store/ffr01x4hx1xc5v8f78nn9pfsakyx3hr0-swift-format-5.10.1.drv",
+      "derivation": "/nix/store/m45vpsivxb3f097ychby306m88lsd455-swift-format-5.10.1.drv",
       "description": "Formatting technology for Swift source code",
       "install_id": "swift-format",
       "license": "Apache-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
       "name": "swift-format-5.10.1",
       "pname": "swift-format",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T08:03:14.054949Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T04:15:09.146937Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
       "version": "5.10.1",
@@ -953,7 +999,7 @@
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/6fyzh7v913js4gnsvgkaikj75c44yz7l-swift-format-5.10.1"
+        "out": "/nix/store/6fkc0bj2fd9xvqyks4rp8rwp9d5cjy1m-swift-format-5.10.1"
       },
       "system": "x86_64-darwin",
       "group": "toplevel",
@@ -962,20 +1008,21 @@
     {
       "attr_path": "swift-format",
       "broken": false,
-      "derivation": "/nix/store/jhffq96yd48lvr4p1idacl6wvi8n0d7q-swift-format-5.10.1.drv",
+      "derivation": "/nix/store/3sc7g9d1w2lg5dbrk6sp9cjfsxldd2jx-swift-format-5.10.1.drv",
       "description": "Formatting technology for Swift source code",
       "install_id": "swift-format",
       "license": "Apache-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=d233902339c02a9c334e7e593de68855ad26c4cb",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=567a49d1913ce81ac6e9582e3553dd90a955875f",
       "name": "swift-format-5.10.1",
       "pname": "swift-format",
-      "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
-      "rev_count": 998534,
-      "rev_date": "2026-05-15T18:21:44Z",
-      "scrape_date": "2026-05-17T08:34:47.009918Z",
+      "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
+      "rev_count": 1017464,
+      "rev_date": "2026-06-16T02:33:49Z",
+      "scrape_date": "2026-06-17T04:49:46.266973Z",
       "stabilities": [
         "staging",
-        "unstable"
+        "unstable",
+        "stable"
       ],
       "unfree": false,
       "version": "5.10.1",
@@ -983,7 +1030,7 @@
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/8dgmi98q46p53qb7ncm22r95nam7y3ss-swift-format-5.10.1"
+        "out": "/nix/store/6x6gykgi5hdmypkz8cfvmd17zvzrzj1n-swift-format-5.10.1"
       },
       "system": "x86_64-linux",
       "group": "toplevel",

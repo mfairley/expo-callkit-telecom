@@ -4,7 +4,7 @@
 
 `expo-callkit-telecom` is an Expo module (Swift + Kotlin) that wraps Apple's CallKit on iOS and Jetpack `androidx.core-telecom` on Android behind one typed TypeScript API. The module owns the system call UI, the audio session, and VoIP push parsing; the host app owns the media (LiveKit, plain WebRTC, etc.). An Expo config plugin handles entitlements, background modes, microphone permission, ringtone bundling, and FCM service registration at prebuild time.
 
-Minimum platforms: iOS 15.1, Android API 26. Verified end-to-end on iOS 26 + Android 15 with Expo SDK 55, React Native 0.83, the New Architecture enabled, and the LiveKit React Native SDK.
+Minimum platforms: iOS 16.0, Android API 26, Expo SDK 55. Verified end-to-end on iOS 26 + Android 15 with Expo SDK 55, React Native 0.83, the New Architecture enabled, and the LiveKit React Native SDK.
 
 ## Docs
 

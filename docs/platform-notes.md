@@ -1,5 +1,5 @@
 ---
-description: Platform requirements for expo-callkit-telecom — iOS 15.1+ (CallKit + PushKit), Android API 26+ (Jetpack androidx.core-telecom). Keep-alive notes for background WebSocket signalling.
+description: Platform requirements for expo-callkit-telecom — iOS 16.0+ (CallKit + PushKit), Android API 26+ (Jetpack androidx.core-telecom). Keep-alive notes for background WebSocket signalling.
 ---
 
 # Platform notes
@@ -8,7 +8,11 @@ description: Platform requirements for expo-callkit-telecom — iOS 15.1+ (CallK
 
 - Requires the `voip` background mode and a VoIP push certificate.
 - Uses [CallKit](https://developer.apple.com/documentation/callkit) + [PushKit](https://developer.apple.com/documentation/pushkit) + [WebRTC](https://webrtc.org/)'s `RTCAudioSession` for manual audio control.
-- Minimum iOS version: **15.1**.
+- Minimum iOS version: **16.0**.
+
+## Expo
+
+- Supports Expo SDK **55** and later.
 
 ## Android
 
