@@ -1,0 +1,6 @@
+module ExpoCallKitTelecomWebRTC {
+  header "RTCAudioSession.h"
+  header "RTCAudioSessionConfiguration.h"
+  header "WebRTCModuleOptions.h"
+  export *
+}
