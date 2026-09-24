@@ -141,12 +141,32 @@ enum IncomingCallEventParser {
     guard
       let event = (payload["incomingCall"] ?? payload["incoming_call"]) as? [AnyHashable: Any]
     else {
+      if let raw = payload["incomingCall"] ?? payload["incoming_call"] {
+        // Wrong type. Most commonly the FCM wire form — a JSON-encoded STRING —
+        // sent to APNs, which expects a nested object.
+        Log.voipPush.error(
+          "incomingCall envelope has unexpected type \(type(of: raw)) - expected an object "
+            + "(sending the FCM JSON-string form to APNs?)"
+        )
+      } else {
+        Log.voipPush.error(
+          "Push payload has no incomingCall envelope - top-level keys: \(payload.keys)"
+        )
+      }
       return nil
     }
+    // Which envelope key matched: "incomingCall" is canonical, "incoming_call"
+    // is back-compat — an integrator debugging a malformed push wants to know.
+    let envelopeKey =
+      payload["incomingCall"] is [AnyHashable: Any] ? "incomingCall" : "incoming_call"
 
     let eventId = event["eventId"] as? String ?? ""
     let serverCallId = event["serverCallId"] as? String ?? ""
     guard !eventId.isEmpty, !serverCallId.isEmpty else {
+      Log.voipPush.error(
+        "Envelope '\(envelopeKey)' rejected - eventId: \(describe(event["eventId"])), "
+          + "serverCallId: \(describe(event["serverCallId"]))"
+      )
       return nil
     }
 
@@ -154,6 +174,11 @@ enum IncomingCallEventParser {
       let callerId = callerDict["id"] as? String,
       !callerId.isEmpty
     else {
+      let rawCallerId = (event["caller"] as? [AnyHashable: Any])?["id"]
+      Log.voipPush.error(
+        "Envelope '\(envelopeKey)' rejected - caller: \(describeCaller(event["caller"])), "
+          + "caller.id: \(describe(rawCallerId))"
+      )
       return nil
     }
     let caller = IncomingCallEvent.Caller(
@@ -183,6 +208,28 @@ enum IncomingCallEventParser {
       startedAt: startedAt,
       metadata: metadata
     )
+  }
+
+  /// Renders a rejected payload value for diagnostics. Quoted so an empty
+  /// string (rejected by the guards) is distinguishable from a missing key,
+  /// length-capped, and escaped (`String(reflecting:)`) because a value that
+  /// just failed validation cannot be assumed to be a well-formed identifier —
+  /// unescaped quotes or newlines could forge fields or lines in the log
+  /// record. Cap first: the cap bounds retention, escaping bounds growth.
+  private static func describe(_ value: Any?) -> String {
+    guard let value = value else { return "<missing>" }
+    if value is NSNull { return "<null>" }
+    guard let string = value as? String else { return "<non-string>" }
+    return String(reflecting: String(string.prefix(64)))
+  }
+
+  /// Renders the caller container for diagnostics: an absent, JSON-null, or
+  /// wrongly-typed caller must each read differently from an object that is
+  /// merely missing its `id`.
+  private static func describeCaller(_ value: Any?) -> String {
+    guard let value = value else { return "<missing>" }
+    if value is NSNull { return "<null>" }
+    return value is [AnyHashable: Any] ? "object" : "<non-object: \(type(of: value))>"
   }
 
   /// Parses an RFC 3339 timestamp. Handles optional fractional seconds.

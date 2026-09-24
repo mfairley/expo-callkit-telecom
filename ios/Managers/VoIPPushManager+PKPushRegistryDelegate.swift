@@ -63,10 +63,10 @@ extension VoIPPushManager: PKPushRegistryDelegate {
     Log.voipPush.debug("Received VoIP push - payload keys: \(dictionaryPayload.keys)")
 
     guard let event = IncomingCallEventParser.parse(from: dictionaryPayload) else {
+      // The parser logs which guard rejected the payload. We must still report
+      // a call to CallKit even on parse failure, or the app will be terminated.
       Log.voipPush.error("Failed to parse VoIP push payload as IncomingCallEvent")
-      // We must still report a call to CallKit even on parse failure, or the
-      // app will be terminated.
-      reportFailedIncomingCall(completion: completion)
+      CallManager.shared.reportAndEndInvalidCall(completion: completion)
       return
     }
 
@@ -81,41 +81,6 @@ extension VoIPPushManager: PKPushRegistryDelegate {
         Log.voipPush.error("Failed to report incoming call: \(error.localizedDescription)")
       } else {
         Log.voipPush.debug("Successfully reported incoming call from VoIP push")
-      }
-      completion()
-    }
-  }
-
-  /// Reports a failed incoming call to CallKit when we can't parse the push payload.
-  ///
-  /// Per Apple's requirements, we must report a call to CallKit when receiving a VoIP push.
-  /// If we can't parse the payload, we report a call and immediately end it.
-  private nonisolated func reportFailedIncomingCall(completion: @escaping () -> Void) {
-    let fallbackEvent = IncomingCallEvent(
-      eventId: UUID().uuidString.lowercased(),
-      serverCallId: UUID().uuidString.lowercased(),
-      caller: IncomingCallEvent.Caller(
-        id: UUID().uuidString,
-        displayName: "Invalid Call",
-        avatarUrl: nil,
-        phoneNumber: nil,
-        email: nil
-      ),
-      hasVideo: false,
-      startedAt: Date(),
-      metadata: nil
-    )
-
-    // Use callback-based API for reliability when app is launched from terminated state
-    CallManager.shared.reportIncomingCall(event: fallbackEvent) { error in
-      if let error = error {
-        Log.voipPush.error("Failed to report fallback incoming call: \(error.localizedDescription)")
-      }
-      // Immediately end the call since it's invalid
-      Task {
-        if let session = await CallManager.shared.store.firstSession {
-          await CallManager.shared.reportCallEnded(for: session.id, reason: .failed)
-        }
       }
       completion()
     }
