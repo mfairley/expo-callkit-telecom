@@ -5,6 +5,24 @@ All notable changes to `expo-callkit-telecom` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0](https://github.com/mfairley/expo-callkit-telecom/compare/v0.5.0...v1.0.0) (2026-09-24)
+
+
+### ⚠ BREAKING CHANGES
+
+* upgrade to Expo SDK 57 and require Expo SDK 55+ ([#42](https://github.com/mfairley/expo-callkit-telecom/issues/42))
+
+### Features
+
+* **ios:** support a CallKit icon template via iconTemplateIos ([#25](https://github.com/mfairley/expo-callkit-telecom/issues/25)) ([46d3eff](https://github.com/mfairley/expo-callkit-telecom/commit/46d3effa7fedbc0fb4659036509f2a57fdfa8d79))
+* upgrade to Expo SDK 57 and require Expo SDK 55+ ([#42](https://github.com/mfairley/expo-callkit-telecom/issues/42)) ([33dee76](https://github.com/mfairley/expo-callkit-telecom/commit/33dee762c26fffb2c6410a9f3d14f4f2007c51c4))
+
+
+### Bug Fixes
+
+* **android:** don't abort module init when Firebase isn't configured ([#43](https://github.com/mfairley/expo-callkit-telecom/issues/43)) ([8361e76](https://github.com/mfairley/expo-callkit-telecom/commit/8361e76c53772b28cc6e554fd8a1d53684558651))
+* **android:** show the caller's phone number instead of "Unknown" when displayName is absent ([#40](https://github.com/mfairley/expo-callkit-telecom/issues/40)) ([ef96e78](https://github.com/mfairley/expo-callkit-telecom/commit/ef96e781c109b0a6d27792559cd229b09fd91bc8))
+
 ## [0.5.0](https://github.com/mfairley/expo-callkit-telecom/compare/v0.4.1...v0.5.0) (2026-09-05)
 
 
