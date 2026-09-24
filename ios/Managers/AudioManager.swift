@@ -1,5 +1,5 @@
 import AVFoundation
-import WebRTC
+internal import ExpoCallKitTelecomWebRTC
 import os
 
 private func permissionStatusString(_ status: AVAudioSession.RecordPermission) -> String {

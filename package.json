@@ -76,7 +76,6 @@
     "expo": ">=55.0.0",
     "react": "*",
     "react-native": "*",
-    "expo-notifications": "*",
-    "@livekit/react-native-webrtc": ">=144.0.0"
+    "expo-notifications": "*"
   }
 }

@@ -19,13 +19,16 @@ Pod::Spec.new do |s|
 
   s.dependency 'ExpoModulesCore'
   s.dependency 'swift-collections'
-  s.dependency 'WebRTC-SDK'
-  s.dependency 'livekit-react-native-webrtc'
+  # No WebRTC pod dependency: Swift compiles against the declarations in WebRTCHeaders/, and the
+  # classes resolve when the app links whichever WebRTC build it ships. See WebRTCHeaders/README.md.
 
   # Swift/Objective-C compatibility
   s.pod_target_xcconfig = {
     'DEFINES_MODULE' => 'YES',
+    'SWIFT_INCLUDE_PATHS' => '$(PODS_TARGET_SRCROOT)/WebRTCHeaders',
   }
 
   s.source_files = "**/*.{h,m,mm,swift,hpp,cpp}"
+  s.exclude_files = "WebRTCHeaders/**"
+  s.preserve_paths = "WebRTCHeaders/**"
 end
