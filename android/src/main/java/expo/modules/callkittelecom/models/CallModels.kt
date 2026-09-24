@@ -31,12 +31,8 @@ data class CallParticipant(
     val displayName: String? = null,
     val avatarUrl: String? = null,
 ) {
-    /**
-     * The text to show for this person on a call surface: their display name, else their phone
-     * number, else their email. Surfaces previously fell back from `displayName` straight to
-     * "Unknown", hiding a phone number the app had supplied.
-     */
-    val label: String?
+    /** Text shown on call surfaces: [displayName], else [phoneNumber], else [email]. */
+    val displayNameOrHandle: String?
         get() = displayName ?: phoneNumber ?: email
 
     /** Serializes participant data into the JS-facing event/session shape. */
@@ -92,12 +88,8 @@ data class IncomingCallEvent(
         val email: String? = null,
         val avatarUrl: String? = null,
     ) {
-        /**
-         * The text to show for this person on a call surface: their display name, else their phone
-         * number, else their email. Surfaces previously fell back from `displayName` straight to
-         * "Unknown", hiding a phone number the app had supplied.
-         */
-        val label: String?
+        /** Text shown on call surfaces: [displayName], else [phoneNumber], else [email]. */
+        val displayNameOrHandle: String?
             get() = displayName ?: phoneNumber ?: email
 
         /** Serializes caller data into JS-facing payload shape. */

@@ -36,11 +36,20 @@
         android:layout_height="0dp"
         android:layout_weight="2" />
 
-    <!-- Caller avatar circle with image or initial fallback -->
+    <!-- Caller avatar circle with image, initial, or placeholder fallback -->
     <FrameLayout
         android:layout_width="88dp"
         android:layout_height="88dp"
         android:background="@drawable/expo_callkit_telecom_bg_avatar">
+
+        <ImageView
+            android:id="@+id/expo_callkit_telecom_avatar_placeholder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:importantForAccessibility="no"
+            android:src="@drawable/expo_callkit_telecom_ic_person"
+            android:visibility="gone" />
 
         <ImageView
             android:id="@+id/expo_callkit_telecom_avatar_image"

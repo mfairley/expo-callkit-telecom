@@ -253,7 +253,7 @@ class CallManager private constructor() {
 
         val attributes =
             CallAttributesCompat(
-                displayName = recipient.label ?: "Unknown",
+                displayName = recipient.displayNameOrHandle ?: "Unknown",
                 address = participantUri(recipient),
                 direction = CallAttributesCompat.DIRECTION_OUTGOING,
                 callType =
@@ -276,7 +276,7 @@ class CallManager private constructor() {
                 CallStore.updateStatus(id, CallSessionStatus.CONNECTING)
                 CallAudioManager.onAudioActivated(CallStore.allSessions())
 
-                CallNotificationManager.showDialingCall(context, id, recipient.label)
+                CallNotificationManager.showDialingCall(context, id, recipient.displayNameOrHandle)
 
                 // Request speaker for video calls
                 if (options.hasVideo) {
@@ -356,13 +356,13 @@ class CallManager private constructor() {
         CallNotificationManager.showIncomingCall(
             context,
             id,
-            event.caller.label,
+            event.caller.displayNameOrHandle,
             event.hasVideo,
         )
 
         val attributes =
             CallAttributesCompat(
-                displayName = event.caller.label ?: "Unknown",
+                displayName = event.caller.displayNameOrHandle ?: "Unknown",
                 address = participantUri(caller),
                 direction = CallAttributesCompat.DIRECTION_INCOMING,
                 callType =
@@ -424,7 +424,7 @@ class CallManager private constructor() {
 
         activeCalls[callId]?.actions?.setActive?.trySend(Unit)
 
-        val callerName = CallStore.session(callId)?.remoteParticipants?.firstOrNull()?.label
+        val callerName = CallStore.session(callId)?.remoteParticipants?.firstOrNull()?.displayNameOrHandle
         CallNotificationManager.showOngoingCall(context, callId, callerName, now.toEpochMilli())
 
         CallKitTelecomLog.d(TAG) {
@@ -446,7 +446,7 @@ class CallManager private constructor() {
 
         activeCalls[id]?.actions?.setActive?.trySend(Unit)
 
-        val callerName = CallStore.session(id)?.remoteParticipants?.firstOrNull()?.label
+        val callerName = CallStore.session(id)?.remoteParticipants?.firstOrNull()?.displayNameOrHandle
         CallNotificationManager.showOngoingCall(context, id, callerName, now.toEpochMilli())
     }
 
@@ -485,7 +485,7 @@ class CallManager private constructor() {
         cancelCallTimeout(id)
         FulfillRequestManager.cancelForCall(id)
 
-        val callerName = existingSession.remoteParticipants.firstOrNull()?.label
+        val callerName = existingSession.remoteParticipants.firstOrNull()?.displayNameOrHandle
         CallNotificationManager.showEndedCall(context, id, callerName)
 
         // Send disconnect cause to Core-Telecom scope via the action channel.
