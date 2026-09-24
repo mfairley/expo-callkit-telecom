@@ -31,6 +31,10 @@ data class CallParticipant(
     val displayName: String? = null,
     val avatarUrl: String? = null,
 ) {
+    /** Text shown on call surfaces: [displayName], else [phoneNumber], else [email]. */
+    val displayNameOrHandle: String?
+        get() = displayName ?: phoneNumber ?: email
+
     /** Serializes participant data into the JS-facing event/session shape. */
     fun toMap(): Map<String, Any?> =
         mapOf(
@@ -84,6 +88,10 @@ data class IncomingCallEvent(
         val email: String? = null,
         val avatarUrl: String? = null,
     ) {
+        /** Text shown on call surfaces: [displayName], else [phoneNumber], else [email]. */
+        val displayNameOrHandle: String?
+            get() = displayName ?: phoneNumber ?: email
+
         /** Serializes caller data into JS-facing payload shape. */
         fun toMap(): Map<String, Any?> =
             mapOf(

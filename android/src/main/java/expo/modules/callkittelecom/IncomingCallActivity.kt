@@ -13,6 +13,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import expo.modules.callkittelecom.managers.CallManager
+import expo.modules.callkittelecom.models.CallParticipant
 import expo.modules.callkittelecom.models.CallSessionStatus
 import expo.modules.callkittelecom.store.CallStore
 import expo.modules.callkittelecom.utils.CallKitTelecomLog
@@ -65,7 +66,7 @@ class IncomingCallActivity : Activity() {
         val caller = session.remoteParticipants.firstOrNull()
 
         bindAppBranding()
-        bindCallerInfo(caller?.displayName, session.options.hasVideo)
+        bindCallerInfo(caller, session.options.hasVideo)
         loadAvatar(caller?.avatarUrl)
         bindButtons(id, session.options.hasVideo)
         observeSessionChanges(id)
@@ -107,13 +108,23 @@ class IncomingCallActivity : Activity() {
         }
     }
 
-    private fun bindCallerInfo(displayName: String?, hasVideo: Boolean) {
-        val name = displayName ?: "Unknown"
+    /**
+     * Binds the caller's name and avatar fallback. The avatar shows the display name's initial, or
+     * a placeholder when there's no display name, since a phone number or email has no initial.
+     */
+    private fun bindCallerInfo(caller: CallParticipant?, hasVideo: Boolean) {
+        val initial = caller?.displayName?.trim()?.firstOrNull()?.uppercase()
+        val avatarText = findViewById<TextView>(R.id.expo_callkit_telecom_avatar_text)
+        if (initial != null) {
+            avatarText.text = initial
+        } else {
+            avatarText.visibility = View.GONE
+            findViewById<ImageView>(R.id.expo_callkit_telecom_avatar_placeholder).visibility =
+                View.VISIBLE
+        }
 
-        findViewById<TextView>(R.id.expo_callkit_telecom_avatar_text).text =
-            name.firstOrNull()?.uppercase() ?: "?"
-
-        findViewById<TextView>(R.id.expo_callkit_telecom_caller_name).text = name
+        findViewById<TextView>(R.id.expo_callkit_telecom_caller_name).text =
+            caller?.displayNameOrHandle ?: "Unknown"
 
         findViewById<TextView>(R.id.expo_callkit_telecom_subtitle).text =
             if (hasVideo) "Incoming video call" else "Incoming call"
@@ -121,14 +132,16 @@ class IncomingCallActivity : Activity() {
 
     /**
      * Loads the caller's avatar from [avatarUrl] on a background thread. On success, displays a
-     * circular-cropped image and hides the initial letter. On failure, silently keeps the initial
-     * letter fallback.
+     * circular-cropped image and hides the initial or placeholder. On failure, silently keeps that
+     * fallback.
      */
     private fun loadAvatar(avatarUrl: String?) {
         if (avatarUrl.isNullOrBlank()) return
 
         val avatarImage = findViewById<ImageView>(R.id.expo_callkit_telecom_avatar_image)
         val avatarText = findViewById<TextView>(R.id.expo_callkit_telecom_avatar_text)
+        val avatarPlaceholder =
+            findViewById<ImageView>(R.id.expo_callkit_telecom_avatar_placeholder)
 
         scope.launch {
             val drawable =
@@ -156,6 +169,7 @@ class IncomingCallActivity : Activity() {
                 avatarImage.setImageDrawable(drawable)
                 avatarImage.visibility = View.VISIBLE
                 avatarText.visibility = View.GONE
+                avatarPlaceholder.visibility = View.GONE
             }
         }
     }
