@@ -50,22 +50,31 @@ class ExpoCallKitTelecomMessagingService : ExpoFirebaseMessagingService() {
         private val recentMessages = ConcurrentHashMap<String, Long>()
     }
 
-    override fun onMessageReceived(message: RemoteMessage) {
-        val data = message.data
-
-        if (data[KEY_MESSAGE_TYPE] in MESSAGE_TYPE_CALL_ENDED) {
-            val push = parseCallEndedPush(data) ?: return
-            Handler(Looper.getMainLooper()).post { processCallEnded(push) }
-            return
+    /**
+     * Routes call pushes to this module by `messageType`; everything else goes to
+     * expo-notifications. A call push is always consumed here, even when malformed, so it never
+     * surfaces as a notification.
+     */
+    override fun onMessageReceived(remoteMessage: RemoteMessage) {
+        val data = remoteMessage.data
+        when (data[KEY_MESSAGE_TYPE]) {
+            in MESSAGE_TYPE_INCOMING_CALL -> handleIncomingCallPush(data)
+            in MESSAGE_TYPE_CALL_ENDED -> handleCallEndedPush(data)
+            else -> super.onMessageReceived(remoteMessage)
         }
+    }
 
-        // Try to parse as an incoming call payload.
-        val eventMap = if (data.isNotEmpty()) parseIncomingCallEvent(data) else null
-        if (eventMap == null) {
-            // Not a call push — let expo-notifications handle it.
-            super.onMessageReceived(message)
-            return
-        }
+    override fun onNewToken(token: String) {
+        VoIPPushManager.updateToken(token)
+
+        // Let expo-notifications update its own token listeners.
+        super.onNewToken(token)
+    }
+
+    // region Incoming Call
+
+    private fun handleIncomingCallPush(data: Map<String, String>) {
+        val eventMap = parseIncomingCallEvent(data) ?: return
 
         val dedupeKey = dedupeKey(eventMap) ?: return
         if (!markMessageAsNew(dedupeKey)) {
@@ -76,11 +85,46 @@ class ExpoCallKitTelecomMessagingService : ExpoFirebaseMessagingService() {
         Handler(Looper.getMainLooper()).post { processIncomingCall(eventMap) }
     }
 
-    override fun onNewToken(token: String) {
-        VoIPPushManager.updateToken(token)
+    private fun parseIncomingCallEvent(data: Map<String, String>): Map<String, Any?>? {
+        val nestedPayload = KEYS_INCOMING_CALL.firstNotNullOfOrNull { data[it] }
+        if (nestedPayload == null) {
+            Log.w(TAG, "Ignoring incoming call push without an incomingCall payload")
+            return null
+        }
 
-        // Let expo-notifications update its own token listeners.
-        super.onNewToken(token)
+        return try {
+            jsonObjectToMap(JSONObject(nestedPayload))
+        } catch (error: Throwable) {
+            Log.w(TAG, "Failed to parse incoming_call JSON payload: ${error.message}")
+            null
+        }
+    }
+
+    private fun dedupeKey(eventMap: Map<String, Any?>): String? {
+        val eventId = eventMap["eventId"] as? String
+        if (!eventId.isNullOrBlank()) {
+            return "event:$eventId"
+        }
+
+        val serverCallId = eventMap["serverCallId"] as? String
+        if (!serverCallId.isNullOrBlank()) {
+            return "call:$serverCallId"
+        }
+
+        return null
+    }
+
+    private fun markMessageAsNew(key: String): Boolean {
+        val now = System.currentTimeMillis()
+        synchronized(dedupeLock) {
+            recentMessages.entries.removeIf { (_, seenAt) -> now - seenAt > DEDUP_WINDOW_MS }
+            val seenAt = recentMessages[key]
+            if (seenAt != null && now - seenAt <= DEDUP_WINDOW_MS) {
+                return false
+            }
+            recentMessages[key] = now
+            return true
+        }
     }
 
     private fun processIncomingCall(eventMap: Map<String, Any?>) {
@@ -103,39 +147,13 @@ class ExpoCallKitTelecomMessagingService : ExpoFirebaseMessagingService() {
         }
     }
 
-    /**
-     * Ends the session reported for the push's serverCallId, so a call the caller has abandoned
-     * stops ringing at once rather than running to the timeout.
-     */
-    private fun processCallEnded(push: CallEndedPush) {
-        try {
-            CallManager.shared.initialize(applicationContext)
+    // endregion
 
-            val session = CallStore.sessionForServerCallId(push.serverCallId)
-            if (session == null) {
-                Log.d(TAG, "Ignoring call-ended push with no matching session")
-                return
-            }
+    // region Call Ended
 
-            CallManager.shared.reportCallEnded(session.id, push.reason)
-            Log.d(TAG, "Reported call ended from FCM payload - reason: ${push.reason.value}")
-        } catch (error: Throwable) {
-            Log.e(TAG, "Failed to process call-ended push: ${error.message}", error)
-        }
-    }
-
-    private fun parseIncomingCallEvent(data: Map<String, String>): Map<String, Any?>? {
-        if (data[KEY_MESSAGE_TYPE] !in MESSAGE_TYPE_INCOMING_CALL) {
-            return null
-        }
-
-        val nestedPayload = KEYS_INCOMING_CALL.firstNotNullOfOrNull { data[it] } ?: return null
-        return try {
-            jsonObjectToMap(JSONObject(nestedPayload))
-        } catch (error: Throwable) {
-            Log.w(TAG, "Failed to parse incoming_call JSON payload: ${error.message}")
-            null
-        }
+    private fun handleCallEndedPush(data: Map<String, String>) {
+        val push = parseCallEndedPush(data) ?: return
+        Handler(Looper.getMainLooper()).post { processCallEnded(push) }
     }
 
     private fun parseCallEndedPush(data: Map<String, String>): CallEndedPush? {
@@ -172,32 +190,30 @@ class ExpoCallKitTelecomMessagingService : ExpoFirebaseMessagingService() {
             }
     }
 
-    private fun dedupeKey(eventMap: Map<String, Any?>): String? {
-        val eventId = eventMap["eventId"] as? String
-        if (!eventId.isNullOrBlank()) {
-            return "event:$eventId"
-        }
+    /**
+     * Ends the session reported for the push's serverCallId, so a call the caller has abandoned
+     * stops ringing at once rather than running to the timeout.
+     */
+    private fun processCallEnded(push: CallEndedPush) {
+        try {
+            CallManager.shared.initialize(applicationContext)
 
-        val serverCallId = eventMap["serverCallId"] as? String
-        if (!serverCallId.isNullOrBlank()) {
-            return "call:$serverCallId"
-        }
-
-        return null
-    }
-
-    private fun markMessageAsNew(key: String): Boolean {
-        val now = System.currentTimeMillis()
-        synchronized(dedupeLock) {
-            recentMessages.entries.removeIf { (_, seenAt) -> now - seenAt > DEDUP_WINDOW_MS }
-            val seenAt = recentMessages[key]
-            if (seenAt != null && now - seenAt <= DEDUP_WINDOW_MS) {
-                return false
+            val session = CallStore.sessionForServerCallId(push.serverCallId)
+            if (session == null) {
+                Log.d(TAG, "Ignoring call-ended push with no matching session")
+                return
             }
-            recentMessages[key] = now
-            return true
+
+            CallManager.shared.reportCallEnded(session.id, push.reason)
+            Log.d(TAG, "Reported call ended from FCM payload - reason: ${push.reason.value}")
+        } catch (error: Throwable) {
+            Log.e(TAG, "Failed to process call-ended push: ${error.message}", error)
         }
     }
+
+    // endregion
+
+    // region JSON Helpers
 
     private fun jsonObjectToMap(jsonObject: JSONObject): Map<String, Any?> {
         val result = mutableMapOf<String, Any?>()
@@ -228,6 +244,8 @@ class ExpoCallKitTelecomMessagingService : ExpoFirebaseMessagingService() {
 
             else -> value
         }
+
+    // endregion
 }
 
 /** A validated call-ended push: which backend call to end, and why. */

@@ -32,14 +32,14 @@ object CallStore {
     /** Returns all sessions in insertion order. */
     fun allSessions(): List<CallSession> = synchronized(lock) { sessions.values.toList() }
 
+    /** Returns a session by call UUID, or null if missing. */
+    fun session(id: UUID): CallSession? = synchronized(lock) { sessions[id] }
+
     /** Returns the incoming session reported for a backend call id, or null if none matches. */
     fun sessionForServerCallId(serverCallId: String): CallSession? =
         synchronized(lock) {
             sessions.values.firstOrNull { it.incomingCallEvent?.serverCallId == serverCallId }
         }
-
-    /** Returns a session by call UUID, or null if missing. */
-    fun session(id: UUID): CallSession? = synchronized(lock) { sessions[id] }
 
     /** Adds a session and emits `onCallSessionAdded` if it did not already exist. */
     fun add(session: CallSession) {
