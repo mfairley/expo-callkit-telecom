@@ -14,8 +14,8 @@
  *   bun send-test-push.ts --display "Alice"
  *   bun send-test-push.ts --phoneNumber +14155551234   # E.164; lets the OS match a contact
  *   bun send-test-push.ts --video
- *   bun send-test-push.ts --end --serverCallId call-123   # Android: stop a call
- *                                                         # that is still ringing
+ *   bun send-test-push.ts --end --serverCallId call-123   # Android: end that call
+ *   bun send-test-push.ts --end --serverCallId call-123 --reason answeredElsewhere
  *   bun send-test-push.ts --metadata '{"declineToken":"abc"}'   # JSON object; rides into
  *                                                               # the killed-app call-ended
  *                                                               # broadcast on Android
@@ -80,14 +80,19 @@ const event = buildEvent({
   metadata: parseMetadata(arg("--metadata")),
 });
 
-// Withdraw a ringing call rather than start one. Android only: on iOS the
-// app is awake after a VoIP push and calls reportCallEnded itself.
+// End a call rather than start one. Android only: on iOS the app is awake
+// after a VoIP push and calls reportCallEnded itself.
 const endCall = flag("--end");
+const endReason = arg("--reason");
+if (endCall && !arg("--serverCallId")) {
+  throw new Error("--end needs --serverCallId of the call to end");
+}
 const forceIos = flag("--ios");
 const forceAndroid = flag("--android");
 const usePrd = flag("--production");
 
 const want = (target: "ios" | "android") => {
+  if (endCall) return target === "android";
   if (forceIos) return target === "ios";
   if (forceAndroid) return target === "android";
   return target === "ios"
@@ -111,7 +116,7 @@ async function runFcm(): Promise<void> {
   const env = parseEnv(fcmEnvSchema, "FCM");
   const config = { keyPath: FCM_KEY_PATH, deviceToken: env.FCM_TOKEN };
   if (endCall) {
-    await sendFcmCallEnded(event.serverCallId, config);
+    await sendFcmCallEnded(event.serverCallId, endReason, config);
     return;
   }
   await sendFcm(event, config);
@@ -119,7 +124,7 @@ async function runFcm(): Promise<void> {
 
 async function main(): Promise<void> {
   if (endCall) {
-    console.log("Withdrawing call:", event.serverCallId);
+    console.log("Ending call:", event.serverCallId, endReason ?? "(default reason)");
   } else {
     console.log("Sending IncomingCallEvent:", JSON.stringify(event, null, 2));
   }

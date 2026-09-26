@@ -12,6 +12,7 @@ import expo.modules.callkittelecom.store.CallStore
 import expo.modules.notifications.service.ExpoFirebaseMessagingService
 import java.util.concurrent.ConcurrentHashMap
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 
 /**
@@ -25,10 +26,11 @@ import org.json.JSONObject
  * data["incomingCall"] = JSON string of the IncomingCallEvent (camelCase). The snake_case envelope
  * (messageType/key "incoming_call") is also accepted for backwards compatibility.
  *
- * data["messageType"] = "callEnded" with data["callEnded"] = {"serverCallId": "..."} withdraws a
- * call that is still ringing. On a killed app nothing else can: the ring is reported natively, so
- * there is no JS observer to call reportCallEnded, and the phone would ring on until
- * incomingCallTimeout even though the caller has hung up.
+ * data["messageType"] = "callEnded" with data["callEnded"] = JSON string of {"serverCallId": "...",
+ * "reason"?: CallEndedReason} ends the session reported for that serverCallId, as if JS had called
+ * reportCallEnded. On a killed app nothing else can: the ring is reported natively, so there is no
+ * JS observer, and the phone would ring on until incomingCallTimeout. `reason` defaults to
+ * "remoteEnded".
  */
 class ExpoCallKitTelecomMessagingService : ExpoFirebaseMessagingService() {
     companion object {
@@ -42,6 +44,8 @@ class ExpoCallKitTelecomMessagingService : ExpoFirebaseMessagingService() {
         private val KEYS_CALL_ENDED = listOf("callEnded", "call_ended")
         private const val DEDUP_WINDOW_MS = 120_000L
 
+        private val DEFAULT_CALL_ENDED_REASON = CallEndedReason.REMOTE_ENDED
+
         private val dedupeLock = Any()
         private val recentMessages = ConcurrentHashMap<String, Long>()
     }
@@ -50,7 +54,8 @@ class ExpoCallKitTelecomMessagingService : ExpoFirebaseMessagingService() {
         val data = message.data
 
         if (data[KEY_MESSAGE_TYPE] in MESSAGE_TYPE_CALL_ENDED) {
-            Handler(Looper.getMainLooper()).post { processCallEnded(data) }
+            val push = parseCallEndedPush(data) ?: return
+            Handler(Looper.getMainLooper()).post { processCallEnded(push) }
             return
         }
 
@@ -99,25 +104,24 @@ class ExpoCallKitTelecomMessagingService : ExpoFirebaseMessagingService() {
     }
 
     /**
-     * Ends the session whose serverCallId matches, so a call the caller has abandoned stops
-     * ringing at once rather than running to the timeout.
+     * Ends the session reported for the push's serverCallId, so a call the caller has abandoned
+     * stops ringing at once rather than running to the timeout.
      */
-    private fun processCallEnded(data: Map<String, String>) {
-        val raw = KEYS_CALL_ENDED.firstNotNullOfOrNull { data[it] } ?: return
-        val serverCallId = runCatching { JSONObject(raw).optString("serverCallId") }
-            .getOrNull()
-            ?.takeIf { it.isNotBlank() }
-            ?: return
+    private fun processCallEnded(push: CallEndedPush) {
+        try {
+            CallManager.shared.initialize(applicationContext)
 
-        CallManager.shared.initialize(applicationContext)
-        val session = CallStore.allSessions()
-            .firstOrNull { it.incomingCallEvent?.serverCallId == serverCallId }
-        if (session == null) {
-            Log.d(TAG, "No ringing call matches serverCallId $serverCallId")
-            return
+            val session = CallStore.sessionForServerCallId(push.serverCallId)
+            if (session == null) {
+                Log.d(TAG, "Ignoring call-ended push with no matching session")
+                return
+            }
+
+            CallManager.shared.reportCallEnded(session.id, push.reason)
+            Log.d(TAG, "Reported call ended from FCM payload - reason: ${push.reason.value}")
+        } catch (error: Throwable) {
+            Log.e(TAG, "Failed to process call-ended push: ${error.message}", error)
         }
-        CallManager.shared.reportCallEnded(session.id, CallEndedReason.REMOTE_ENDED)
-        Log.d(TAG, "Withdrew a ringing call from FCM payload")
     }
 
     private fun parseIncomingCallEvent(data: Map<String, String>): Map<String, Any?>? {
@@ -132,6 +136,40 @@ class ExpoCallKitTelecomMessagingService : ExpoFirebaseMessagingService() {
             Log.w(TAG, "Failed to parse incoming_call JSON payload: ${error.message}")
             null
         }
+    }
+
+    private fun parseCallEndedPush(data: Map<String, String>): CallEndedPush? {
+        val nestedPayload = KEYS_CALL_ENDED.firstNotNullOfOrNull { data[it] }
+        if (nestedPayload == null) {
+            Log.w(TAG, "Ignoring call-ended push without a callEnded payload")
+            return null
+        }
+
+        val json =
+            try {
+                JSONObject(nestedPayload)
+            } catch (error: JSONException) {
+                Log.w(TAG, "Failed to parse call_ended JSON payload: ${error.message}")
+                return null
+            }
+
+        val serverCallId = (json.opt("serverCallId") as? String)?.takeIf { it.isNotBlank() }
+        if (serverCallId == null) {
+            Log.w(TAG, "Ignoring call-ended push without a serverCallId")
+            return null
+        }
+
+        return CallEndedPush(serverCallId, parseCallEndedReason(json.opt("reason") as? String))
+    }
+
+    /** Maps the optional push reason, falling back to the default when absent or unrecognized. */
+    private fun parseCallEndedReason(value: String?): CallEndedReason {
+        if (value == null) return DEFAULT_CALL_ENDED_REASON
+
+        return CallEndedReason.fromValueOrNull(value)
+            ?: DEFAULT_CALL_ENDED_REASON.also {
+                Log.w(TAG, "Unknown call-ended reason \"$value\", using ${it.value}")
+            }
     }
 
     private fun dedupeKey(eventMap: Map<String, Any?>): String? {
@@ -191,3 +229,6 @@ class ExpoCallKitTelecomMessagingService : ExpoFirebaseMessagingService() {
             else -> value
         }
 }
+
+/** A validated call-ended push: which backend call to end, and why. */
+private data class CallEndedPush(val serverCallId: String, val reason: CallEndedReason)
