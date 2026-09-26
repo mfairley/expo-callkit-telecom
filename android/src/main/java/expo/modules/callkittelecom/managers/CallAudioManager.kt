@@ -149,6 +149,8 @@ object CallAudioManager {
         DialtonePlayer.stop()
         CallKitTelecomLog.d(TAG) { "Deactivating audio session - calls: ${calls.size}" }
 
+        // isMicrophoneMute is process-wide and survives the call, so clear it here.
+        audioManager.isMicrophoneMute = false
         currentEndpoint = null
         currentAvailableEndpoints = emptyList()
         isActive = false
@@ -158,6 +160,13 @@ object CallAudioManager {
         val callInfos = calls.map { mapOf("id" to it.id.toString(), "status" to it.status.value) }
 
         CallEventEmitter.send(CallEvents.AUDIO_SESSION_DEACTIVATED, mapOf("calls" to callInfos))
+    }
+
+    /** Mutes or unmutes the hardware microphone input. */
+    fun setMicrophoneMute(muted: Boolean) {
+        if (!isInitialized) return
+
+        audioManager.isMicrophoneMute = muted
     }
 
     /** Requests endpoint change to speaker (`true`) or best non-speaker device (`false`). */
