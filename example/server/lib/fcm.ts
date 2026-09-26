@@ -22,6 +22,40 @@ export async function sendFcm(
   event: IncomingCallEvent,
   config: FcmConfig,
 ): Promise<void> {
+  await send(config, {
+    messageType: "incomingCall",
+    incomingCall: JSON.stringify(event),
+  });
+  console.log("✓ FCM sent");
+}
+
+export interface CallEndedPush {
+  /** Unique per push; the device drops repeats of the same eventId. */
+  eventId: string;
+  serverCallId: string;
+  /** A CallEndedReason; the device defaults to "remoteEnded" when omitted. */
+  reason?: string;
+}
+
+/**
+ * Ends the call reported for `serverCallId`, so a killed app stops ringing at
+ * once instead of waiting out incomingCallTimeout.
+ */
+export async function sendFcmCallEnded(
+  push: CallEndedPush,
+  config: FcmConfig,
+): Promise<void> {
+  await send(config, {
+    messageType: "callEnded",
+    callEnded: JSON.stringify(push),
+  });
+  console.log("✓ FCM call-ended sent");
+}
+
+async function send(
+  config: FcmConfig,
+  data: Record<string, string>,
+): Promise<void> {
   const raw = await readFile(config.keyPath, "utf8");
   let account: ServiceAccount;
   try {
@@ -74,10 +108,7 @@ export async function sendFcm(
       body: JSON.stringify({
         message: {
           token: config.deviceToken,
-          data: {
-            messageType: "incomingCall",
-            incomingCall: JSON.stringify(event),
-          },
+          data,
           android: { priority: "HIGH" },
         },
       }),
@@ -86,5 +117,4 @@ export async function sendFcm(
   if (!fcmRes.ok) {
     throw new Error(`FCM: ${fcmRes.status} ${await fcmRes.text()}`);
   }
-  console.log("✓ FCM sent");
 }
