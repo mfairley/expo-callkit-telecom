@@ -53,27 +53,26 @@ The broadcast carries two extras: `eventName` (the call event that couldn't reac
 
 A complete working setup ships in the example app: `example/client/` sets `androidEventReceiver` in `app.config.ts` and copies `plugins/CallEndedReceiver.kt` into the generated android project — see "Testing system → app paths" in the example README for how to exercise it.
 
-### Withdrawing a ringing call
+### Ending a call from the server
 
-The reverse direction has the same problem. If the caller hangs up while the callee's phone is
-still ringing, a killed app has no way to act on it: the ring was reported natively, so there is no
-JS observer to call `reportCallEnded`, and the phone rings on until `incomingCallTimeout`.
+The reverse direction has the same problem. If the caller hangs up while the callee's phone is still ringing, a killed app has no way to act on it: the ring was reported natively, so there is no JS observer to call `reportCallEnded`, and the phone rings on until `incomingCallTimeout`.
 
-Send a second data message and the module ends the call natively:
+Send a second FCM data message and the module ends the call natively:
 
 ```json
 {
   "messageType": "callEnded",
-  "callEnded": "{\"serverCallId\":\"call-123\"}"
+  "callEnded": "{\"serverCallId\":\"call-123\",\"reason\":\"answeredElsewhere\"}"
 }
 ```
 
-`serverCallId` is the one you set on the `IncomingCallEvent` when you started the call. The module
-looks up the matching session and reports it ended with reason `remoteEnded`, which is the same
-path `reportCallEnded` takes from JS. A `serverCallId` with no ringing session is ignored, so a
-withdrawal that arrives late, or for a call that was already answered elsewhere, does nothing.
+`serverCallId` is the one you set on the `IncomingCallEvent` when you started the call. `reason` is optional and takes any `CallEndedReason` (`remoteEnded`, `answeredElsewhere`, `declinedElsewhere`, `unanswered`, `failed`, `unknown`); it defaults to `remoteEnded`, and an unrecognized value falls back to `remoteEnded` with a warning in logcat.
 
-The example server sends it with `bun send-test-push.ts --end --serverCallId call-123`.
+The module looks up the session reported for that `serverCallId` and ends it through the same path as `reportCallEnded` from JS: the system call UI is dismissed and JS (if it's running) receives `onCallReportedEnded` with the `reason`. It does **not** check the call's state, so a `callEnded` for a call this device has already answered hangs it up — only send it for calls the device should stop. A `serverCallId` with no session on the device (already ended, or never delivered) is ignored.
+
+These messages are consumed by the module and are never passed on to `expo-notifications`, so they don't reach notification listeners or background notification tasks; react to `onCallReportedEnded` instead. On a killed app that event is delivered through the call-event broadcast above.
+
+The example server sends it with `bun send-test-push.ts --end --serverCallId call-123 [--reason answeredElsewhere]`.
 
 ## VoIP push token types
 

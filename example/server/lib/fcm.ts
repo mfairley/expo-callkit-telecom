@@ -30,16 +30,18 @@ export async function sendFcm(
 }
 
 /**
- * Withdraws a call that is still ringing, so a killed app stops ringing at
- * once instead of waiting out incomingCallTimeout.
+ * Ends the call reported for `serverCallId`, so a killed app stops ringing at
+ * once instead of waiting out incomingCallTimeout. `reason` is a
+ * CallEndedReason; the device defaults to "remoteEnded" when it's omitted.
  */
 export async function sendFcmCallEnded(
   serverCallId: string,
+  reason: string | undefined,
   config: FcmConfig,
 ): Promise<void> {
   await send(config, {
     messageType: "callEnded",
-    callEnded: JSON.stringify({ serverCallId }),
+    callEnded: JSON.stringify({ serverCallId, reason }),
   });
   console.log("✓ FCM call-ended sent");
 }
