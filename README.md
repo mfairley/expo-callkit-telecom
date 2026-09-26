@@ -195,7 +195,7 @@ FCM data values must be strings, so JSON-encode the inner event and put it under
 }
 ```
 
-Non-`incomingCall` data messages are forwarded to `expo-notifications`'s service for normal handling.
+The module also handles `callEnded` pushes for ending a call from the server (see [platform notes](docs/platform-notes.md#ending-a-call-from-the-server)); every call push carries a unique `eventId`, and repeat deliveries are dropped. Other data messages are forwarded to `expo-notifications`'s service for normal handling.
 
 ## 🧪 Example
 

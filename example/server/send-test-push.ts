@@ -116,7 +116,14 @@ async function runFcm(): Promise<void> {
   const env = parseEnv(fcmEnvSchema, "FCM");
   const config = { keyPath: FCM_KEY_PATH, deviceToken: env.FCM_TOKEN };
   if (endCall) {
-    await sendFcmCallEnded(event.serverCallId, endReason, config);
+    await sendFcmCallEnded(
+      {
+        eventId: event.eventId,
+        serverCallId: event.serverCallId,
+        reason: endReason,
+      },
+      config,
+    );
     return;
   }
   await sendFcm(event, config);

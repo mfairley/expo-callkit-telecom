@@ -22,15 +22,17 @@ import org.json.JSONObject
  * by the existing notification delegate via [super], and call payloads are routed directly to
  * Telecom.
  *
- * Wire format (matches example/server/lib/fcm.ts): data["messageType"] = "incomingCall"
- * data["incomingCall"] = JSON string of the IncomingCallEvent (camelCase). The snake_case envelope
+ * Wire format (matches example/server/lib/fcm.ts): data["messageType"] names the push and
+ * data[<messageType>] holds its JSON payload. Every call push payload carries a unique `eventId`,
+ * which is used to drop duplicate deliveries.
+ *
+ * "incomingCall": the payload is the IncomingCallEvent (camelCase). The snake_case envelope
  * (messageType/key "incoming_call") is also accepted for backwards compatibility.
  *
- * data["messageType"] = "callEnded" with data["callEnded"] = JSON string of {"serverCallId": "...",
- * "reason"?: CallEndedReason} ends the session reported for that serverCallId, as if JS had called
- * reportCallEnded. On a killed app nothing else can: the ring is reported natively, so there is no
- * JS observer, and the phone would ring on until incomingCallTimeout. `reason` defaults to
- * "remoteEnded".
+ * "callEnded": the payload is {"eventId": "...", "serverCallId": "...", "reason"?: CallEndedReason}
+ * and ends the session reported for that serverCallId, as if JS had called reportCallEnded. On a
+ * killed app nothing else can: the ring is reported natively, so there is no JS observer, and the
+ * phone would ring on until incomingCallTimeout. `reason` defaults to "remoteEnded".
  */
 class ExpoCallKitTelecomMessagingService : ExpoFirebaseMessagingService() {
     companion object {
@@ -47,19 +49,21 @@ class ExpoCallKitTelecomMessagingService : ExpoFirebaseMessagingService() {
         private val DEFAULT_CALL_ENDED_REASON = CallEndedReason.REMOTE_ENDED
 
         private val dedupeLock = Any()
-        private val recentMessages = ConcurrentHashMap<String, Long>()
+        private val recentEventIds = ConcurrentHashMap<String, Long>()
     }
 
     /**
      * Routes call pushes to this module by `messageType`; everything else goes to
-     * expo-notifications. A call push is always consumed here, even when malformed, so it never
-     * surfaces as a notification.
+     * expo-notifications. A call push is always consumed here, even when malformed or a duplicate,
+     * so it never surfaces as a notification.
      */
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         val data = remoteMessage.data
         when (data[KEY_MESSAGE_TYPE]) {
-            in MESSAGE_TYPE_INCOMING_CALL -> handleIncomingCallPush(data)
-            in MESSAGE_TYPE_CALL_ENDED -> handleCallEndedPush(data)
+            in MESSAGE_TYPE_INCOMING_CALL ->
+                newCallPushPayload(data, KEYS_INCOMING_CALL)?.let(::handleIncomingCallPush)
+            in MESSAGE_TYPE_CALL_ENDED ->
+                newCallPushPayload(data, KEYS_CALL_ENDED)?.let(::handleCallEndedPush)
             else -> super.onMessageReceived(remoteMessage)
         }
     }
@@ -71,65 +75,67 @@ class ExpoCallKitTelecomMessagingService : ExpoFirebaseMessagingService() {
         super.onNewToken(token)
     }
 
-    // region Incoming Call
+    // region Call Push Envelope
 
-    private fun handleIncomingCallPush(data: Map<String, String>) {
-        val eventMap = parseIncomingCallEvent(data) ?: return
-
-        val dedupeKey = dedupeKey(eventMap)
-        if (dedupeKey == null) {
-            Log.w(TAG, "Ignoring incoming call push without an eventId or serverCallId")
-            return
-        }
-
-        if (!markMessageAsNew(dedupeKey)) {
-            Log.d(TAG, "Dropping duplicate incoming call push - key: $dedupeKey")
-            return
-        }
-
-        Handler(Looper.getMainLooper()).post { processIncomingCall(eventMap) }
-    }
-
-    private fun parseIncomingCallEvent(data: Map<String, String>): Map<String, Any?>? {
-        val nestedPayload = KEYS_INCOMING_CALL.firstNotNullOfOrNull { data[it] }
+    /**
+     * Parses a call push's JSON payload and checks its `eventId` against recent deliveries.
+     *
+     * @return the payload, or null when it's missing, malformed, has no `eventId`, or is a
+     *   duplicate.
+     */
+    private fun newCallPushPayload(
+        data: Map<String, String>,
+        payloadKeys: List<String>,
+    ): JSONObject? {
+        val messageType = data[KEY_MESSAGE_TYPE]
+        val nestedPayload = payloadKeys.firstNotNullOfOrNull { data[it] }
         if (nestedPayload == null) {
-            Log.w(TAG, "Ignoring incoming call push without an incomingCall payload")
+            Log.w(TAG, "Ignoring $messageType push without a payload")
             return null
         }
 
-        return try {
-            jsonObjectToMap(JSONObject(nestedPayload))
-        } catch (error: Throwable) {
-            Log.w(TAG, "Failed to parse incoming_call JSON payload: ${error.message}")
-            null
+        val payload =
+            try {
+                JSONObject(nestedPayload)
+            } catch (error: JSONException) {
+                Log.w(TAG, "Failed to parse $messageType JSON payload: ${error.message}")
+                return null
+            }
+
+        val eventId = (payload.opt("eventId") as? String)?.takeIf { it.isNotBlank() }
+        if (eventId == null) {
+            Log.w(TAG, "Ignoring $messageType push without an eventId")
+            return null
         }
+
+        if (!markEventAsNew(eventId)) {
+            Log.d(TAG, "Dropping duplicate $messageType push - eventId: $eventId")
+            return null
+        }
+
+        return payload
     }
 
-    private fun dedupeKey(eventMap: Map<String, Any?>): String? {
-        val eventId = eventMap["eventId"] as? String
-        if (!eventId.isNullOrBlank()) {
-            return "event:$eventId"
-        }
-
-        val serverCallId = eventMap["serverCallId"] as? String
-        if (!serverCallId.isNullOrBlank()) {
-            return "call:$serverCallId"
-        }
-
-        return null
-    }
-
-    private fun markMessageAsNew(key: String): Boolean {
+    private fun markEventAsNew(eventId: String): Boolean {
         val now = System.currentTimeMillis()
         synchronized(dedupeLock) {
-            recentMessages.entries.removeIf { (_, seenAt) -> now - seenAt > DEDUP_WINDOW_MS }
-            val seenAt = recentMessages[key]
+            recentEventIds.entries.removeIf { (_, seenAt) -> now - seenAt > DEDUP_WINDOW_MS }
+            val seenAt = recentEventIds[eventId]
             if (seenAt != null && now - seenAt <= DEDUP_WINDOW_MS) {
                 return false
             }
-            recentMessages[key] = now
+            recentEventIds[eventId] = now
             return true
         }
+    }
+
+    // endregion
+
+    // region Incoming Call
+
+    private fun handleIncomingCallPush(payload: JSONObject) {
+        val eventMap = jsonObjectToMap(payload)
+        Handler(Looper.getMainLooper()).post { processIncomingCall(eventMap) }
     }
 
     private fun processIncomingCall(eventMap: Map<String, Any?>) {
@@ -156,33 +162,19 @@ class ExpoCallKitTelecomMessagingService : ExpoFirebaseMessagingService() {
 
     // region Call Ended
 
-    private fun handleCallEndedPush(data: Map<String, String>) {
-        val push = parseCallEndedPush(data) ?: return
+    private fun handleCallEndedPush(payload: JSONObject) {
+        val push = parseCallEndedPush(payload) ?: return
         Handler(Looper.getMainLooper()).post { processCallEnded(push) }
     }
 
-    private fun parseCallEndedPush(data: Map<String, String>): CallEndedPush? {
-        val nestedPayload = KEYS_CALL_ENDED.firstNotNullOfOrNull { data[it] }
-        if (nestedPayload == null) {
-            Log.w(TAG, "Ignoring call-ended push without a callEnded payload")
-            return null
-        }
-
-        val json =
-            try {
-                JSONObject(nestedPayload)
-            } catch (error: JSONException) {
-                Log.w(TAG, "Failed to parse call_ended JSON payload: ${error.message}")
-                return null
-            }
-
-        val serverCallId = (json.opt("serverCallId") as? String)?.takeIf { it.isNotBlank() }
+    private fun parseCallEndedPush(payload: JSONObject): CallEndedPush? {
+        val serverCallId = (payload.opt("serverCallId") as? String)?.takeIf { it.isNotBlank() }
         if (serverCallId == null) {
             Log.w(TAG, "Ignoring call-ended push without a serverCallId")
             return null
         }
 
-        return CallEndedPush(serverCallId, parseCallEndedReason(json.opt("reason") as? String))
+        return CallEndedPush(serverCallId, parseCallEndedReason(payload.opt("reason") as? String))
     }
 
     /** Maps the optional push reason, falling back to the default when absent or unrecognized. */
