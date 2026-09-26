@@ -76,7 +76,12 @@ class ExpoCallKitTelecomMessagingService : ExpoFirebaseMessagingService() {
     private fun handleIncomingCallPush(data: Map<String, String>) {
         val eventMap = parseIncomingCallEvent(data) ?: return
 
-        val dedupeKey = dedupeKey(eventMap) ?: return
+        val dedupeKey = dedupeKey(eventMap)
+        if (dedupeKey == null) {
+            Log.w(TAG, "Ignoring incoming call push without an eventId or serverCallId")
+            return
+        }
+
         if (!markMessageAsNew(dedupeKey)) {
             Log.d(TAG, "Dropping duplicate incoming call push - key: $dedupeKey")
             return
