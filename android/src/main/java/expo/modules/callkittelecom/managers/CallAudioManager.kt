@@ -132,6 +132,8 @@ object CallAudioManager {
         CallKitTelecomLog.d(TAG) { "Activating audio session - calls: ${calls.size}" }
 
         isActive = true
+        // Apply a mute set before audio started, and clear any mute left on the device.
+        setMicrophoneMute(calls.any { it.isMuted })
 
         val callInfos = calls.map { mapOf("id" to it.id.toString(), "status" to it.status.value) }
 
@@ -149,6 +151,8 @@ object CallAudioManager {
         DialtonePlayer.stop()
         CallKitTelecomLog.d(TAG) { "Deactivating audio session - calls: ${calls.size}" }
 
+        // The microphone mute is device-wide and outlives the call, so clear it here.
+        setMicrophoneMute(false)
         currentEndpoint = null
         currentAvailableEndpoints = emptyList()
         isActive = false
@@ -158,6 +162,18 @@ object CallAudioManager {
         val callInfos = calls.map { mapOf("id" to it.id.toString(), "status" to it.status.value) }
 
         CallEventEmitter.send(CallEvents.AUDIO_SESSION_DEACTIVATED, mapOf("calls" to callInfos))
+    }
+
+    /**
+     * Mutes or unmutes the device microphone while call audio is active.
+     *
+     * The mute is device-wide, so it is never applied outside a call.
+     */
+    fun setMicrophoneMute(muted: Boolean) {
+        if (!isInitialized || !isActive) return
+
+        CallKitTelecomLog.d(TAG) { "Setting microphone mute - muted: $muted" }
+        audioManager.isMicrophoneMute = muted
     }
 
     /** Requests endpoint change to speaker (`true`) or best non-speaker device (`false`). */

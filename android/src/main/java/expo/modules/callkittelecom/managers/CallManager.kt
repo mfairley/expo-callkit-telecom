@@ -598,6 +598,7 @@ class CallManager private constructor() {
     fun setMuted(id: UUID, muted: Boolean) {
         CallKitTelecomLog.d(TAG) { "Setting mute state - id: $id, muted: $muted" }
         CallStore.updateMuted(id, muted)
+        CallAudioManager.setMicrophoneMute(muted)
         CallEventEmitter.send(
             CallEvents.SET_MUTED_ACTION,
             mapOf("id" to id.toString(), "isMuted" to muted),
@@ -800,6 +801,7 @@ class CallManager private constructor() {
                 if (session.isMuted != muted) {
                     CallKitTelecomLog.d(TAG) { "Mute state changed - id: $id, isMuted: $muted" }
                     CallStore.updateMuted(id, muted)
+                    CallAudioManager.setMicrophoneMute(muted)
                     CallEventEmitter.send(
                         CallEvents.SET_MUTED_ACTION,
                         mapOf("id" to id.toString(), "isMuted" to muted),

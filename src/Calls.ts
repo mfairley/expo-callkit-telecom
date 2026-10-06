@@ -682,6 +682,9 @@ export function addReportedCallEndedListener(
  * The system will emit a {@link SetMutedActionEvent}. Apply the mute state to
  * your media connection when you receive this event.
  *
+ * On Android, the module also mutes the device microphone while the call is
+ * muted.
+ *
  * @param id - The call session ID.
  * @param muted - Whether the microphone should be muted.
  *
@@ -698,6 +701,9 @@ export async function setMuted(id: string, muted: boolean): Promise<void> {
  *
  * Fired when the system requests to set the mute state (e.g., user pressed mute button).
  * Apply the change to your media connection when you receive this event.
+ *
+ * On Android, the module has already muted or unmuted the device microphone
+ * when this fires.
  *
  * @param listener - Callback invoked when set muted action is requested.
  * @returns A subscription that can be removed by calling `.remove()`.
