@@ -1,5 +1,5 @@
 import AVFoundation
-import livekit_react_native_webrtc
+internal import ExpoCallKitTelecomWebRTC
 
 private func permissionStatusString(_ status: AVAuthorizationStatus) -> String {
   switch status {
