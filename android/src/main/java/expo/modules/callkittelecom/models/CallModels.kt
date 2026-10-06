@@ -265,7 +265,11 @@ enum class CallEndedReason(val value: String) {
 
     companion object {
         /** Safely maps a reason string to enum, defaulting to `UNKNOWN`. */
-        fun fromValue(value: String): CallEndedReason =
-            entries.firstOrNull { it.value == value } ?: UNKNOWN
+        fun fromValue(value: String): CallEndedReason = fromValueOrNull(value) ?: UNKNOWN
+
+        /** Maps a reason string to enum, or null when it isn't a known reason. */
+        fun fromValueOrNull(value: String): CallEndedReason? = entries.firstOrNull {
+            it.value == value
+        }
     }
 }

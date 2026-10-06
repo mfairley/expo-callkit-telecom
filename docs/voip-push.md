@@ -65,4 +65,6 @@ FCM data values must be strings, so JSON-encode the inner event and put it under
 }
 ```
 
-Non-`incomingCall` data messages are forwarded to [`expo-notifications`](https://docs.expo.dev/versions/latest/sdk/notifications/)'s service for normal handling.
+Every call push the module handles carries its own unique `eventId` inside the JSON payload, and a repeat delivery of an `eventId` seen in the last two minutes is dropped. Besides `incomingCall`, the module handles `callEnded` for ending a call from the server — see [Ending a call from the server](platform-notes.md#ending-a-call-from-the-server).
+
+Other data messages are forwarded to [`expo-notifications`](https://docs.expo.dev/versions/latest/sdk/notifications/)'s service for normal handling.

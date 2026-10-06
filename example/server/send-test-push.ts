@@ -14,6 +14,8 @@
  *   bun send-test-push.ts --display "Alice"
  *   bun send-test-push.ts --phoneNumber +14155551234   # E.164; lets the OS match a contact
  *   bun send-test-push.ts --video
+ *   bun send-test-push.ts --end --serverCallId call-123   # Android: end that call
+ *   bun send-test-push.ts --end --serverCallId call-123 --reason answeredElsewhere
  *   bun send-test-push.ts --metadata '{"declineToken":"abc"}'   # JSON object; rides into
  *                                                               # the killed-app call-ended
  *                                                               # broadcast on Android
@@ -40,7 +42,7 @@ import { join } from "node:path";
 import { sendApns } from "./lib/apns";
 import { apnsEnvSchema, fcmEnvSchema, parseEnv } from "./lib/env";
 import { buildEvent } from "./lib/event";
-import { sendFcm } from "./lib/fcm";
+import { sendFcm, sendFcmCallEnded } from "./lib/fcm";
 
 const APNS_KEY_PATH = join(import.meta.dir, "apns_key.p8");
 const FCM_KEY_PATH = join(import.meta.dir, "fcm_key.json");
@@ -78,11 +80,19 @@ const event = buildEvent({
   metadata: parseMetadata(arg("--metadata")),
 });
 
+// End a call rather than start one. Android only: on iOS the app is awake
+// after a VoIP push and calls reportCallEnded itself.
+const endCall = flag("--end");
+const endReason = arg("--reason");
+if (endCall && !arg("--serverCallId")) {
+  throw new Error("--end needs --serverCallId of the call to end");
+}
 const forceIos = flag("--ios");
 const forceAndroid = flag("--android");
 const usePrd = flag("--production");
 
 const want = (target: "ios" | "android") => {
+  if (endCall) return target === "android";
   if (forceIos) return target === "ios";
   if (forceAndroid) return target === "android";
   return target === "ios"
@@ -104,11 +114,27 @@ async function runApns(): Promise<void> {
 
 async function runFcm(): Promise<void> {
   const env = parseEnv(fcmEnvSchema, "FCM");
-  await sendFcm(event, { keyPath: FCM_KEY_PATH, deviceToken: env.FCM_TOKEN });
+  const config = { keyPath: FCM_KEY_PATH, deviceToken: env.FCM_TOKEN };
+  if (endCall) {
+    await sendFcmCallEnded(
+      {
+        eventId: event.eventId,
+        serverCallId: event.serverCallId,
+        reason: endReason,
+      },
+      config,
+    );
+    return;
+  }
+  await sendFcm(event, config);
 }
 
 async function main(): Promise<void> {
-  console.log("Sending IncomingCallEvent:", JSON.stringify(event, null, 2));
+  if (endCall) {
+    console.log("Ending call:", event.serverCallId, endReason ?? "(default reason)");
+  } else {
+    console.log("Sending IncomingCallEvent:", JSON.stringify(event, null, 2));
+  }
   const jobs: Promise<void>[] = [];
   if (want("ios")) jobs.push(runApns());
   if (want("android")) jobs.push(runFcm());
