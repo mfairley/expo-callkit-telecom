@@ -97,6 +97,21 @@ export type ExpoCallKitTelecomPluginProps = {
    * @platform android
    */
   androidEventReceiver?: string;
+  /**
+   * Class name of a subclass of `ExpoCallKitTelecomMessagingService` to
+   * register as the app's FCM (`MESSAGING_EVENT`) service in place of the
+   * module's own, for apps that need to see FCM deliveries of their own. The
+   * plugin writes the manifest `<service>` + `<intent-filter>` and removes the
+   * module's library-declared service, so the subclass is the only FCM service.
+   * You supply the subclass (e.g. via a local Expo module); the plugin does not
+   * generate it.
+   *
+   * Accepts a manifest-relative name (`.CallMessagingService`) or a
+   * fully-qualified one (`com.acme.app.CallMessagingService`). See "Subclassing
+   * the messaging service" in the docs.
+   * @platform android
+   */
+  androidMessagingService?: string;
 };
 
 const withExpoCallKitTelecom: ConfigPlugin<ExpoCallKitTelecomPluginProps | void> = (
