@@ -12,3 +12,10 @@ export const DEFAULT_INCLUDES_CALLS_IN_RECENTS = true;
  */
 export const ANDROID_CALL_EVENT_ACTION =
   "expo.modules.callkittelecom.ACTION_CALL_EVENT";
+
+/**
+ * The module's FCM service, declared in its library AndroidManifest.xml. The
+ * `androidMessagingService` plugin prop replaces it with an app subclass.
+ */
+export const ANDROID_MESSAGING_SERVICE =
+  "expo.modules.callkittelecom.services.ExpoCallKitTelecomMessagingService";

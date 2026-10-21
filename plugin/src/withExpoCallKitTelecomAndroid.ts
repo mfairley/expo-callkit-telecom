@@ -9,6 +9,7 @@ import { basename, resolve } from "path";
 
 import {
   ANDROID_CALL_EVENT_ACTION,
+  ANDROID_MESSAGING_SERVICE,
   DEFAULT_FULFILL_ANSWER_CALL_TIMEOUT,
   DEFAULT_INCOMING_CALL_TIMEOUT,
   DEFAULT_OUTGOING_CALL_TIMEOUT,
@@ -16,6 +17,8 @@ import {
 import type { ExpoCallKitTelecomPluginProps } from "./withExpoCallKitTelecom";
 
 const ERROR_MSG_PREFIX = "An error occurred while configuring Android calls. ";
+
+const FIREBASE_MESSAGING_EVENT_ACTION = "com.google.firebase.MESSAGING_EVENT";
 
 // biome-ignore lint/suspicious/noExplicitAny: Expo config plugin manifest types are untyped
 function setMetaDataValue(app: any, key: string, value: string): void {
@@ -228,6 +231,35 @@ const withDefaultRingtone: ConfigPlugin<{
 };
 
 /**
+ * Marks a service declared in a library AndroidManifest.xml for removal, so the
+ * manifest merger strips it during the Gradle build.
+ */
+function removeLibraryService(
+  androidManifest: AndroidConfig.Manifest.AndroidManifest,
+  serviceName: string,
+): void {
+  // Ensure the tools namespace is declared on the root <manifest> element.
+  const manifest = androidManifest.manifest;
+  if (!manifest.$["xmlns:tools"]) {
+    manifest.$["xmlns:tools"] = "http://schemas.android.com/tools";
+  }
+
+  const app = AndroidConfig.Manifest.getMainApplicationOrThrow(androidManifest);
+
+  // Remove any existing entry first (idempotent across repeated prebuilds).
+  app.service = (app.service ?? []).filter(
+    (service) => service.$?.["android:name"] !== serviceName,
+  );
+
+  app.service.push({
+    $: {
+      "android:name": serviceName,
+      "tools:node": "remove",
+    },
+  });
+}
+
+/**
  * Removes expo-notifications' ExpoFirebaseMessagingService from the manifest.
  *
  * Our ExpoCallKitTelecomMessagingService extends it and takes over as the sole
@@ -241,38 +273,53 @@ const withFirebaseMessagingService: ConfigPlugin<ExpoCallKitTelecomPluginProps> 
   config,
 ) => {
   return withAndroidManifest(config, (config) => {
-    const manifest = config.modResults.manifest;
+    removeLibraryService(
+      config.modResults,
+      "expo.modules.notifications.service.ExpoFirebaseMessagingService",
+    );
+    return config;
+  });
+};
 
-    // Ensure the tools namespace is declared on the root <manifest> element.
-    if (!manifest.$["xmlns:tools"]) {
-      manifest.$["xmlns:tools"] = "http://schemas.android.com/tools";
-    }
+/**
+ * Registers an app subclass of ExpoCallKitTelecomMessagingService as the sole
+ * MESSAGING_EVENT service.
+ *
+ * Writes the subclass `<service>` + `<intent-filter>` and removes the module's
+ * own service (declared in its library AndroidManifest.xml) the same way as
+ * expo-notifications' above, so FCM starts the subclass. The app supplies the
+ * subclass itself (the plugin does not generate it).
+ */
+const withMessagingService: ConfigPlugin<{
+  androidMessagingService?: string;
+}> = (config, { androidMessagingService }) => {
+  if (!androidMessagingService) {
+    return config;
+  }
+
+  return withAndroidManifest(config, (config) => {
+    removeLibraryService(config.modResults, ANDROID_MESSAGING_SERVICE);
 
     const app = AndroidConfig.Manifest.getMainApplicationOrThrow(
       config.modResults,
     );
 
-    if (!app.service) {
-      app.service = [];
-    }
-
-    const notificationsService =
-      "expo.modules.notifications.service.ExpoFirebaseMessagingService";
-
     // Remove any existing entry first (idempotent across repeated prebuilds).
-    app.service = app.service.filter(
-      (service) => service.$?.["android:name"] !== notificationsService,
+    app.service = (app.service ?? []).filter(
+      (service) => service.$?.["android:name"] !== androidMessagingService,
     );
 
-    // Add a tools:node="remove" marker so the manifest merger strips the
-    // library-declared service during the Gradle build.
-    const removeEntry = {
+    app.service.push({
       $: {
-        "android:name": notificationsService,
-        "tools:node": "remove",
+        "android:name": androidMessagingService,
+        "android:exported": "false",
       },
-    };
-    app.service.push(removeEntry);
+      "intent-filter": [
+        {
+          action: [{ $: { "android:name": FIREBASE_MESSAGING_EVENT_ACTION } }],
+        },
+      ],
+    });
 
     return config;
   });
@@ -331,6 +378,7 @@ export const withExpoCallKitTelecomAndroid: ConfigPlugin<ExpoCallKitTelecomPlugi
   });
   config = withDefaultDialtone(config, props);
   config = withFirebaseMessagingService(config, props);
+  config = withMessagingService(config, props);
   config = withEventReceiver(config, props);
   return config;
 };

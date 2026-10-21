@@ -33,8 +33,15 @@ import org.json.JSONObject
  * and ends the session reported for that serverCallId, as if JS had called reportCallEnded. On a
  * killed app nothing else can: the ring is reported natively, so there is no JS observer, and the
  * phone would ring on until incomingCallTimeout. `reason` defaults to "remoteEnded".
+ *
+ * The class is open so an app can subclass it to see FCM deliveries of its own: override
+ * [onMessageReceived] for data messages, or FirebaseMessagingService's [handleIntent] for every
+ * delivery, and call super. The subclass must then be the only MESSAGING_EVENT service; the
+ * `androidMessagingService` plugin prop declares it (android:exported="false") and removes the
+ * library manifest's declaration of this class with `tools:node="remove"`, the way the plugin
+ * removes expo-notifications' service. See docs/platform-notes.md.
  */
-class ExpoCallKitTelecomMessagingService : ExpoFirebaseMessagingService() {
+open class ExpoCallKitTelecomMessagingService : ExpoFirebaseMessagingService() {
     companion object {
         private const val TAG = "ExpoCallKitTelecom.FCM"
         private const val KEY_MESSAGE_TYPE = "messageType"

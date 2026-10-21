@@ -19,7 +19,8 @@ description: Platform requirements for expo-callkit-telecom — iOS 16.0+ (CallK
 - Requires [`MANAGE_OWN_CALLS`](https://developer.android.com/reference/android/Manifest.permission#MANAGE_OWN_CALLS) permission.
 - Minimum SDK: **26** (Android 8.0).
 - Uses [`androidx.core:core-telecom`](https://developer.android.com/develop/connectivity/telecom/voip-app/telecom).
-- Incoming calls come via [FCM](https://firebase.google.com/docs/cloud-messaging) data messages — the config plugin registers `ExpoCallKitTelecomMessagingService` automatically.
+- Incoming calls come via [FCM](https://firebase.google.com/docs/cloud-messaging) data messages. The module's library manifest declares `ExpoCallKitTelecomMessagingService` as the `com.google.firebase.MESSAGING_EVENT` service, and the config plugin removes expo-notifications' own service so it is the only one.
+- The service is `open`, so an app that needs to see FCM deliveries of its own can subclass it and register the subclass with the `androidMessagingService` plugin prop — see [Subclassing the messaging service](#subclassing-the-messaging-service).
 - Muting a call (from `setMuted` or the system call UI) also mutes the device microphone via [`AudioManager.setMicrophoneMute`](https://developer.android.com/reference/android/media/AudioManager#setMicrophoneMute(boolean)). The mute is device-wide, so the module applies it only while call audio is active and clears it when the last call ends. This adds the [`MODIFY_AUDIO_SETTINGS`](https://developer.android.com/reference/android/Manifest.permission#MODIFY_AUDIO_SETTINGS) permission to your app's manifest; it's granted at install, with no runtime prompt.
 
 ### Call ended while the app is killed
@@ -74,6 +75,47 @@ The module looks up the session reported for that `serverCallId` and ends it thr
 These messages are consumed by the module and are never passed on to `expo-notifications`, so they don't reach notification listeners or background notification tasks; react to `onCallReportedEnded` instead. On a killed app that event is delivered through the call-event broadcast above.
 
 The example server sends it with `bun send-test-push.ts --end --serverCallId call-123 [--reason answeredElsewhere]`.
+
+### Subclassing the messaging service
+
+`ExpoCallKitTelecomMessagingService` is `open`, so an app that needs to see FCM deliveries of its own can extend it instead of registering a second FCM service. Override the entry point that covers your case and call `super`; the module's own call handling is unchanged:
+
+- `onMessageReceived` for data messages the Firebase SDK hands to the app.
+- `handleIntent` to see every delivery, including notification messages the SDK displayed itself while the app was in the background (those never reach `onMessageReceived`). `handleIntent` is a [`FirebaseMessagingService`](https://firebase.google.com/docs/reference/android/com/google/firebase/messaging/FirebaseMessagingService) method, not this module's, so check it is still overridable when you bump `firebase-messaging`.
+
+The subclass must be the only `com.google.firebase.MESSAGING_EVENT` service. Register it via the config plugin, which writes the subclass `<service>` entry and removes the module's own. You supply the subclass the same way as the receiver above (a [local Expo module](https://docs.expo.dev/modules/get-started/) or your `android/` source):
+
+```js
+// app.config.js / app.json plugin props
+[
+  "expo-callkit-telecom",
+  { androidMessagingService: ".CallMessagingService" },
+]
+```
+
+```kotlin
+class CallMessagingService : ExpoCallKitTelecomMessagingService() {
+    override fun handleIntent(intent: Intent) {
+        super.handleIntent(intent)
+        // e.g. read intent.extras for a push the SDK has already shown
+    }
+}
+```
+
+`.CallMessagingService` is relative to your app's package; a subclass in a local Expo module takes its fully-qualified name instead. In a bare project without the plugin, add the same entries to your app manifest yourself (declare `xmlns:tools="http://schemas.android.com/tools"` on `<manifest>` if it isn't already):
+
+```xml
+<service android:name=".CallMessagingService" android:exported="false">
+  <intent-filter>
+    <action android:name="com.google.firebase.MESSAGING_EVENT" />
+  </intent-filter>
+</service>
+<service
+  android:name="expo.modules.callkittelecom.services.ExpoCallKitTelecomMessagingService"
+  tools:node="remove" />
+```
+
+Keep `android:exported="false"`: the Firebase SDK starts the service in-process, and an exported `MESSAGING_EVENT` service would let any other app hand it a forged call push or token. The remove entry needs the module service's fully-qualified name; a relative name resolves against your package and matches nothing, so both services stay registered and FCM starts whichever one the package manager resolves first.
 
 ## VoIP push token types
 
