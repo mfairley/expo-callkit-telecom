@@ -317,9 +317,9 @@ export interface CallActionEvent extends NativeEvent {
  * event-specific fields.
  *
  * Terminal events embed the session so consumers without access to the session
- * store still get full context. On Android this is also what makes the
- * package-internal call-event broadcast self-contained when no JS observer is
- * alive (see "Call ended while the app is killed" in the docs) — the broadcast
+ * store still get full context. This is also what makes the native call-event
+ * broadcast (Android) / notification (iOS) self-contained when no JS observer
+ * is alive (see "Call ended while the app is killed" in the docs) — its
  * payload is exactly this event body.
  *
  * @category Call Events

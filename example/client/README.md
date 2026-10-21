@@ -36,6 +36,7 @@ A few flows are best exercised by interacting with the system UI directly rather
 - On iOS, tap a contact in the **Recents** list or say *"call <displayName>"* to Siri — `CallIntentReceived` fires.
 - Force-quit the app and send a push via `example/server/` — the native parser shows the call without JS running.
 - (Android) Force-quit the app, send a push, then **decline** it — no JS observer exists, so instead of the (undeliverable) `onCallEnded` event the module fires the package-internal call-ended broadcast, which the example's `CallEndedReceiver` (see `plugins/`) handles by playing a short beep (so you can tell it ran without a cable — keep the device off silent) and logging: `adb logcat -s CallEndedReceiver`. Send the push with `--metadata '{"declineToken":"abc"}'` to see app-specific values ride the push into the receiver.
+- (iOS) Same flow: force-quit the app, `bun send-test-push.ts --ios`, then **decline** on the CallKit screen — the module posts the `expo.modules.callkittelecom.ACTION_CALL_EVENT` notification instead of the undeliverable `onCallEnded`, and the example's `CallEndedObserverAppDelegateSubscriber` (a local Expo module, see `modules/call-ended-observer/`) logs it to the unified log: open Console.app with the device selected and filter on `category:CallEndedObserver`. `--metadata` rides along the same way.
 
 ## Running
 

@@ -1,5 +1,6 @@
 import AVFoundation
 import CallKit
+import UIKit
 import os
 
 extension CallManager: CXProviderDelegate {
@@ -103,6 +104,21 @@ extension CallManager: CXProviderDelegate {
     DialtonePlayer.shared.stop()
     cancelCallTimeout(for: action.callUUID)
 
+    // The CallEndedEvent below is emitted from a Task, i.e. after action.fulfill()
+    // has told CallKit the call is over. When PushKit launched the process in the
+    // background (killed app, declined from the native UI) nothing else keeps iOS
+    // from suspending it in that gap, so neither the event nor a native observer
+    // of the undelivered-event notification would get to run. Hold a background
+    // task across the hop; ended once the event is sent, or on expiry.
+    // assumeIsolated: the provider's delegate queue is nil, so this runs on main.
+    let endCallBackgroundTask = MainActor.assumeIsolated {
+      let task = EndCallBackgroundTask()
+      task.id = UIApplication.shared.beginBackgroundTask(
+        withName: "ExpoCallKitTelecom.CXEndCallAction",
+        expirationHandler: { task.end() })
+      return task
+    }
+
     Task {
       // Snapshot the session as ended so the embedded session reflects the terminal state.
       if var session = await store.session(for: action.callUUID) {
@@ -114,6 +130,8 @@ extension CallManager: CXProviderDelegate {
       }
 
       await store.remove(for: action.callUUID)
+
+      await endCallBackgroundTask.end()
     }
 
     action.fulfill()
@@ -196,5 +214,19 @@ extension CallManager: CXProviderDelegate {
       let sessions = await store.allSessions
       AudioManager.shared.onAVAudioSessionDeactivated(calls: sessions)
     }
+  }
+}
+
+/// The CXEndCallAction background task, ended exactly once: by the Task once
+/// the event is sent, or by the expiration handler, whichever comes first.
+/// Main-actor isolated so the compiler checks that `end()` can't race.
+@MainActor
+private final class EndCallBackgroundTask {
+  var id = UIBackgroundTaskIdentifier.invalid
+
+  func end() {
+    guard id != .invalid else { return }
+    UIApplication.shared.endBackgroundTask(id)
+    id = .invalid
   }
 }
