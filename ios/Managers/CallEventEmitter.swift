@@ -15,6 +15,9 @@ private struct QueuedEvent {
 /// Supports per-event configuration:
 /// - Track which events are being observed independently
 /// - Configure queue limits per event (0 = no queueing, nil = unlimited)
+/// - Posts events that can't reach JS at all (dropped, not queued) as a
+///   `NotificationCenter` notification, so a JS-less process can still react
+///   (see `postUndelivered`)
 @MainActor
 final class CallEventEmitter {
   static let shared = CallEventEmitter()
@@ -110,8 +113,33 @@ final class CallEventEmitter {
       )
       module.sendEvent(eventName, body)
     } else {
-      queueEvent(name: eventName, body: event.body, timestamp: timestamp)
+      let queued = queueEvent(name: eventName, body: event.body, timestamp: timestamp)
+      if !queued {
+        postUndelivered(name: eventName, body: event.body, timestamp: timestamp)
+      }
     }
+  }
+
+  /// Posts an undelivered event so a JS-less process can still react.
+  ///
+  /// The iOS twin of the Android `ACTION_CALL_EVENT` broadcast: same notification
+  /// name, same `eventName` and `payload` keys, `payload` being the body JS would
+  /// have received. Only events `queueEvent` refused (queue limit 0) come through
+  /// here; queued events flush to JS once observed, so posting them too would
+  /// double-deliver. Matters when PushKit launched the process and CallKit rang
+  /// natively: a decline emits `onCallEnded` before JS is observing, and the app
+  /// could otherwise never tell its backend.
+  private func postUndelivered(name: String, body: [String: Any], timestamp: Date) {
+    NotificationCenter.default.post(
+      // Same string as Android's `CallEventEmitter.ACTION_CALL_EVENT`; apps observe it by name.
+      name: Notification.Name("expo.modules.callkittelecom.ACTION_CALL_EVENT"),
+      object: nil,
+      userInfo: [
+        "eventName": name,
+        "payload": buildEventBody(body, flushed: false, timestamp: timestamp),
+      ]
+    )
+    Log.call.debug("Broadcast undelivered event (no live JS observer) - name: \(name)")
   }
 
   // MARK: - Expo Lifecycle
@@ -147,13 +175,17 @@ final class CallEventEmitter {
     return result
   }
 
-  private func queueEvent(name: String, body: [String: Any], timestamp: Date) {
+  /// Queues an event, enforcing the per-event limit (oldest dropped first).
+  ///
+  /// Returns `true` when the event was queued (it flushes to JS once observed),
+  /// `false` when queueing is disabled for it (limit 0) so it was dropped.
+  private func queueEvent(name: String, body: [String: Any], timestamp: Date) -> Bool {
     let limit = queueLimits[name] ?? defaultQueueLimit
 
     // If limit is 0, don't queue at all
     if limit == 0 {
       Log.call.debug("Dropping event (queueing disabled) - name: \(name)")
-      return
+      return false
     }
 
     var queue = eventQueues[name] ?? []
@@ -173,6 +205,7 @@ final class CallEventEmitter {
     }
 
     eventQueues[name] = queue
+    return true
   }
 
   private func flushQueue(for eventName: String) {
