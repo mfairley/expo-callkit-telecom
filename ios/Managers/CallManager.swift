@@ -1,4 +1,5 @@
 import CallKit
+import CryptoKit
 import os
 
 /// Errors that can occur during call operations.
@@ -289,6 +290,56 @@ class CallManager: NSObject {
 
   // MARK: - Report Incoming Call
 
+  /// Namespace for the name-based call UUIDs: 527E9603-8E19-461C-AE48-F46F3A1404BC.
+  private static let callIdNamespace = UUID(
+    uuid: (
+      0x52, 0x7E, 0x96, 0x03, 0x8E, 0x19, 0x46, 0x1C,
+      0xAE, 0x48, 0xF4, 0x6F, 0x3A, 0x14, 0x04, 0xBC
+    )
+  )
+
+  /// Derives the CallKit UUID for an incoming call from its `serverCallId`.
+  ///
+  /// The same call can be reported twice, by the VoIP push and by the app's own
+  /// signalling from JS; neither can see the other's in-flight report, and
+  /// CallKit's UUID uniqueness is the only arbiter they share, so a deterministic
+  /// id makes the second report fail with `callUUIDAlreadyExists` instead of
+  /// ringing again. It is a name-based UUID (RFC 4122 version 5) under a fixed
+  /// namespace rather than the raw id, so it works for any id shape and does not
+  /// hand the backend id to other apps via `CXCallObserver`.
+  ///
+  /// Known answer: `"call-123"` → `41c818af-d16c-595a-8edc-de68eb3d6c19`.
+  private static func callUUID(forServerCallId serverCallId: String) -> UUID {
+    // An empty id (the JS record's default; the push parser rejects it) gets a random id as
+    // before, so two malformed reports don't collapse into one call.
+    if serverCallId.isEmpty { return UUID() }
+    var hasher = Insecure.SHA1()
+    hasher.update(data: withUnsafeBytes(of: callIdNamespace.uuid) { Data($0) })
+    hasher.update(data: Data(serverCallId.utf8))
+    var bytes = Array(hasher.finalize().prefix(16))
+    bytes[6] = (bytes[6] & 0x0F) | 0x50  // version 5
+    bytes[8] = (bytes[8] & 0x3F) | 0x80  // RFC 4122 variant
+    return UUID(
+      uuid: (
+        bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7],
+        bytes[8], bytes[9], bytes[10], bytes[11], bytes[12], bytes[13], bytes[14], bytes[15]
+      )
+    )
+  }
+
+  /// True when CallKit rejected an incoming-call report because a call with
+  /// the same UUID is already ringing: the same call was reported twice (see
+  /// `callUUID(forServerCallId:)`). The first report owns the session and the
+  /// timeout; the second must not add a session or restore the audio session.
+  ///
+  /// The push path must call `reportNewIncomingCall` on every VoIP push (PushKit
+  /// terminates the app otherwise), so even a store or in-flight lookup would end
+  /// in this same error path. The push loser therefore stays a no-op here, never
+  /// a skip of the report.
+  static func isAlreadyReported(_ error: Error) -> Bool {
+    (error as? CXErrorCodeIncomingCallError)?.code == .callUUIDAlreadyExists
+  }
+
   /// Reports an incoming call to CallKit, displaying the native call UI.
   ///
   /// Creates a new call session with `.incoming` origin, reports the call to CallKit,
@@ -297,10 +348,12 @@ class CallManager: NSObject {
   /// - Parameter event: The incoming call event containing caller info.
   /// - Throws: An error if CallKit rejects the incoming call report.
   func reportIncomingCall(event: IncomingCallEvent) async throws {
-    let id = UUID()
+    let id = Self.callUUID(forServerCallId: event.serverCallId)
     Log.call.debug("Reporting incoming call - id: \(id)")
 
-    // Prepare audio session before reporting to CallKit
+    // Prepare audio session before reporting to CallKit. If this report loses to a
+    // duplicate that disagrees on hasVideo, this reapplies our mode under the ringing
+    // call; pre-existing, intentionally not changed (same in the callback overload).
     AudioManager.shared.prepareAudioSessionForCall(hasVideo: event.hasVideo)
 
     let caller = CallParticipant(
@@ -357,6 +410,15 @@ class CallManager: NSObject {
       // Start timeout for incoming call
       startCallTimeout(for: id, timeout: Self.incomingCallTimeout)
     } catch {
+      if Self.isAlreadyReported(error) {
+        // Another report of this call (normally the VoIP push) won the race and
+        // owns the session and the timeout. prepareAudioSessionForCall above is
+        // idempotent, but restoreAudioSession is not: it would reconfigure the
+        // audio session under the ringing call. Return normally: the call is
+        // ringing under this id.
+        Log.call.info("Incoming call already reported to CallKit - id: \(id); duplicate skipped")
+        return
+      }
       Log.call.error(
         "Failed to report incoming call to CallKit - id: \(id), error: \(error.localizedDescription)"
       )
@@ -374,7 +436,7 @@ class CallManager: NSObject {
   ///   - event: The incoming call event containing caller info.
   ///   - completion: Called when the CallKit report completes (success or failure).
   func reportIncomingCall(event: IncomingCallEvent, completion: @escaping (Error?) -> Void) {
-    let id = UUID()
+    let id = Self.callUUID(forServerCallId: event.serverCallId)
     Log.call.debug("Reporting incoming call (sync) - id: \(id)")
 
     // Pre-heat audio session before reporting to CallKit
@@ -414,6 +476,12 @@ class CallManager: NSObject {
     // Report to CallKit - this is the critical part that must happen immediately
     provider.reportNewIncomingCall(with: id, update: update) { [weak self] error in
       if let error = error {
+        if Self.isAlreadyReported(error) {
+          // Same as the async overload's duplicate branch; the error means "already ringing".
+          Log.call.info("Incoming call already reported to CallKit - id: \(id); duplicate skipped")
+          completion(error)
+          return
+        }
         Log.call.error(
           "Failed to report incoming call to CallKit - id: \(id), error: \(error.localizedDescription)"
         )

@@ -14,7 +14,7 @@ The event itself is the same shape on both transports. All keys are camelCase:
   "eventId": "550e8400-e29b-41d4-a716-446655440000",   // required (UUID), for dedup
   "serverCallId": "9e7f...",                           // required — your backend's call id
                                                        //   (distinct from CallSession.id,
-                                                       //    which is the OS-assigned UUID)
+                                                       //    the native call UUID)
   "hasVideo": false,
   "startedAt": "2026-01-15T19:42:11.000Z",             // RFC 3339, optional
   "caller": {
@@ -51,6 +51,8 @@ Send a [VoIP push through APNs](https://developer.apple.com/documentation/userno
   "incomingCall": { /* IncomingCallEvent — see above */ }
 }
 ```
+
+A running app often learns about the same call a second time through its own signalling (a socket or REST snapshot) and calls `reportIncomingCall` from JS while the push is reported natively. The two race and either can win. The module derives the CallKit call id deterministically from `serverCallId`, so CallKit rejects the second report and the module ignores it: the call rings once and `onIncomingCallReported` fires once, whichever path reported it.
 
 ## Android — FCM data message
 

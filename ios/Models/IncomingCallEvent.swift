@@ -7,8 +7,8 @@ import Foundation
 /// Mirrors the TS `IncomingCallEvent` declared in `src/Calls.types.ts`.
 struct IncomingCallEvent: Equatable {
   let eventId: String
-  /// Server-assigned id for this call (distinct from the native UUID assigned
-  /// by CallKit). Use this to talk to your backend about the call.
+  /// Server-assigned id for this call (distinct from the native call id, which
+  /// is derived from it). Use this to talk to your backend about the call.
   let serverCallId: String
   let caller: Caller
   let hasVideo: Bool
