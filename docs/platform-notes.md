@@ -75,6 +75,52 @@ These messages are consumed by the module and are never passed on to `expo-notif
 
 The example server sends it with `bun send-test-push.ts --end --serverCallId call-123 [--reason answeredElsewhere]`.
 
+### Customising the incoming-call screen
+
+The full-screen incoming-call UI (`IncomingCallActivity`) takes its labels and colours from ordinary Android resources, and the incoming-call notification shares its labels, so an app can translate or restyle them without forking the module. The names and their defaults:
+
+| String | Default | Used for |
+|---|---|---|
+| `expo_callkit_telecom_incoming_call` | Incoming call | subtitle of a voice call, on the screen and the notification |
+| `expo_callkit_telecom_incoming_video_call` | Incoming video call | subtitle of a video call, on the screen and the notification |
+| `expo_callkit_telecom_answer` | Answer | Answer button label and accessibility description |
+| `expo_callkit_telecom_decline` | Decline | Decline button label and accessibility description |
+| `expo_callkit_telecom_unknown_caller` | Unknown | caller name when the call carries neither a display name nor a handle, on the screen and the notification |
+
+| Colour | Default | Used for |
+|---|---|---|
+| `expo_callkit_telecom_background` | `#0D0D0D` | screen background |
+| `expo_callkit_telecom_text_primary` | `#FFFFFF` | caller name |
+| `expo_callkit_telecom_text_secondary` | `#8E8E93` | call-type subtitle, Answer/Decline labels |
+| `expo_callkit_telecom_text_header` | `#8E8E93` | app name in the header |
+| `expo_callkit_telecom_avatar_fill` | `#1C1C2E` | avatar disc |
+| `expo_callkit_telecom_avatar_text` | `#FFFFFF` | initial or placeholder glyph on the avatar disc |
+| `expo_callkit_telecom_answer_fill` | `#34C759` | Answer button |
+| `expo_callkit_telecom_decline_fill` | `#FF3B30` | Decline button |
+| `expo_callkit_telecom_on_fill` | `#FFFFFF` | glyphs on the Answer/Decline buttons |
+| `expo_callkit_telecom_ripple_on_fill` | `#4DFFFFFF` | press ripple on the Answer/Decline buttons |
+
+Android resource merging gives your app's resources precedence over the module's, so override by defining the same names in your app: `res/values/strings.xml` and `res/values/colors.xml` for the defaults, `res/values-<lang>/strings.xml` for each translation, and `res/values-night/colors.xml` for a dark variant (the module ships none — the defaults above apply in both UI modes; the activity's theme keeps dark system bars where they are drawn, so a light background override is framed by them). Define the English defaults in your app as well, not only the translations: Android lint's `ExtraTranslation` check does not count the module's defaults, so it can flag a translated name with no entry in your app's own `res/values/strings.xml` and may fail the release build's `lintVital`.
+
+In an Expo managed project `android/` is generated, so use Expo's own hooks. Translations go through [`expo.locales`](https://docs.expo.dev/guides/localization/#translating-app-metadata) in app config (`"locales": { "nb": "./locales/nb.json" }`); at prebuild Expo writes each locale file's `android` keys into `res/values-b+<lang>/strings.xml`:
+
+```jsonc
+// locales/nb.json
+{
+  "android": {
+    "expo_callkit_telecom_incoming_call": "Innkommende anrop",
+    "expo_callkit_telecom_incoming_video_call": "Innkommende videoanrop",
+    "expo_callkit_telecom_answer": "Svar",
+    "expo_callkit_telecom_decline": "Avvis",
+    "expo_callkit_telecom_unknown_caller": "Ukjent"
+  }
+}
+```
+
+The English defaults (for the lint rule above, or to reword them) and the colours need a small [config plugin](https://docs.expo.dev/config-plugins/mods/) built from `expo/config-plugins`: `withStringsXml` with `AndroidConfig.Strings.setStringItem` for `values/strings.xml`, `withAndroidColors` with `AndroidConfig.Colors.assignColorValue` for `values/colors.xml`, and `withAndroidColorsNight` for `values-night/colors.xml`.
+
+Like every Android resource, the screen follows the device locale — or the app's per-app language on Android 13+ (`LocaleManager`; the `AppCompatDelegate` shim for older versions does not reach this screen, which is a plain `android.app.Activity`) — not a language setting your app keeps in JS. If your app has its own language switch, set the per-app locale from it so the native screen matches.
+
 ## VoIP push token types
 
 The VoIP push token type is reported as `"APNS_VOIP"` on iOS and `"FCM"` on Android — send both to your backend so it knows which transport to use.

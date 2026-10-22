@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Labels on the native incoming-call screen (IncomingCallActivity) and the incoming-call
+  notification. An app translates or rewords them by defining the same names in its own
+  res/values/strings.xml and res/values-<lang>/strings.xml; see "Customising the
+  incoming-call screen" in docs/platform-notes.md.
+-->
+<resources>
+    <string name="expo_callkit_telecom_incoming_call">Incoming call</string>
+    <string name="expo_callkit_telecom_incoming_video_call">Incoming video call</string>
+    <string name="expo_callkit_telecom_answer">Answer</string>
+    <string name="expo_callkit_telecom_decline">Decline</string>
+    <string name="expo_callkit_telecom_unknown_caller">Unknown</string>
+</resources>
