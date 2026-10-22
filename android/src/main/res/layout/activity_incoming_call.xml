@@ -2,12 +2,13 @@
 <!--
   Two states the activity toggles: ringing (expo_callkit_telecom_ringing_actions) and, with
   androidAnswerOnLockScreen, in call (expo_callkit_telecom_incall_actions +
-  expo_callkit_telecom_timer).
+  expo_callkit_telecom_timer). Landscape twin, same ids: layout-land/activity_incoming_call.xml.
   Icons are tinted with android:tint, not app:tint: this is a plain Activity, nothing here inflates
   AppCompat widgets, so app:tint would not be read (tools:ignore="UseAppTint").
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/expo_callkit_telecom_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"

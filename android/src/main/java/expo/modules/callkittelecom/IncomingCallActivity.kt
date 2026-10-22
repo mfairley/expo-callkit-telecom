@@ -7,6 +7,7 @@ import android.app.KeyguardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.os.Build
@@ -14,6 +15,7 @@ import android.os.Bundle
 import android.os.PowerManager
 import android.os.SystemClock
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.Chronometer
@@ -103,6 +105,9 @@ class IncomingCallActivity : Activity() {
     /** Between onResume and onPause; the proximity lock is only held while this is true. */
     private var resumed = false
 
+    /** The caller's avatar once loaded, re-applied when the layout is inflated again. */
+    private var avatar: Drawable? = null
+
     /**
      * When open app was tapped before this window had focus ([SystemClock.uptimeMillis]); the
      * unlock is asked for once it has, within [OPEN_APP_FOCUS_WAIT_MS].
@@ -180,6 +185,18 @@ class IncomingCallActivity : Activity() {
         enterLockedCall(id)
     }
 
+    /**
+     * The manifest keeps this activity across configuration changes (a relaunch would lose the
+     * in-call state), so the orientation's layout is applied here and the views bound again. Every
+     * bind is idempotent.
+     */
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        val id = callId ?: return
+        val session = CallStore.session(id) ?: return
+        bindContent(id, session, reinflated = true)
+    }
+
     @Suppress("DEPRECATION")
     private fun configureWindowForLockScreen() {
         setShowWhenLocked(true)
@@ -202,9 +219,19 @@ class IncomingCallActivity : Activity() {
         }
     }
 
-    /** Inflates the layout and binds every view to [session]. */
-    private fun bindContent(id: UUID, session: CallSession) {
+    /**
+     * Inflates the layout for the current orientation and binds every view to [session].
+     * [reinflated] marks a rotation, where the tree goes into a window that is already showing.
+     */
+    private fun bindContent(id: UUID, session: CallSession, reinflated: Boolean = false) {
         setContentView(R.layout.activity_incoming_call)
+        // Re-inflated mid-call, the portrait root's animateLayoutChanges would run on the state
+        // swap below (the tree is attached and visible, unlike in onCreate): the in-call controls
+        // would sit at alpha 0 for the transition's start delay and then fade in. Only a live
+        // Answer animates; a ring that rotates keeps the transition for its Answer.
+        if (reinflated && isLockedCall) {
+            findViewById<ViewGroup>(R.id.expo_callkit_telecom_root).layoutTransition = null
+        }
         subtitle = findViewById(R.id.expo_callkit_telecom_subtitle)
         timer = findViewById(R.id.expo_callkit_telecom_timer)
         muteButton = findViewById(R.id.expo_callkit_telecom_mute_button)
@@ -214,7 +241,9 @@ class IncomingCallActivity : Activity() {
         val caller = session.remoteParticipants.firstOrNull()
         bindAppBranding()
         bindCallerInfo(caller, session.options.hasVideo)
+        avatar?.let { showAvatar(it) }
         bindButtons(id, session.options.hasVideo)
+        if (isLockedCall) bindInCallState(session)
     }
 
     /** Header icon and name, and the open-app button, which carries the app's name. */
@@ -291,6 +320,7 @@ class IncomingCallActivity : Activity() {
                 }
 
             if (drawable != null) {
+                avatar = drawable
                 showAvatar(drawable)
             }
         }
