@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Speaker glyph: toggle_glyph_speaker_on while the loudspeaker is on, toggle_glyph otherwise. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:color="@color/expo_callkit_telecom_toggle_glyph_speaker_on"
+        android:state_activated="true" />
+    <item android:color="@color/expo_callkit_telecom_toggle_glyph" />
+</selector>

@@ -9,6 +9,11 @@
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE_PHONE_CALL" />
 
   <application>
+    <!-- configChanges (the rotation set): a call answered on the lock screen runs on this
+         activity, and onCreate only accepts a ringing or lock-screen-answered call - a relaunch
+         on rotation would lose the in-call state. The layout stays as inflated. WAKE_LOCK, for
+         that state's proximity wake lock, is added by the config plugin only when
+         androidAnswerOnLockScreen is on. -->
     <activity
       android:name="expo.modules.callkittelecom.IncomingCallActivity"
       android:exported="false"
@@ -17,6 +22,7 @@
       android:launchMode="singleInstance"
       android:excludeFromRecents="true"
       android:taskAffinity=""
+      android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
       android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />
 
     <receiver

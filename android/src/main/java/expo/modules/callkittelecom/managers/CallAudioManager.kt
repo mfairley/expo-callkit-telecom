@@ -10,6 +10,9 @@ import expo.modules.callkittelecom.events.CallEvents
 import expo.modules.callkittelecom.models.CallSession
 import expo.modules.callkittelecom.utils.CallKitTelecomLog
 import expo.modules.callkittelecom.utils.PermissionUtils
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 /**
  * Manages Android call audio state and routing for the shared calls API.
@@ -31,7 +34,14 @@ object CallAudioManager {
     internal var onRequestEndpointChange: ((CallEndpointCompat) -> Unit)? = null
 
     /** Last known active endpoint from Core-Telecom. */
-    private var currentEndpoint: CallEndpointCompat? = null
+    private val currentEndpoint = MutableStateFlow<CallEndpointCompat?>(null)
+
+    /**
+     * The active call's current Core-Telecom endpoint, `null` while no call's audio is active. The
+     * lock-screen call screen ([expo.modules.callkittelecom.IncomingCallActivity]) shows its
+     * speaker state from it, whoever changed the route.
+     */
+    internal val activeEndpoint: StateFlow<CallEndpointCompat?> = currentEndpoint.asStateFlow()
 
     /** Last known available endpoints from Core-Telecom. */
     internal var currentAvailableEndpoints: List<CallEndpointCompat> = emptyList()
@@ -69,7 +79,7 @@ object CallAudioManager {
 
     /** Receives Core-Telecom current endpoint updates from the active call scope. */
     fun onEndpointChanged(endpoint: CallEndpointCompat) {
-        currentEndpoint = endpoint
+        currentEndpoint.value = endpoint
         emitRouteChanged()
     }
 
@@ -153,7 +163,7 @@ object CallAudioManager {
 
         // The microphone mute is device-wide and outlives the call, so clear it here.
         setMicrophoneMute(false)
-        currentEndpoint = null
+        currentEndpoint.value = null
         currentAvailableEndpoints = emptyList()
         isActive = false
 
@@ -240,7 +250,7 @@ object CallAudioManager {
      * back to built-in defaults.
      */
     private fun currentRouteMap(): Map<String, Any?> {
-        val endpoint = currentEndpoint
+        val endpoint = currentEndpoint.value
         if (endpoint != null) {
             val output = resolveOutputPort(endpoint)
             val input = resolveInputPort(endpoint.type)

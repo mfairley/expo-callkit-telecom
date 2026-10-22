@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Stateless round well (Open app) with ripple. -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/expo_callkit_telecom_ripple_toggle">
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="@color/expo_callkit_telecom_toggle_fill" />
+        </shape>
+    </item>
+</ripple>

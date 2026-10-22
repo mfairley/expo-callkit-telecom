@@ -97,6 +97,16 @@ export type ExpoCallKitTelecomPluginProps = {
    * @platform android
    */
   androidEventReceiver?: string;
+  /**
+   * Keep a call answered on the lock screen on the lock screen: instead of
+   * asking for the PIN and opening the app, the native incoming-call screen
+   * stays up as an in-call screen (mute, speaker, open app, hang up). Requires
+   * the app's JS to be running when the call is answered; otherwise the default
+   * flow applies. See "Answering on the lock screen" in the docs.
+   * @default false
+   * @platform android
+   */
+  androidAnswerOnLockScreen?: boolean;
 };
 
 const withExpoCallKitTelecom: ConfigPlugin<ExpoCallKitTelecomPluginProps | void> = (
