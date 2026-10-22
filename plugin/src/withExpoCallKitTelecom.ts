@@ -97,6 +97,24 @@ export type ExpoCallKitTelecomPluginProps = {
    * @platform android
    */
   androidEventReceiver?: string;
+  /**
+   * Ring on a second notification channel at `IMPORTANCE_DEFAULT` while the
+   * app is on screen (any activity in its process other than the module's own
+   * `IncomingCallActivity`): same ringtone and vibration, but no heads-up
+   * banner and no full-screen intent, so an incoming-call screen the app draws
+   * itself is not covered by the system banner (which on some OEM builds stays
+   * pinned over it for the whole ring). The ring follows the app: it moves to
+   * the heads-up channel when the app leaves the screen and back when it
+   * returns. Lock-screen, background and killed-app rings are unchanged.
+   *
+   * Enable this only if the app renders its own incoming-call UI on
+   * `onCallSessionAdded` / `onIncomingCallReported`; otherwise an incoming call
+   * shows no UI while the app is open. See "Ringing while the app is on
+   * screen" in the docs.
+   * @default false
+   * @platform android
+   */
+  androidInAppRingChannel?: boolean;
 };
 
 const withExpoCallKitTelecom: ConfigPlugin<ExpoCallKitTelecomPluginProps | void> = (
