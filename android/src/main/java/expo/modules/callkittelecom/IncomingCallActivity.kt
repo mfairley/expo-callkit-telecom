@@ -61,7 +61,8 @@ import kotlinx.coroutines.withContext
  * holds a proximity wake lock so a cheek cannot press buttons, and [LockedCallKeepAlive] keeps JS
  * running until the call ends; the screen closes when the call ends. Only open app asks for the
  * PIN. The same applies to a call answered from the notification on the lock screen
- * ([answeredOnLockScreenIntent]).
+ * ([answeredOnLockScreenIntent]), and to one answered on a headset, a watch or Android Auto while
+ * this screen shows the ring ([adoptLockedAnswer]).
  */
 class IncomingCallActivity : Activity() {
     companion object {
@@ -482,9 +483,10 @@ class IncomingCallActivity : Activity() {
             val callerName = session.remoteParticipants.firstOrNull()?.displayNameOrHandle
             if (session.status == CallSessionStatus.CONNECTED) {
                 // Already connected: opened from the ongoing notification (onCreate with the
-                // answered extra), or adopted after a prompt fulfil. The ongoing notification
-                // may have gone out with the app as its tap target; post it again so its tap
-                // returns here.
+                // answered extra), or adopted after a prompt fulfil (a headset answer the app
+                // fulfilled before the state change reached this screen). The ongoing
+                // notification may have gone out with the app as its tap target; post it again
+                // so its tap returns here.
                 CallNotificationManager.showOngoingCall(
                     this,
                     id,
@@ -708,8 +710,8 @@ class IncomingCallActivity : Activity() {
      * When [isAnswering] is true (user tapped answer locally), only auto-dismiss for ENDED status —
      * the CONNECTING transition is expected and handled by the keyguard dismissal flow. In the
      * lock-screen call the screen follows the session instead ([bindCallState]), and a call
-     * answered from the notification while this screen showed its ring is adopted rather than
-     * dismissed ([adoptLockedAnswer]).
+     * answered outside this screen while it showed the ring — from the notification, or on a
+     * headset, a watch or Android Auto — is adopted rather than dismissed ([adoptLockedAnswer]).
      */
     private fun observeSessionChanges(id: UUID) {
         scope.launch {
@@ -766,13 +768,15 @@ class IncomingCallActivity : Activity() {
     }
 
     /**
-     * Takes over a call answered from the notification while this screen showed its ring, instead
-     * of closing on the state change: [CallNotificationReceiver] holds the call before it answers,
-     * so the hold is seen here first. A call answered elsewhere (a headset, the system call UI) is
-     * not held and closes this screen, as before.
+     * Takes over a call answered outside this screen while it showed the ring, instead of closing
+     * on the state change: from the notification ([CallNotificationReceiver] holds the call before
+     * it answers, so it is already held here), or on a headset, a watch or Android Auto (Telecom
+     * answers and nothing holds the call; it is taken if the device is still locked with the app's
+     * JS up — the same live check as the screen's own Answer). [enterLockedCall] holds the call
+     * before it posts anything, so neither path needs a hold here.
      */
     private fun adoptLockedAnswer(id: UUID): Boolean {
-        if (!LockedCallKeepAlive.isHeld(id)) return false
+        if (!LockedCallKeepAlive.isHeld(id) && !staysOnLockScreen()) return false
         isAnswering = true
         enterLockedCall(id)
         return true
