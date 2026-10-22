@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Labels on the native incoming-call screen (IncomingCallActivity) and the incoming-call
-  notification. An app translates or rewords them by defining the same names in its own
-  res/values/strings.xml and res/values-<lang>/strings.xml; see "Customising the
-  incoming-call screen" in docs/platform-notes.md.
+  Labels on the native incoming-call screen (IncomingCallActivity), its in-call state for a call
+  answered on the lock screen, and the incoming-call notification. An app translates or rewords
+  them by defining the same names in its own res/values/strings.xml and
+  res/values-<lang>/strings.xml; see "Customising the incoming-call screen" in
+  docs/platform-notes.md.
 -->
 <resources>
     <string name="expo_callkit_telecom_incoming_call">Incoming call</string>
@@ -11,4 +12,14 @@
     <string name="expo_callkit_telecom_answer">Answer</string>
     <string name="expo_callkit_telecom_decline">Decline</string>
     <string name="expo_callkit_telecom_unknown_caller">Unknown</string>
+    <!-- In-call state (androidAnswerOnLockScreen) -->
+    <string name="expo_callkit_telecom_mute">Mute</string>
+    <string name="expo_callkit_telecom_unmute">Unmute</string>
+    <string name="expo_callkit_telecom_speaker">Speaker</string>
+    <string name="expo_callkit_telecom_speaker_on">Speaker on</string>
+    <string name="expo_callkit_telecom_speaker_off">Speaker off</string>
+    <string name="expo_callkit_telecom_end_call">End call</string>
+    <string name="expo_callkit_telecom_connecting">Connecting…</string>
+    <string name="expo_callkit_telecom_voice_call">Voice call</string>
+    <string name="expo_callkit_telecom_video_call">Video call</string>
 </resources>

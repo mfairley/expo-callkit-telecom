@@ -23,4 +23,14 @@
     <!-- Glyphs on the Answer/Decline discs, and their press ripple -->
     <color name="expo_callkit_telecom_on_fill">#FFFFFF</color>
     <color name="expo_callkit_telecom_ripple_on_fill">#4DFFFFFF</color>
+    <!-- In-call state (androidAnswerOnLockScreen): the Mute, Speaker and Open app wells and
+         the glyphs on them -->
+    <color name="expo_callkit_telecom_toggle_fill">#33FFFFFF</color>
+    <color name="expo_callkit_telecom_toggle_glyph">#FFFFFF</color>
+    <!-- Speaker well and its glyph while the loudspeaker is on; Mute reuses decline_fill and
+         on_fill -->
+    <color name="expo_callkit_telecom_toggle_fill_speaker_on">#FFFFFFFF</color>
+    <color name="expo_callkit_telecom_toggle_glyph_speaker_on">#0D0D0D</color>
+    <!-- Press ripple on the wells -->
+    <color name="expo_callkit_telecom_ripple_toggle">#33FFFFFF</color>
 </resources>

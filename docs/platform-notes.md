@@ -75,9 +75,34 @@ These messages are consumed by the module and are never passed on to `expo-notif
 
 The example server sends it with `bun send-test-push.ts --end --serverCallId call-123 [--reason answeredElsewhere]`.
 
+### Answering on the lock screen
+
+By default, Answer on the native incoming-call screen or on the notification answers the call, asks for the device PIN, and opens the app. Opt in to keep the call on the lock screen instead:
+
+```js
+// app.config.js / app.json plugin props
+[
+  "expo-callkit-telecom",
+  { androidAnswerOnLockScreen: true },
+]
+```
+
+With it on, a call answered while the device is locked stays on the native screen, which becomes an in-call screen: mute, speaker, open app, and hang up, with "Connecting…" until you call `fulfillIncomingCallConnected` and the call timer from then on. Nothing of the app is shown over the lock screen; only Open app asks for the PIN and then opens the app on the live call. Back puts the screen behind the lock screen (tapping the notification brings it back), the screen turns off at the ear while the call is heard there (not on the loudspeaker, a headset or in a video call), and it closes when the call ends — from either side. In the shade, the ring notification is replaced by a "Connecting…" one with a hang-up action as soon as the call is answered, and by the usual ongoing one with the timer when you fulfil; both open the call screen on tap. A swipe-only lock screen counts as unlocked: those calls take the default flow.
+
+**Requirement: the app's JS must be running when the call is answered** — the process is alive from an earlier use, or the ring arrived while the app was in the background. The call engine still lives in your JS: `onCallAnswered` is delivered as usual, you connect your media and fulfil, and the module only keeps the native screen up and your timers running. Register that listener at module scope (when `expo-callkit-telecom` is imported at startup), not from a mounted component: the module only checks that a React context exists, which is also true of a context started by a headless task with no screen mounted, and a listener that lives in a component would never see the answer — the screen would sit on "Connecting…" until `fulfillAnswerCallTimeout` ends the call. A killed app (cold start from the push) answers with the default flow, PIN and all: the ring screen itself runs behind the keyguard, but nothing there starts the app's JS, and the module keeps a call on the lock screen only when the JS that drives it is already running. The notification's Answer action is decided when the ring is posted (and again when the lock state changes): if JS comes up during a ring, from a headless task say, that ring's notification Answer still takes the default flow, while Answer on the full-screen ring itself, which checks live, stays on the lock screen. A planned follow-up prerenders the app's React surface without a view so that case works too.
+
+What the module does for you:
+
+- Keeps your JS timers running for the length of the call. React Native pauses them while the host activity is paused and keeps them running while a headless task is active, so the module holds one — `ExpoCallKitTelecomCallKeepAlive`, registered by the module's own JS when your app imports `expo-callkit-telecom` (do not register that key yourself) — and finishes it when the call ends. Import the module at startup, not lazily. If it is imported late anyway, the task may start before the key is registered; React Native then finishes it at once with a console warning ("No task registered for key ExpoCallKitTelecomCallKeepAlive") and the module retries up to three times, so up to three of those warnings can appear before the task sticks. Only calls answered on the lock screen are kept alive; a call answered in the app and then locked behaves as described under [Keeping connections alive in the background](#keeping-connections-alive-in-the-background). This needs the New Architecture (`ReactApplication.reactHost`), which every supported Expo SDK uses; on the legacy bridge the module sees no React host and the default flow applies.
+- Adds the [`WAKE_LOCK`](https://developer.android.com/reference/android/Manifest.permission#WAKE_LOCK) permission to your manifest at prebuild, only when the prop is on, for the proximity wake lock on the in-call screen. Like `MODIFY_AUDIO_SETTINGS`, it's granted at install, with no runtime prompt.
+- Speaker: the toggle calls the same route override as `setAudioSessionPortOverride`, and its state follows the route Core-Telecom reports. If your media stack routes its own output, observe `onAudioRouteChanged` and mirror it.
+- Mute: as `setMuted`, so `onSetMutedAction` fires as usual.
+
+The in-call labels and colours are resources like the rest of the screen; see the next section.
+
 ### Customising the incoming-call screen
 
-The full-screen incoming-call UI (`IncomingCallActivity`) takes its labels and colours from ordinary Android resources, and the incoming-call notification shares its labels, so an app can translate or restyle them without forking the module. The names and their defaults:
+The full-screen incoming-call UI (`IncomingCallActivity`, including its in-call state for a call answered on the lock screen) takes its labels and colours from ordinary Android resources, and the incoming-call notification shares its labels, so an app can translate or restyle them without forking the module. The names and their defaults:
 
 | String | Default | Used for |
 |---|---|---|
@@ -86,19 +111,35 @@ The full-screen incoming-call UI (`IncomingCallActivity`) takes its labels and c
 | `expo_callkit_telecom_answer` | Answer | Answer button label and accessibility description |
 | `expo_callkit_telecom_decline` | Decline | Decline button label and accessibility description |
 | `expo_callkit_telecom_unknown_caller` | Unknown | caller name when the call carries neither a display name nor a handle, on the screen and the notification |
+| `expo_callkit_telecom_mute` | Mute | in call: mute toggle label and description while unmuted |
+| `expo_callkit_telecom_unmute` | Unmute | in call: mute toggle label and description while muted |
+| `expo_callkit_telecom_speaker` | Speaker | in call: speaker toggle label and description |
+| `expo_callkit_telecom_speaker_on` | Speaker on | in call: speaker toggle state, read by screen readers |
+| `expo_callkit_telecom_speaker_off` | Speaker off | in call: speaker toggle state, read by screen readers |
+| `expo_callkit_telecom_end_call` | End call | in call: hang-up button description |
+| `expo_callkit_telecom_connecting` | Connecting… | in call: subtitle until the answer is fulfilled |
+| `expo_callkit_telecom_voice_call` | Voice call | in call: subtitle of a connected voice call |
+| `expo_callkit_telecom_video_call` | Video call | in call: subtitle of a connected video call |
+
+The Open app button's label and description are the app's name, not a string.
 
 | Colour | Default | Used for |
 |---|---|---|
 | `expo_callkit_telecom_background` | `#0D0D0D` | screen background |
 | `expo_callkit_telecom_text_primary` | `#FFFFFF` | caller name |
-| `expo_callkit_telecom_text_secondary` | `#8E8E93` | call-type subtitle, Answer/Decline labels |
+| `expo_callkit_telecom_text_secondary` | `#8E8E93` | call-type subtitle, call timer, button labels |
 | `expo_callkit_telecom_text_header` | `#8E8E93` | app name in the header |
 | `expo_callkit_telecom_avatar_fill` | `#1C1C2E` | avatar disc |
 | `expo_callkit_telecom_avatar_text` | `#FFFFFF` | initial or placeholder glyph on the avatar disc |
 | `expo_callkit_telecom_answer_fill` | `#34C759` | Answer button |
-| `expo_callkit_telecom_decline_fill` | `#FF3B30` | Decline button |
-| `expo_callkit_telecom_on_fill` | `#FFFFFF` | glyphs on the Answer/Decline buttons |
-| `expo_callkit_telecom_ripple_on_fill` | `#4DFFFFFF` | press ripple on the Answer/Decline buttons |
+| `expo_callkit_telecom_decline_fill` | `#FF3B30` | Decline and hang-up buttons; the mute well while muted |
+| `expo_callkit_telecom_on_fill` | `#FFFFFF` | glyphs on the Answer/Decline/hang-up buttons and on the mute well while muted |
+| `expo_callkit_telecom_ripple_on_fill` | `#4DFFFFFF` | press ripple on the Answer/Decline/hang-up buttons |
+| `expo_callkit_telecom_toggle_fill` | `#33FFFFFF` | in call: the mute, speaker and open-app wells |
+| `expo_callkit_telecom_toggle_glyph` | `#FFFFFF` | in call: glyphs on those wells (the mute glyph while muted uses `on_fill`) |
+| `expo_callkit_telecom_toggle_fill_speaker_on` | `#FFFFFFFF` | in call: the speaker well while the loudspeaker is on |
+| `expo_callkit_telecom_toggle_glyph_speaker_on` | `#0D0D0D` | in call: the speaker glyph while the loudspeaker is on |
+| `expo_callkit_telecom_ripple_toggle` | `#33FFFFFF` | in call: press ripple on the wells |
 
 Android resource merging gives your app's resources precedence over the module's, so override by defining the same names in your app: `res/values/strings.xml` and `res/values/colors.xml` for the defaults, `res/values-<lang>/strings.xml` for each translation, and `res/values-night/colors.xml` for a dark variant (the module ships none — the defaults above apply in both UI modes; the activity's theme keeps dark system bars where they are drawn, so a light background override is framed by them). Define the English defaults in your app as well, not only the translations: Android lint's `ExtraTranslation` check does not count the module's defaults, so it can flag a translated name with no entry in your app's own `res/values/strings.xml` and may fail the release build's `lintVital`.
 
@@ -127,4 +168,4 @@ The VoIP push token type is reported as `"APNS_VOIP"` on iOS and `"FCM"` on Andr
 
 ## Keeping connections alive in the background
 
-This module hands the OS a CallKit/Core-Telecom call, which keeps the *process* alive during a call — but JS timers (`setInterval`, `setTimeout`) and JS-side network heartbeats are still subject to background throttling once the screen locks. If your media stack needs an app-level heartbeat (e.g. a WebSocket signalling channel) to survive the background, pair this module with [`react-native-nitro-keepalive-timer`](https://www.npmjs.com/package/react-native-nitro-keepalive-timer) to get native timers that fire reliably while a call is active.
+This module hands the OS a CallKit/Core-Telecom call, which keeps the *process* alive during a call — but JS timers (`setInterval`, `setTimeout`) and JS-side network heartbeats are still subject to background throttling once the screen locks. If your media stack needs an app-level heartbeat (e.g. a WebSocket signalling channel) to survive the background, pair this module with [`react-native-nitro-keepalive-timer`](https://www.npmjs.com/package/react-native-nitro-keepalive-timer) to get native timers that fire reliably while a call is active. On Android, a call answered on the lock screen with `androidAnswerOnLockScreen` keeps its JS timers running without this (see [Answering on the lock screen](#answering-on-the-lock-screen)); every other call still needs it.

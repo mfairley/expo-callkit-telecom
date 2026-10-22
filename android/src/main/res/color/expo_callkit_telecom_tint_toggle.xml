@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Stateless well glyph (Open app). -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/expo_callkit_telecom_toggle_glyph" />
+</selector>

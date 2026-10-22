@@ -53,6 +53,7 @@
 - ☎️ **Dialtone** — looped dialtone with fade-in for outgoing calls, configurable
 - 🖼️ **Branded CallKit icon** — show your app's icon on the iOS call screen via `iconTemplateIos`
 - 🌍 **Localisable Android call screen** — the full-screen incoming-call UI's labels and colours are plain string/colour resources your app can override and translate (see [platform notes](docs/platform-notes.md#customising-the-incoming-call-screen))
+- 🔒 **Lock-screen in-call screen on Android** (opt-in) — answer on the lock screen without unlocking: the native screen stays up with mute, speaker, open app and hang up, and the module keeps your JS timers running for the call (see [platform notes](docs/platform-notes.md#answering-on-the-lock-screen))
 - 🎧 **Audio session management** — cross-platform port types (`builtInReceiver`, `builtInSpeaker`, `headphones`, `bluetoothA2DP`, `bluetoothHFP`, `bluetoothLE`, `airPlay`, `hdmi`, `carAudio`, `usbAudio`, `lineOut`)
 - 🔊 **Speaker override** and live route-change events
 - 🎚️ **Mute, hold, video, DTMF** — both directions: app → system and system → app (e.g. native mute button → your media)
@@ -109,6 +110,7 @@ With custom sounds and options:
           "outgoingCallTimeout": 60,
           "fulfillAnswerCallTimeout": 30,
           "includesCallsInRecents": true,
+          "androidAnswerOnLockScreen": true,
           "microphonePermission": "$(PRODUCT_NAME) needs the microphone to make calls."
         }
       ]
@@ -120,6 +122,8 @@ With custom sounds and options:
 Files in `sounds` are copied into the iOS bundle and Android raw resources at prebuild time. The full prop type is `ExpoCallKitTelecomPluginProps` in `plugin/src/`.
 
 `iconTemplateIos` is the app's icon on the iOS CallKit call screen (`CXProviderConfiguration.iconTemplateImageData`). CallKit renders it as a **template** — only the image's alpha channel is used (RGB is ignored) and the system tints it — so provide a ~40×40pt square PNG whose alpha describes the glyph. Android brands the incoming-call UI from the launcher icon automatically, so this option is iOS-only.
+
+`androidAnswerOnLockScreen` keeps a call answered on the Android lock screen on the lock screen: instead of asking for the PIN and opening the app, the native incoming-call screen becomes an in-call screen (mute, speaker, open app, hang up) and the module keeps your JS timers running for the call. It needs the app's JS to be running when the call is answered, with your `onCallAnswered` listener registered at module scope and `expo-callkit-telecom` imported at startup; a killed app falls back to the default flow. Off by default; see [Answering on the lock screen](docs/platform-notes.md#answering-on-the-lock-screen) for the details and constraints.
 
 ## 🧠 Concepts
 

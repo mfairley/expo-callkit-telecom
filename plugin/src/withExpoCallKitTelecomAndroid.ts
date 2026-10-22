@@ -9,6 +9,7 @@ import { basename, resolve } from "path";
 
 import {
   ANDROID_CALL_EVENT_ACTION,
+  DEFAULT_ANDROID_ANSWER_ON_LOCK_SCREEN,
   DEFAULT_FULFILL_ANSWER_CALL_TIMEOUT,
   DEFAULT_INCOMING_CALL_TIMEOUT,
   DEFAULT_OUTGOING_CALL_TIMEOUT,
@@ -319,6 +320,45 @@ const withEventReceiver: ConfigPlugin<{ androidEventReceiver?: string }> = (
   });
 };
 
+/**
+ * Writes the `androidAnswerOnLockScreen` opt-in to AndroidManifest metadata and,
+ * when it is on, adds the `WAKE_LOCK` permission the in-call screen's proximity
+ * wake lock needs.
+ *
+ * The meta-data is always written (like the timeouts), so a non-clean prebuild
+ * after the prop is turned off flips a stale `true` back to `false`. The
+ * permission is only ever added, never removed: another plugin or the app may
+ * request it too. The Kotlin side reads `ExpoCallKitTelecomAnswerOnLockScreen`
+ * once, when the module initializes.
+ */
+const withAnswerOnLockScreen: ConfigPlugin<{
+  androidAnswerOnLockScreen?: boolean;
+}> = (config, { androidAnswerOnLockScreen }) => {
+  const enabled =
+    androidAnswerOnLockScreen ?? DEFAULT_ANDROID_ANSWER_ON_LOCK_SCREEN;
+
+  return withAndroidManifest(config, (config) => {
+    const app = AndroidConfig.Manifest.getMainApplicationOrThrow(
+      config.modResults,
+    );
+
+    setMetaDataValue(
+      app,
+      "ExpoCallKitTelecomAnswerOnLockScreen",
+      String(enabled),
+    );
+
+    if (enabled) {
+      AndroidConfig.Permissions.ensurePermission(
+        config.modResults,
+        "android.permission.WAKE_LOCK",
+      );
+    }
+
+    return config;
+  });
+};
+
 export const withExpoCallKitTelecomAndroid: ConfigPlugin<ExpoCallKitTelecomPluginProps> = (
   config,
   props,
@@ -332,5 +372,6 @@ export const withExpoCallKitTelecomAndroid: ConfigPlugin<ExpoCallKitTelecomPlugi
   config = withDefaultDialtone(config, props);
   config = withFirebaseMessagingService(config, props);
   config = withEventReceiver(config, props);
+  config = withAnswerOnLockScreen(config, props);
   return config;
 };
