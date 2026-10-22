@@ -19,6 +19,15 @@ android {
 
 dependencies {
   implementation "androidx.core:core-telecom:1.0.1"
+  // LockedCallKeepAlive holds a headless JS task through the app's ReactHost (ReactHost,
+  // ReactInstanceEventListener, HeadlessJsTaskContext, ...). The expo-module-gradle-plugin adds
+  // only expo-modules-core (compileOnly) and the Kotlin stdlib, and expo-modules-core declares
+  // react-android as `implementation`, so React classes are not on this module's compile
+  // classpath without this line (expo-task-manager carries the same one for the same reason).
+  // compileOnly: the app always ships React Native, so nothing is bundled twice; the React
+  // Native Gradle plugin forces the react-android version in every project, so the coordinate
+  // is left unversioned.
+  compileOnly "com.facebook.react:react-android"
   implementation "com.google.firebase:firebase-messaging:24.1.0"
 
   // expo-notifications may be included as a source project or as a prebuilt
