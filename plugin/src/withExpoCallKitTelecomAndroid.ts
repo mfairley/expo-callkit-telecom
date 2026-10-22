@@ -228,6 +228,31 @@ const withDefaultRingtone: ConfigPlugin<{
 };
 
 /**
+ * Writes whether the app opted in to ringing on the in-app notification
+ * channel while its own UI is on screen. Always written, like the timeouts,
+ * so a non-clean prebuild cannot keep a stale `true` after the prop is turned
+ * off. The Kotlin side reads `ExpoCallKitTelecomInAppRingChannel` from manifest
+ * metadata at initialize and treats an absent key as `false`.
+ */
+const withInAppRingChannel: ConfigPlugin<{
+  androidInAppRingChannel?: boolean;
+}> = (config, { androidInAppRingChannel }) => {
+  return withAndroidManifest(config, (config) => {
+    const app = AndroidConfig.Manifest.getMainApplicationOrThrow(
+      config.modResults,
+    );
+
+    setMetaDataValue(
+      app,
+      "ExpoCallKitTelecomInAppRingChannel",
+      String(androidInAppRingChannel ?? false),
+    );
+
+    return config;
+  });
+};
+
+/**
  * Removes expo-notifications' ExpoFirebaseMessagingService from the manifest.
  *
  * Our ExpoCallKitTelecomMessagingService extends it and takes over as the sole
@@ -330,6 +355,7 @@ export const withExpoCallKitTelecomAndroid: ConfigPlugin<ExpoCallKitTelecomPlugi
     defaultRingtone: props.defaultRingtoneAndroid,
   });
   config = withDefaultDialtone(config, props);
+  config = withInAppRingChannel(config, props);
   config = withFirebaseMessagingService(config, props);
   config = withEventReceiver(config, props);
   return config;

@@ -75,6 +75,24 @@ These messages are consumed by the module and are never passed on to `expo-notif
 
 The example server sends it with `bun send-test-push.ts --end --serverCallId call-123 [--reason answeredElsewhere]`.
 
+### Ringing while the app is on screen
+
+An incoming call rings on a notification channel at `IMPORTANCE_HIGH`: on the lock screen the module's own full-screen incoming-call activity takes over, and on an unlocked phone the system shows a heads-up banner with Answer/Decline. That is right when the app has no incoming-call UI of its own. If your app draws its own incoming-call screen while it is open, the banner lands on top of it — and on some OEM builds it stays pinned over your screen for the whole ring.
+
+Opt in to a second channel for that case:
+
+```js
+// app.config.js / app.json plugin props
+[
+  "expo-callkit-telecom",
+  { androidInAppRingChannel: true },
+]
+```
+
+While any activity in your app's process other than the module's own `IncomingCallActivity` is started, the ring is posted on an "Incoming calls in the app" channel at `IMPORTANCE_DEFAULT`: same ringtone and vibration pattern, but Android shows no heads-up and no full-screen intent for it, so the only incoming-call UI on screen is yours. Picture-in-picture and split-screen count as on screen too (the activity is started), so the ring stays on the in-app channel there and the shade notification's Answer/Decline are the fallback if your window cannot show them. The ring follows the app: it is re-posted on the heads-up channel when the app leaves the screen and moved back when the app returns, which also takes a pinned banner down. Lock-screen, background and killed-app rings are unchanged, and so is answering from the notification.
+
+**What your app must do:** show an incoming-call screen with Answer/Decline as soon as `onCallSessionAdded` (or `onIncomingCallReported`) fires with a `ringing` session, and keep it up until the session leaves `ringing`. With the option on, nothing else announces the call while the app is open; the notification is still in the shade with its Answer/Decline actions. The channel appears as a second entry in the app's notification settings, and the user can tune it independently of the heads-up one. The option defaults to off. The plugin always writes the value, so turning it off again takes effect on the next prebuild, clean or not, and the first launch of that build deletes the channel.
+
 ## VoIP push token types
 
 The VoIP push token type is reported as `"APNS_VOIP"` on iOS and `"FCM"` on Android — send both to your backend so it knows which transport to use.
