@@ -124,10 +124,13 @@ class IncomingCallActivity : Activity() {
         }
 
         findViewById<TextView>(R.id.expo_callkit_telecom_caller_name).text =
-            caller?.displayNameOrHandle ?: "Unknown"
+            caller?.displayNameOrHandle ?: getString(R.string.expo_callkit_telecom_unknown_caller)
 
         findViewById<TextView>(R.id.expo_callkit_telecom_subtitle).text =
-            if (hasVideo) "Incoming video call" else "Incoming call"
+            getString(
+                if (hasVideo) R.string.expo_callkit_telecom_incoming_video_call
+                else R.string.expo_callkit_telecom_incoming_call,
+            )
     }
 
     /**

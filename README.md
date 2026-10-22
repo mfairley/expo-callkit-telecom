@@ -52,6 +52,7 @@
 - 🎵 **Ringtones** — system ringtone for incoming calls, configurable via the config plugin
 - ☎️ **Dialtone** — looped dialtone with fade-in for outgoing calls, configurable
 - 🖼️ **Branded CallKit icon** — show your app's icon on the iOS call screen via `iconTemplateIos`
+- 🌍 **Localisable Android call screen** — the full-screen incoming-call UI's labels and colours are plain string/colour resources your app can override and translate (see [platform notes](docs/platform-notes.md#customising-the-incoming-call-screen))
 - 🎧 **Audio session management** — cross-platform port types (`builtInReceiver`, `builtInSpeaker`, `headphones`, `bluetoothA2DP`, `bluetoothHFP`, `bluetoothLE`, `airPlay`, `hdmi`, `carAudio`, `usbAudio`, `lineOut`)
 - 🔊 **Speaker override** and live route-change events
 - 🎚️ **Mute, hold, video, DTMF** — both directions: app → system and system → app (e.g. native mute button → your media)

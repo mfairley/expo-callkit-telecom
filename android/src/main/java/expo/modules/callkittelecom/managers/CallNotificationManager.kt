@@ -15,6 +15,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.Person
 import androidx.core.graphics.drawable.IconCompat
 import expo.modules.callkittelecom.IncomingCallActivity
+import expo.modules.callkittelecom.R
 import expo.modules.callkittelecom.services.CallNotificationReceiver
 import expo.modules.callkittelecom.utils.CallKitTelecomLog
 import java.util.UUID
@@ -173,7 +174,7 @@ object CallNotificationManager {
     fun showIncomingCall(context: Context, callId: UUID, callerName: String?, hasVideo: Boolean) {
         cancelDelayedCancel()
         val ctx = context.applicationContext
-        val displayName = callerName ?: "Unknown"
+        val displayName = callerName ?: ctx.getString(R.string.expo_callkit_telecom_unknown_caller)
 
         // Answer action uses PendingIntent.getActivity() to bring the app to
         // foreground. On Android 12+, BroadcastReceivers cannot start activities
@@ -214,7 +215,10 @@ object CallNotificationManager {
                     ctx,
                     incomingChannelId,
                     displayName,
-                    if (hasVideo) "Incoming video call" else "Incoming call",
+                    ctx.getString(
+                        if (hasVideo) R.string.expo_callkit_telecom_incoming_video_call
+                        else R.string.expo_callkit_telecom_incoming_call,
+                    ),
                 )
                 .setStyle(
                     NotificationCompat.CallStyle.forIncomingCall(
