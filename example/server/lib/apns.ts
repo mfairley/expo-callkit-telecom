@@ -11,9 +11,7 @@ export interface ApnsConfig {
   topic: string;
   deviceToken: string;
   production?: boolean;
-  /** Verbatim APNs body override — bypasses the `{ incomingCall: event }`
-   * wrapper so malformed payloads can exercise the native parser's
-   * rejection paths. When set, `event` is ignored. */
+  /** Sent as-is in place of `{ incomingCall: event }`, for testing malformed payloads. */
   rawBody?: string;
 }
 

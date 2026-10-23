@@ -63,9 +63,9 @@ extension VoIPPushManager: PKPushRegistryDelegate {
     Log.voipPush.debug("Received VoIP push - payload keys: \(dictionaryPayload.keys)")
 
     guard let event = IncomingCallEventParser.parse(from: dictionaryPayload) else {
-      // The parser logs which guard rejected the payload. We must still report
-      // a call to CallKit even on parse failure, or the app will be terminated.
       Log.voipPush.error("Failed to parse VoIP push payload as IncomingCallEvent")
+      // We must still report a call to CallKit even on parse failure, or the
+      // app will be terminated.
       CallManager.shared.reportAndEndInvalidCall(completion: completion)
       return
     }

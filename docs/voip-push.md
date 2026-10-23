@@ -71,15 +71,8 @@ Other data messages are forwarded to [`expo-notifications`](https://docs.expo.de
 
 ## When the payload doesn't parse (iOS)
 
-Apple requires reporting a call to CallKit for **every** VoIP push, so a payload that fails
-validation still produces a brief system call UI ("Invalid Call") that the module ends
-immediately. No session is created and **no JS events are emitted** for it — from your app's
-perspective the push is silent.
+Apple requires a call to be reported to CallKit for every VoIP push, so a payload that fails validation still briefly shows an "Invalid Call" that the module ends immediately. No session is created and no JS events are sent, so the push is silent from your app's point of view. The call does appear in the system Recents list.
 
-To find out why a payload was rejected, check the device log: the parser logs which guard
-failed (missing envelope, envelope of the wrong type — e.g. the FCM JSON-string form sent to
-APNs — missing/empty `eventId`/`serverCallId`, or a missing `caller.id`). In Console.app,
-filter on subsystem `expo-callkit-telecom`, category `VoIPPush`. You can reproduce rejection
-cases with `example/server/send-test-push.ts --raw-payload '<json>'`.
+The device log says why the payload was rejected: a missing `incomingCall` object (or a JSON string in its place, which is the FCM format), or a missing or empty `eventId`, `serverCallId`, or `caller.id`. In Console.app, filter on subsystem `expo-callkit-telecom`, category `VoIPPush`. To reproduce, send your own payload with `example/server/send-test-push.ts --raw-payload '<json>'`.
 
-On Android, an FCM message that fails validation falls through to `expo-notifications`.
+On Android, a call push that fails validation is logged and dropped. It isn't forwarded to `expo-notifications`.
