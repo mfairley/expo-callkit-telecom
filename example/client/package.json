@@ -9,7 +9,7 @@
     "android": "bun run prebuild:plugin && expo run:android",
     "ios": "bun run prebuild:plugin && expo run:ios",
     "build:android": "bun run prebuild:plugin && expo prebuild --platform android && cd android && ./gradlew assembleDebug -PreactNativeArchitectures=x86_64",
-    "build:ios": "bun run prebuild:plugin && expo prebuild --platform ios && xcodebuild -quiet -workspace ios/CallKitTel.xcworkspace -scheme CallKitTel -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build",
+    "build:ios": "bun run prebuild:plugin && expo prebuild --platform ios && xcodebuild -quiet -workspace ios/CallKitTel.xcworkspace -scheme CallKitTel -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath ios/build ARCHS=arm64 CODE_SIGNING_ALLOWED=NO build && test -d ios/build/Build/Products/Debug-iphonesimulator/CallKitTel.app && echo '✓ iOS build succeeded: ios/build/Build/Products/Debug-iphonesimulator/CallKitTel.app'",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
