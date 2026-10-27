@@ -92,8 +92,12 @@ private struct SavedAudioSessionConfig {
 /// 3. **CallKit Activation**: When CallKit activates the audio session,
 ///    `onAVAudioSessionActivated()` notifies WebRTC and enables audio.
 ///
-/// 4. **CallKit Deactivation**: When the call ends, `onAVAudioSessionDeactivated()`
-///    disables audio and restores the pre-call audio configuration.
+/// 4. **CallKit Deactivation**: When a call ends or is put on hold, `onAVAudioSessionDeactivated()`
+///    disables audio.
+///
+/// 5. **Last Call End**: Once no calls remain and the audio session is inactive,
+///    `restoreAudioSession()` restores the pre-call audio configuration. A held call keeps the
+///    call configuration, so audio comes back when CallKit re-activates the session on resume.
 ///
 /// Note: The LiveKit SDK's AudioSession.ts can also be used to configure audio based on call state:
 /// https://github.com/livekit/client-sdk-react-native/blob/main/src/audio/AudioSession.ts#L206
@@ -315,7 +319,7 @@ final class AudioManager {
   }
 
   /// Called when CallKit deactivates the audio session.
-  /// This happens when the call ends.
+  /// This happens when the call ends, and also when it is put on hold.
   /// - Parameter calls: The call sessions that were active when deactivation occurred.
   func onAVAudioSessionDeactivated(calls: [CallSession]) {
     isActive = false
@@ -327,8 +331,12 @@ final class AudioManager {
     // Notify WebRTC that CallKit deactivated the audio session
     rtcSession.audioSessionDidDeactivate(AVAudioSession.sharedInstance())
 
-    // Restore the audio session configuration from before the call
-    restoreAudioSession()
+    // Restore the pre-call configuration only once no calls remain. A held call still needs the
+    // call configuration when it resumes. If the ended call hasn't been removed from the store
+    // yet, CallManager restores after removing it instead.
+    if calls.isEmpty {
+      restoreAudioSession()
+    }
 
     Log.audio.debug("RTC audio session deactivated")
 

@@ -609,6 +609,18 @@ class CallManager: NSObject {
     }
   }
 
+  /// Restores the pre-call audio configuration if the last call is gone and CallKit has
+  /// deactivated the audio session.
+  ///
+  /// Call after removing a session from the store. The removal and CallKit's audio-session
+  /// deactivation can arrive in either order, so both check: whichever comes last restores.
+  /// This also covers calls that end without the audio session ever activating (an incoming call
+  /// declined while ringing).
+  func restoreAudioSessionIfIdle() async {
+    guard await store.allSessions.isEmpty, !AudioManager.shared.isActive else { return }
+    AudioManager.shared.restoreAudioSession()
+  }
+
   /// Reports to CallKit that a call has ended.
   ///
   /// Call this when a call ends for any reason not initiated by the local user
@@ -638,6 +650,7 @@ class CallManager: NSObject {
     }
 
     await store.remove(for: id)
+    await restoreAudioSessionIfIdle()
   }
 
   // MARK: - Mute Support
