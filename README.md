@@ -104,10 +104,15 @@ With custom sounds and options:
           "defaultRingtoneAndroid": "ringtone.wav",
           "defaultDialtone": "dialtone.wav",
           "iconTemplateIos": "./assets/callkit-icon.png",
+          "notificationIconAndroid": "./assets/notification-icon.png",
+          "notificationStringsAndroid": {
+            "es": { "incomingCall": "Llamada entrante", "answer": "Contestar", "decline": "Rechazar" }
+          },
           "incomingCallTimeout": 45,
           "outgoingCallTimeout": 60,
           "fulfillAnswerCallTimeout": 30,
           "includesCallsInRecents": true,
+          "supportsVideo": true,
           "microphonePermission": "$(PRODUCT_NAME) needs the microphone to make calls."
         }
       ]
@@ -119,6 +124,12 @@ With custom sounds and options:
 Files in `sounds` are copied into the iOS bundle and Android raw resources at prebuild time. The full prop type is `ExpoCallKitTelecomPluginProps` in `plugin/src/`.
 
 `iconTemplateIos` is the app's icon on the iOS CallKit call screen (`CXProviderConfiguration.iconTemplateImageData`). CallKit renders it as a **template** — only the image's alpha channel is used (RGB is ignored) and the system tints it — so provide a ~40×40pt square PNG whose alpha describes the glyph. Android brands the incoming-call UI from the launcher icon automatically, so this option is iOS-only.
+
+`notificationIconAndroid` is the small icon on the Android call notifications. Android draws it from the alpha channel only, so provide a white glyph on a transparent background (a ~96×96px PNG or a vector drawable `.xml`); without it, the launcher icon is used and an opaque icon renders as a solid shape.
+
+`notificationStringsAndroid` sets the text on the Android call notifications, incoming-call screen, and notification channels, keyed by locale: `default` replaces the built-in English, and BCP 47 keys (`"es"`, `"pt-BR"`) are used when the device is set to that language. See `AndroidNotificationStrings` for the keys.
+
+Set `supportsVideo: false` in audio-only apps to hide the video button on the iOS CallKit call screen.
 
 ## 🧠 Concepts
 

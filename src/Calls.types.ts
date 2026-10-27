@@ -48,7 +48,7 @@ export interface NativeEvent {
  */
 export interface CallSession {
   id: string;
-  options: CallOptions;
+  options: Required<CallOptions>;
   origin: CallSessionOrigin;
   remoteParticipants: CallParticipant[];
   incomingCallEvent?: IncomingCallEvent;
@@ -65,7 +65,27 @@ export interface CallSession {
  * @category Sessions
  */
 export interface CallOptions {
-  hasVideo: boolean;
+  /**
+   * Whether this is a video call. On iOS this sets the call type shown by
+   * CallKit and configures the audio session for video (speaker by default).
+   * @default false
+   */
+  hasVideo?: boolean;
+  /**
+   * Whether the call can be put on hold. On iOS this shows the hold button on
+   * the CallKit call screen and lets CallKit hold the call to answer another
+   * one; on Android it lets Telecom hold the call (e.g. to answer a cellular
+   * call). Handle {@link addSetHeldActionListener} to pause your media.
+   * @default true
+   */
+  supportsHolding?: boolean;
+  /**
+   * Whether the call accepts DTMF tones. On iOS this shows the keypad on the
+   * CallKit call screen; handle {@link addDTMFListener} to send the tones.
+   * No effect on Android, which has no system keypad for self-managed calls.
+   * @default true
+   */
+  supportsDTMF?: boolean;
 }
 
 /**
@@ -350,8 +370,12 @@ export interface IncomingCallEvent {
    *  which is the OS-assigned native call UUID. Use this id to talk to your
    *  server about the call (e.g. POST /calls/:serverCallId/answer). */
   serverCallId: string;
-  /** True for video calls, false for audio. */
-  hasVideo: boolean;
+  /** True for video calls, false for audio. Defaults to false. */
+  hasVideo?: boolean;
+  /** Whether the call can be put on hold. See {@link CallOptions.supportsHolding}. Defaults to true. */
+  supportsHolding?: boolean;
+  /** Whether the call accepts DTMF tones. See {@link CallOptions.supportsDTMF}. Defaults to true. */
+  supportsDTMF?: boolean;
   /** RFC 3339 timestamp of when the call was placed. Optional; defaults to now. */
   startedAt?: string;
   /** Caller identity and addressing. */

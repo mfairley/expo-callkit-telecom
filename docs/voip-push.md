@@ -15,7 +15,9 @@ The event itself is the same shape on both transports. All keys are camelCase:
   "serverCallId": "9e7f...",                           // required — your backend's call id
                                                        //   (distinct from CallSession.id,
                                                        //    which is the OS-assigned UUID)
-  "hasVideo": false,
+  "hasVideo": false,                                   // optional, default false
+  "supportsHolding": true,                             // optional, default true
+  "supportsDTMF": true,                                // optional, default true (iOS keypad)
   "startedAt": "2026-01-15T19:42:11.000Z",             // RFC 3339, optional
   "caller": {
     "id": "<caller id>",                               // required — opaque, stable

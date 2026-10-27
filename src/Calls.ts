@@ -361,7 +361,8 @@ export function addCallIntentReceivedListener(
  * begin connecting your media.
  *
  * @param recipient - The participant to call.
- * @param options - Call configuration options (e.g., video enabled).
+ * @param options - Call configuration options (e.g., video enabled). Omit for an
+ *   audio call with the default options.
  * @returns The unique identifier for this call session.
  *
  * @example
@@ -380,7 +381,7 @@ export function addCallIntentReceivedListener(
  */
 export async function startOutgoingCall(
   recipient: CallParticipant,
-  options: CallOptions,
+  options: CallOptions = {},
 ): Promise<string> {
   return await ExpoCallKitTelecomModule.startOutgoingCall(recipient, options);
 }

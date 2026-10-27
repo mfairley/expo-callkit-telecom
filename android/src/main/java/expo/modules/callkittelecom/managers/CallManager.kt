@@ -10,6 +10,7 @@ import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.CallsManager
+import expo.modules.callkittelecom.R
 import expo.modules.callkittelecom.events.CallEventEmitter
 import expo.modules.callkittelecom.events.CallEvents
 import expo.modules.callkittelecom.events.CallEvents.AUDIO_SESSION_ACTIVATED
@@ -167,17 +168,16 @@ class CallManager private constructor() {
         cancelCallTimeout(id)
         CallKitTelecomLog.d(TAG) { "Starting call timeout - id: $id, timeout: ${timeoutMs}ms" }
 
-        val job =
-            scope.launch {
-                delay(timeoutMs)
-                val session = CallStore.session(id) ?: return@launch
-                if (session.status == CallSessionStatus.CONNECTED) {
-                    return@launch
-                }
-                CallKitTelecomLog.d(TAG) { "Call timeout expired - id: $id" }
-                DialtonePlayer.stop()
-                reportCallEnded(id, CallEndedReason.UNANSWERED)
+        val job = scope.launch {
+            delay(timeoutMs)
+            val session = CallStore.session(id) ?: return@launch
+            if (session.status == CallSessionStatus.CONNECTED) {
+                return@launch
             }
+            CallKitTelecomLog.d(TAG) { "Call timeout expired - id: $id" }
+            DialtonePlayer.stop()
+            reportCallEnded(id, CallEndedReason.UNANSWERED)
+        }
 
         activeCalls[id]?.timeoutJob = job
     }
@@ -191,6 +191,13 @@ class CallManager private constructor() {
     }
 
     // endregion
+
+    /**
+     * Maps per-call options to Core-Telecom call capabilities. DTMF has no Telecom capability for
+     * self-managed calls, so only hold is mapped.
+     */
+    private fun callCapabilities(options: CallOptions): Int =
+        if (options.supportsHolding) CallAttributesCompat.SUPPORTS_SET_INACTIVE else 0
 
     /** Creates a Telecom URI from participant fields, preferring phone number. */
     private fun participantUri(participant: CallParticipant): Uri {
@@ -253,7 +260,9 @@ class CallManager private constructor() {
 
         val attributes =
             CallAttributesCompat(
-                displayName = recipient.displayNameOrHandle ?: "Unknown",
+                displayName =
+                    recipient.displayNameOrHandle
+                        ?: context.getString(R.string.expo_callkit_telecom_unknown_caller),
                 address = participantUri(recipient),
                 direction = CallAttributesCompat.DIRECTION_OUTGOING,
                 callType =
@@ -262,7 +271,7 @@ class CallManager private constructor() {
                     } else {
                         CallAttributesCompat.CALL_TYPE_AUDIO_CALL
                     },
-                callCapabilities = CallAttributesCompat.SUPPORTS_SET_INACTIVE,
+                callCapabilities = callCapabilities(session.options),
             )
 
         val actions = CallActions()
@@ -339,7 +348,12 @@ class CallManager private constructor() {
         val session =
             CallSession(
                 id = id,
-                options = CallOptions(hasVideo = event.hasVideo),
+                options =
+                    CallOptions(
+                        hasVideo = event.hasVideo,
+                        supportsHolding = event.supportsHolding,
+                        supportsDTMF = event.supportsDTMF,
+                    ),
                 origin = CallSessionOrigin.INCOMING,
                 remoteParticipants = listOf(caller),
                 incomingCallEvent = event,
@@ -362,7 +376,9 @@ class CallManager private constructor() {
 
         val attributes =
             CallAttributesCompat(
-                displayName = event.caller.displayNameOrHandle ?: "Unknown",
+                displayName =
+                    event.caller.displayNameOrHandle
+                        ?: context.getString(R.string.expo_callkit_telecom_unknown_caller),
                 address = participantUri(caller),
                 direction = CallAttributesCompat.DIRECTION_INCOMING,
                 callType =
@@ -371,7 +387,7 @@ class CallManager private constructor() {
                     } else {
                         CallAttributesCompat.CALL_TYPE_AUDIO_CALL
                     },
-                callCapabilities = CallAttributesCompat.SUPPORTS_SET_INACTIVE,
+                callCapabilities = callCapabilities(session.options),
             )
 
         val actions = CallActions()
@@ -424,7 +440,8 @@ class CallManager private constructor() {
 
         activeCalls[callId]?.actions?.setActive?.trySend(Unit)
 
-        val callerName = CallStore.session(callId)?.remoteParticipants?.firstOrNull()?.displayNameOrHandle
+        val callerName =
+            CallStore.session(callId)?.remoteParticipants?.firstOrNull()?.displayNameOrHandle
         CallNotificationManager.showOngoingCall(context, callId, callerName, now.toEpochMilli())
 
         CallKitTelecomLog.d(TAG) {
@@ -446,7 +463,8 @@ class CallManager private constructor() {
 
         activeCalls[id]?.actions?.setActive?.trySend(Unit)
 
-        val callerName = CallStore.session(id)?.remoteParticipants?.firstOrNull()?.displayNameOrHandle
+        val callerName =
+            CallStore.session(id)?.remoteParticipants?.firstOrNull()?.displayNameOrHandle
         CallNotificationManager.showOngoingCall(context, id, callerName, now.toEpochMilli())
     }
 

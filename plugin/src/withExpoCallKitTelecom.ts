@@ -44,6 +44,14 @@ export type ExpoCallKitTelecomPluginProps = {
    */
   includesCallsInRecents?: boolean;
   /**
+   * Whether the app supports video calls. When false, the CallKit call screen
+   * hides its video button. Maps to CallKit's `CXProviderConfiguration.supportsVideo`.
+   * Set it to false for audio-only apps.
+   * @default true
+   * @platform ios
+   */
+  supportsVideo?: boolean;
+  /**
    * Array of sound file paths (relative to project root) to include in the app.
    * These files will be copied into the iOS bundle and Android raw resources.
    * .wav recommended
@@ -85,6 +93,36 @@ export type ExpoCallKitTelecomPluginProps = {
    */
   iconTemplateIos?: string;
   /**
+   * Path (relative to project root) to the small icon for the call
+   * notifications on Android (incoming, dialing, ongoing, ended). Android draws
+   * the small icon from the alpha channel only, so use a white glyph on a
+   * transparent background, ideally 96x96 px. A `.png` or a vector drawable
+   * `.xml` is accepted. When omitted, the launcher icon is used, which renders
+   * as a solid shape for opaque icons.
+   * @platform android
+   */
+  notificationIconAndroid?: string;
+  /**
+   * Text shown on the Android call notifications, the incoming-call screen,
+   * and the notification channels in system settings, keyed by locale.
+   * `default` replaces the built-in English text; any other key is a BCP 47
+   * locale tag (`"es"`, `"pt-BR"`) and is used when the device is set to that
+   * language. Android picks the locale at runtime. Unset keys fall back to
+   * `default`, then to the built-in English text.
+   *
+   * Each string is a resource named `expo_callkit_telecom_<key in snake_case>`
+   * (e.g. `incomingVideoCall` → `expo_callkit_telecom_incoming_video_call`),
+   * so bare apps can also override them in their own `strings.xml` files.
+   *
+   * @example
+   * {
+   *   default: { incomingCall: "Incoming Acme call" },
+   *   es: { incomingCall: "Llamada entrante", answer: "Contestar", decline: "Rechazar" },
+   * }
+   * @platform android
+   */
+  notificationStringsAndroid?: Record<string, AndroidNotificationStrings>;
+  /**
    * Class name of a `BroadcastReceiver` to register for the module's call-event
    * broadcast, fired when a call event can't reach a live JS observer (e.g. the
    * user declines an incoming call while the app is killed). The plugin writes
@@ -97,6 +135,37 @@ export type ExpoCallKitTelecomPluginProps = {
    * @platform android
    */
   androidEventReceiver?: string;
+};
+
+/**
+ * Text on the Android call notifications and incoming-call screen. See
+ * {@link ExpoCallKitTelecomPluginProps.notificationStringsAndroid}.
+ */
+export type AndroidNotificationStrings = {
+  /** Name of the incoming-call notification channel. @default "Incoming calls" */
+  channelIncomingName?: string;
+  /** Description of the incoming-call notification channel. @default "Notifications for incoming calls" */
+  channelIncomingDescription?: string;
+  /** Name of the ongoing-call notification channel. @default "Ongoing calls" */
+  channelOngoingName?: string;
+  /** Description of the ongoing-call notification channel. @default "Notifications for active calls" */
+  channelOngoingDescription?: string;
+  /** @default "Incoming call" */
+  incomingCall?: string;
+  /** @default "Incoming video call" */
+  incomingVideoCall?: string;
+  /** @default "Dialing..." */
+  dialing?: string;
+  /** @default "Ongoing call" */
+  ongoingCall?: string;
+  /** @default "Call ended" */
+  callEnded?: string;
+  /** Caller name shown when the caller has no name, number, or email. @default "Unknown" */
+  unknownCaller?: string;
+  /** Label of the answer button on the incoming-call screen. @default "Answer" */
+  answer?: string;
+  /** Label of the decline button on the incoming-call screen. @default "Decline" */
+  decline?: string;
 };
 
 const withExpoCallKitTelecom: ConfigPlugin<ExpoCallKitTelecomPluginProps | void> = (

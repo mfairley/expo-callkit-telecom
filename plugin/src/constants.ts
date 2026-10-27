@@ -6,6 +6,9 @@ export const DEFAULT_FULFILL_ANSWER_CALL_TIMEOUT = 30;
 // Whether completed calls appear in the phone's call history (Recents)
 export const DEFAULT_INCLUDES_CALLS_IN_RECENTS = true;
 
+// Whether the CallKit UI offers video (the video button on the call screen)
+export const DEFAULT_SUPPORTS_VIDEO = true;
+
 /**
  * Action for the package-internal call-event broadcast (Android). The
  * `androidEventReceiver` plugin prop registers the manifest receiver for it.

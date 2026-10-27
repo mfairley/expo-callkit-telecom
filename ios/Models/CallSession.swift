@@ -36,7 +36,9 @@ extension CallSession {
       "id": id.uuidString,
       "origin": origin.rawValue,
       "options": [
-        "hasVideo": options.hasVideo
+        "hasVideo": options.hasVideo,
+        "supportsHolding": options.supportsHolding,
+        "supportsDTMF": options.supportsDTMF,
       ],
       "remoteParticipants": remoteParticipants.map { participant in
         var p: [String: Any] = [

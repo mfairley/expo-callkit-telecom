@@ -122,7 +122,7 @@
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/expo_callkit_telecom_bg_decline"
-                android:contentDescription="Decline"
+                android:contentDescription="@string/expo_callkit_telecom_decline"
                 android:scaleType="center"
                 android:src="@drawable/expo_callkit_telecom_ic_decline" />
 
@@ -134,7 +134,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif"
-                android:text="Decline"
+                android:text="@string/expo_callkit_telecom_decline"
                 android:textColor="#8E8E93"
                 android:textSize="13sp" />
         </LinearLayout>
@@ -152,7 +152,7 @@
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/expo_callkit_telecom_bg_answer"
-                android:contentDescription="Answer"
+                android:contentDescription="@string/expo_callkit_telecom_answer"
                 android:scaleType="center"
                 android:src="@drawable/expo_callkit_telecom_ic_answer" />
 
@@ -164,7 +164,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif"
-                android:text="Answer"
+                android:text="@string/expo_callkit_telecom_answer"
                 android:textColor="#8E8E93"
                 android:textSize="13sp" />
         </LinearLayout>

@@ -35,11 +35,12 @@ extension CallManager: CXProviderDelegate {
     startCallTimeout(for: action.callUUID, timeout: Self.outgoingCallTimeout)
 
     Task {
-      if let session = await store.session(for: action.callUUID),
-        let participant = session.remoteParticipants.first
-      {
+      if let session = await store.session(for: action.callUUID) {
         let update = CXCallUpdate()
-        setLocalizedCallerNameIfNeeded(for: participant, on: update)
+        setCapabilities(from: session.options, on: update)
+        if let participant = session.remoteParticipants.first {
+          setLocalizedCallerNameIfNeeded(for: participant, on: update)
+        }
         provider.reportCall(with: action.callUUID, updated: update)
       }
 
