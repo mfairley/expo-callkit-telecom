@@ -18,7 +18,7 @@ In Apple Developer:
 1. Create an APNs auth key under *Certificates → Keys* — save the `.p8` to `./apns_key.p8` and note the 10-character key ID.
 2. Find your team ID under *Membership*.
 
-The APNs topic is derived from `BUNDLE_ID` at the top of `send-test-push.ts` (must match `example/client/app.config.ts`'s iOS bundle id).
+The APNs topic is derived from `BUNDLE_ID` at the top of `send-test-push.ts` (must match the client's bundle ID: `BUNDLE_ID` in `example/client/.env.local`, or `com.example.expocallkittelecom` by default).
 
 In `.env`:
 

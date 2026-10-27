@@ -50,3 +50,7 @@ bunx expo prebuild --clean
 bun run ios --device
 ```
 
+To receive VoIP pushes, build with an app ID that has your push credentials. Copy `.env.example` to `.env.local` (gitignored) and set `BUNDLE_ID` to that iOS bundle ID / Android package, plus `GOOGLE_SERVICES_FILE` if your Firebase config isn't at `./google-services.json`. Then rerun `bunx expo prebuild --clean`. Without them the app builds as `com.example.expocallkittelecom`, and Android skips FCM VoIP push.
+
+`bun run build:ios` and `bun run build:android` compile the app without signing or installing it (iOS for the simulator). CI runs these, so they're a quick local check before pushing.
+

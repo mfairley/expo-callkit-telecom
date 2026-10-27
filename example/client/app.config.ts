@@ -1,6 +1,12 @@
 import type { ExpoConfig } from "expo/config";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 
-const BUNDLE_ID = "com.example.expocallkittelecom";
+// Set these in .env.local to build with your own push credentials; see README.md.
+const BUNDLE_ID = process.env.BUNDLE_ID || "com.example.expocallkittelecom";
+const GOOGLE_SERVICES_FILE = process.env.GOOGLE_SERVICES_FILE || "./google-services.json";
+// Firebase is optional: without the file the app builds and runs, minus FCM VoIP push.
+const hasGoogleServicesFile = existsSync(join(__dirname, GOOGLE_SERVICES_FILE));
 
 const config: ExpoConfig = {
   name: "CallKit Tel",
@@ -21,7 +27,7 @@ const config: ExpoConfig = {
     },
     predictiveBackGestureEnabled: false,
     package: BUNDLE_ID,
-    googleServicesFile: "./google-services.json",
+    googleServicesFile: hasGoogleServicesFile ? GOOGLE_SERVICES_FILE : undefined,
   },
   web: {
     favicon: "./assets/favicon.png",
