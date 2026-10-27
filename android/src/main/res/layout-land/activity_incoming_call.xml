@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Landscape twin of layout/activity_incoming_call.xml, same ids: branding and caller on the start
+  half, the actions of the current state on the end half. IncomingCallActivity re-applies the
+  layout on rotation (configChanges in the manifest).
+  Icons are tinted with android:tint, not app:tint: this is a plain Activity, nothing here inflates
+  AppCompat widgets, so app:tint would not be read (tools:ignore="UseAppTint").
+-->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/expo_callkit_telecom_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/expo_callkit_telecom_background"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:baselineAligned="false"
+        android:orientation="horizontal"
+        android:paddingStart="32dp"
+        android:paddingTop="16dp"
+        android:paddingEnd="32dp"
+        android:paddingBottom="16dp">
+
+        <!-- Start half: app branding and caller -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/expo_callkit_telecom_app_icon"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="6dp"
+                    android:importantForAccessibility="no" />
+
+                <TextView
+                    android:id="@+id/expo_callkit_telecom_app_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/expo_callkit_telecom_text_header"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="20dp" />
+
+            <!-- Caller avatar circle with image, initial, or placeholder fallback -->
+            <FrameLayout
+                android:layout_width="88dp"
+                android:layout_height="88dp"
+                android:background="@drawable/expo_callkit_telecom_bg_avatar">
+
+                <ImageView
+                    android:id="@+id/expo_callkit_telecom_avatar_placeholder"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/expo_callkit_telecom_ic_person"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/expo_callkit_telecom_avatar_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:importantForAccessibility="no"
+                    android:scaleType="centerCrop"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/expo_callkit_telecom_avatar_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/expo_callkit_telecom_avatar_text"
+                    android:textSize="34sp" />
+            </FrameLayout>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="20dp" />
+
+            <TextView
+                android:id="@+id/expo_callkit_telecom_caller_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:letterSpacing="-0.01"
+                android:textColor="@color/expo_callkit_telecom_text_primary"
+                android:textSize="26sp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="8dp" />
+
+            <TextView
+                android:id="@+id/expo_callkit_telecom_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:accessibilityLiveRegion="polite"
+                android:fontFamily="sans-serif"
+                android:textColor="@color/expo_callkit_telecom_text_secondary"
+                android:textSize="16sp" />
+
+            <Chronometer
+                android:id="@+id/expo_callkit_telecom_timer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:fontFamily="sans-serif"
+                android:fontFeatureSettings="tnum"
+                android:textColor="@color/expo_callkit_telecom_text_secondary"
+                android:textSize="16sp"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <!-- End half: the actions of the current state, vertically centred -->
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="24dp"
+            android:layout_weight="1">
+
+            <!-- Both states share this slot, each centred in it; the activity shows exactly one. -->
+
+            <!-- Ringing: answer and decline buttons -->
+            <LinearLayout
+                android:id="@+id/expo_callkit_telecom_ringing_actions"
+                android:layout_gravity="center_vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <ImageButton
+                        android:id="@+id/expo_callkit_telecom_decline_button"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:background="@drawable/expo_callkit_telecom_bg_decline"
+                        android:contentDescription="@string/expo_callkit_telecom_decline"
+                        android:scaleType="center"
+                        android:src="@drawable/expo_callkit_telecom_ic_decline" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="12dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif"
+                        android:text="@string/expo_callkit_telecom_decline"
+                        android:textColor="@color/expo_callkit_telecom_text_secondary"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <ImageButton
+                        android:id="@+id/expo_callkit_telecom_answer_button"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:background="@drawable/expo_callkit_telecom_bg_answer"
+                        android:contentDescription="@string/expo_callkit_telecom_answer"
+                        android:scaleType="center"
+                        android:src="@drawable/expo_callkit_telecom_ic_answer" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="12dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif"
+                        android:text="@string/expo_callkit_telecom_answer"
+                        android:textColor="@color/expo_callkit_telecom_text_secondary"
+                        android:textSize="13sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- In call: mute, speaker and open-app wells, then hang up -->
+            <LinearLayout
+                android:id="@+id/expo_callkit_telecom_incall_actions"
+                android:layout_gravity="center_vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical">
+
+                        <ImageButton
+                            android:id="@+id/expo_callkit_telecom_mute_button"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:background="@drawable/expo_callkit_telecom_bg_toggle_mute"
+                            android:contentDescription="@string/expo_callkit_telecom_mute"
+                            android:scaleType="center"
+                            android:src="@drawable/expo_callkit_telecom_ic_mute"
+                            android:tint="@color/expo_callkit_telecom_tint_mute"
+                            tools:ignore="UseAppTint" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="12dp" />
+
+                        <TextView
+                            android:id="@+id/expo_callkit_telecom_mute_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:accessibilityLiveRegion="polite"
+                            android:fontFamily="sans-serif"
+                            android:text="@string/expo_callkit_telecom_mute"
+                            android:textColor="@color/expo_callkit_telecom_text_secondary"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical">
+
+                        <ImageButton
+                            android:id="@+id/expo_callkit_telecom_speaker_button"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:background="@drawable/expo_callkit_telecom_bg_toggle_speaker"
+                            android:contentDescription="@string/expo_callkit_telecom_speaker"
+                            android:scaleType="center"
+                            android:src="@drawable/expo_callkit_telecom_ic_speaker"
+                            android:tint="@color/expo_callkit_telecom_tint_speaker"
+                            tools:ignore="UseAppTint" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="12dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif"
+                            android:text="@string/expo_callkit_telecom_speaker"
+                            android:textColor="@color/expo_callkit_telecom_text_secondary"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical">
+
+                        <ImageButton
+                            android:id="@+id/expo_callkit_telecom_open_app_button"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:background="@drawable/expo_callkit_telecom_bg_toggle"
+                            android:scaleType="center"
+                            android:src="@drawable/expo_callkit_telecom_ic_open_in_app"
+                            android:tint="@color/expo_callkit_telecom_tint_toggle"
+                            tools:ignore="ContentDescription,UseAppTint" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="12dp" />
+
+                        <TextView
+                            android:id="@+id/expo_callkit_telecom_open_app_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif"
+                            android:textColor="@color/expo_callkit_telecom_text_secondary"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="24dp" />
+
+                <ImageButton
+                    android:id="@+id/expo_callkit_telecom_hangup_button"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:background="@drawable/expo_callkit_telecom_bg_decline"
+                    android:contentDescription="@string/expo_callkit_telecom_end_call"
+                    android:scaleType="center"
+                    android:src="@drawable/expo_callkit_telecom_ic_decline" />
+            </LinearLayout>
+        </FrameLayout>
+    </LinearLayout>
+</ScrollView>

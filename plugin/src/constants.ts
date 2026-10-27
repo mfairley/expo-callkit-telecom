@@ -6,6 +6,9 @@ export const DEFAULT_FULFILL_ANSWER_CALL_TIMEOUT = 30;
 // Whether completed calls appear in the phone's call history (Recents)
 export const DEFAULT_INCLUDES_CALLS_IN_RECENTS = true;
 
+// Whether a call answered on the Android lock screen stays on the lock screen
+export const DEFAULT_ANDROID_ANSWER_ON_LOCK_SCREEN = false;
+
 /**
  * Action for the package-internal call-event broadcast (Android). The
  * `androidEventReceiver` plugin prop registers the manifest receiver for it.

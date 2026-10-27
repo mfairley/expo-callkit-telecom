@@ -1,21 +1,30 @@
 package expo.modules.callkittelecom.managers
 
+import android.app.KeyguardManager
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.media.AudioAttributes
 import android.media.RingtoneManager
 import android.net.Uri
+import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.Person
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.IconCompat
 import expo.modules.callkittelecom.IncomingCallActivity
+import expo.modules.callkittelecom.LockedCallKeepAlive
+import expo.modules.callkittelecom.R
+import expo.modules.callkittelecom.models.CallSessionStatus
 import expo.modules.callkittelecom.services.CallNotificationReceiver
+import expo.modules.callkittelecom.store.CallStore
 import expo.modules.callkittelecom.utils.CallKitTelecomLog
 import java.util.UUID
 import kotlinx.coroutines.CoroutineScope
@@ -40,6 +49,7 @@ object CallNotificationManager {
     private const val ENDED_CANCEL_DELAY_MS = 2000L
 
     private const val KEY_DEFAULT_RINGTONE = "ExpoCallKitTelecomDefaultRingtone"
+    private const val KEY_ANSWER_ON_LOCK_SCREEN = "ExpoCallKitTelecomAnswerOnLockScreen"
     private const val PREFS_NAME = "expo_callkit_telecom_notifications"
     private const val PREF_INCOMING_CHANNEL_ID = "incoming_channel_id"
 
@@ -48,6 +58,29 @@ object CallNotificationManager {
 
     /** The active incoming channel ID, derived from the configured ringtone. */
     private lateinit var incomingChannelId: String
+
+    /**
+     * The `androidAnswerOnLockScreen` plugin prop: a call answered on the lock screen stays there,
+     * on the call screen, instead of unlocking and opening the app. Read once from the manifest.
+     */
+    internal var answerOnLockScreenEnabled = false
+        private set
+
+    /** The ring currently posted, so its Answer action can follow the lock state while it rings. */
+    private data class Ring(
+        val callId: UUID,
+        val callerName: String?,
+        val hasVideo: Boolean,
+        val answersLocked: Boolean,
+    )
+
+    @Volatile private var ring: Ring? = null
+
+    /**
+     * Serialises the "Connecting…" post (main thread) with the ongoing post the app's fulfil makes
+     * from its own thread, so the former cannot land after the latter (see [showConnectingCall]).
+     */
+    private val postLock = Any()
 
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var delayedCancelJob: Job? = null
@@ -64,8 +97,13 @@ object CallNotificationManager {
         createIncomingChannel(notificationManager)
         createOngoingChannel(notificationManager)
 
+        answerOnLockScreenEnabled = readAnswerOnLockScreenConfig()
+        if (answerOnLockScreenEnabled) trackLockState()
+
         isInitialized = true
-        CallKitTelecomLog.d(TAG) { "Initialized notification channels" }
+        CallKitTelecomLog.d(TAG) {
+            "Initialized notification channels, answerOnLockScreen: $answerOnLockScreenEnabled"
+        }
     }
 
     /**
@@ -148,6 +186,19 @@ object CallNotificationManager {
             null
         }
 
+    /** Reads `ExpoCallKitTelecomAnswerOnLockScreen` from AndroidManifest metadata. */
+    private fun readAnswerOnLockScreenConfig(): Boolean =
+        try {
+            val appInfo =
+                appContext.packageManager.getApplicationInfo(
+                    appContext.packageName,
+                    PackageManager.GET_META_DATA,
+                )
+            appInfo.metaData?.getBoolean(KEY_ANSWER_ON_LOCK_SCREEN, false) ?: false
+        } catch (_: Throwable) {
+            false
+        }
+
     /**
      * Resolves a ringtone config value to a sound URI.
      * - `null` / "default" → system default ringtone
@@ -170,29 +221,60 @@ object CallNotificationManager {
     }
 
     /** Shows an incoming call notification with answer/decline actions and full-screen intent. */
-    fun showIncomingCall(context: Context, callId: UUID, callerName: String?, hasVideo: Boolean) {
+    fun showIncomingCall(context: Context, callId: UUID, callerName: String?, hasVideo: Boolean) =
+        showIncomingCall(context, callId, callerName, hasVideo, quiet = false)
+
+    /**
+     * Posts the ring. [quiet] updates a posted ring in place without alerting again — no restarted
+     * ringtone, heads-up or full-screen intent — to swap its Answer action (see [trackLockState]).
+     */
+    private fun showIncomingCall(
+        context: Context,
+        callId: UUID,
+        callerName: String?,
+        hasVideo: Boolean,
+        quiet: Boolean,
+    ) {
         cancelDelayedCancel()
         val ctx = context.applicationContext
-        val displayName = callerName ?: "Unknown"
+        val displayName = callerName ?: ctx.getString(R.string.expo_callkit_telecom_unknown_caller)
+        val answersLocked = answersOnLockScreen(ctx)
 
-        // Answer action uses PendingIntent.getActivity() to bring the app to
-        // foreground. On Android 12+, BroadcastReceivers cannot start activities
-        // from the background, so the answer action must launch the Activity
-        // directly. CallNotificationReceiver intercepts the intent via
-        // onNewIntent to trigger the actual call answer.
-        val answerIntent =
-            ctx.packageManager.getLaunchIntentForPackage(ctx.packageName)?.apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                action = CallNotificationReceiver.ACTION_ANSWER
-                putExtra(CallNotificationReceiver.EXTRA_CALL_ID, callId.toString())
-            } ?: Intent()
         val answerPI =
-            PendingIntent.getActivity(
-                ctx,
-                callId.hashCode(),
-                answerIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-            )
+            if (answersLocked) {
+                // SystemUI dismisses the keyguard (asks for the PIN) before it sends an action
+                // button's activity PendingIntent — even one for a show-when-locked activity
+                // (StatusBarRemoteInputCallback.handleRemoteViewClick) — so on the lock screen
+                // Answer is a broadcast: CallNotificationReceiver answers and shows the call on
+                // the lock-screen call screen (IncomingCallActivity).
+                PendingIntent.getBroadcast(
+                    ctx,
+                    callId.hashCode() + 5,
+                    Intent(ctx, CallNotificationReceiver::class.java).apply {
+                        action = CallNotificationReceiver.ACTION_ANSWER
+                        putExtra(CallNotificationReceiver.EXTRA_CALL_ID, callId.toString())
+                    },
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                )
+            } else {
+                // Answer action uses PendingIntent.getActivity() to bring the app to
+                // foreground. On Android 12+, BroadcastReceivers cannot start activities
+                // from the background, so the answer action must launch the Activity
+                // directly. CallNotificationReceiver intercepts the intent via
+                // onNewIntent to trigger the actual call answer.
+                val answerIntent =
+                    ctx.packageManager.getLaunchIntentForPackage(ctx.packageName)?.apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        action = CallNotificationReceiver.ACTION_ANSWER
+                        putExtra(CallNotificationReceiver.EXTRA_CALL_ID, callId.toString())
+                    } ?: Intent()
+                PendingIntent.getActivity(
+                    ctx,
+                    callId.hashCode(),
+                    answerIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                )
+            }
 
         val declineIntent =
             Intent(ctx, CallNotificationReceiver::class.java).apply {
@@ -214,7 +296,10 @@ object CallNotificationManager {
                     ctx,
                     incomingChannelId,
                     displayName,
-                    if (hasVideo) "Incoming video call" else "Incoming call",
+                    ctx.getString(
+                        if (hasVideo) R.string.expo_callkit_telecom_incoming_video_call
+                        else R.string.expo_callkit_telecom_incoming_call,
+                    ),
                 )
                 .setStyle(
                     NotificationCompat.CallStyle.forIncomingCall(
@@ -226,16 +311,19 @@ object CallNotificationManager {
                 .setFullScreenIntent(fullScreenIntent, true)
                 .setOngoing(true)
                 .setAutoCancel(false)
+                .setOnlyAlertOnce(quiet)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .build()
 
         postNotification(ctx, callId, displayName, "incoming call")
+        ring = Ring(callId, callerName, hasVideo, answersLocked)
         notify(ctx, notification)
     }
 
     /** Shows a dialing notification for outgoing calls with a hangup action. */
     fun showDialingCall(context: Context, callId: UUID, callerName: String?) {
         cancelDelayedCancel()
+        ring = null
         val ctx = context.applicationContext
         val displayName = callerName ?: "Unknown"
 
@@ -270,6 +358,71 @@ object CallNotificationManager {
         notify(ctx, notification)
     }
 
+    /**
+     * Stands in for the ring notification between a lock-screen answer and the app's fulfil: the
+     * answer takes the ring down, and the ongoing notification only comes with [showOngoingCall],
+     * so without this the shade is empty while the call connects — with no way back to a call
+     * screen that stepped aside (or never started, see [CallNotificationReceiver]) and no hang-up.
+     * Ongoing style with the hang-up action and no timer; the tap opens the lock-screen call
+     * screen, or the app when [onLockScreen] is false. Posted only while the session is CONNECTING:
+     * an answer that was ignored (the call was already answered or had ended) must not replace the
+     * ongoing or ended notification.
+     */
+    fun showConnectingCall(
+        context: Context,
+        callId: UUID,
+        callerName: String?,
+        onLockScreen: Boolean,
+    ) {
+        if (CallStore.session(callId)?.status != CallSessionStatus.CONNECTING) return
+        cancelDelayedCancel()
+        ring = null
+        val ctx = context.applicationContext
+        val displayName = callerName ?: ctx.getString(R.string.expo_callkit_telecom_unknown_caller)
+
+        val hangupIntent =
+            Intent(ctx, CallNotificationReceiver::class.java).apply {
+                action = CallNotificationReceiver.ACTION_DECLINE
+                putExtra(CallNotificationReceiver.EXTRA_CALL_ID, callId.toString())
+            }
+        val hangupPI =
+            PendingIntent.getBroadcast(
+                ctx,
+                callId.hashCode() + 2,
+                hangupIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
+
+        val contentIntent =
+            if (onLockScreen) buildLockedCallIntent(ctx, callId)
+            else buildFullScreenIntent(ctx, callId)
+
+        val notification =
+            buildBase(
+                    ctx,
+                    CHANNEL_ONGOING,
+                    displayName,
+                    ctx.getString(R.string.expo_callkit_telecom_connecting),
+                )
+                .setStyle(
+                    NotificationCompat.CallStyle.forOngoingCall(buildPerson(displayName), hangupPI),
+                )
+                .setContentIntent(contentIntent)
+                .setOngoing(true)
+                .setAutoCancel(false)
+                .setShowWhen(false)
+                .build()
+
+        postNotification(ctx, callId, displayName, "connecting call")
+        // The app's fulfil moves the session to CONNECTED and then posts the ongoing notification
+        // (showOngoingCall) from its own thread. Checked again under the lock that post takes, so
+        // this one cannot slip in after it and sit over it for the rest of the call.
+        synchronized(postLock) {
+            if (CallStore.session(callId)?.status != CallSessionStatus.CONNECTING) return
+            notify(ctx, notification)
+        }
+    }
+
     /** Switches the notification to ongoing call style with a call duration timer. */
     fun showOngoingCall(
         context: Context,
@@ -278,6 +431,7 @@ object CallNotificationManager {
         connectedAtMs: Long = System.currentTimeMillis(),
     ) {
         cancelDelayedCancel()
+        ring = null
         val ctx = context.applicationContext
         val displayName = callerName ?: "Unknown"
 
@@ -294,7 +448,11 @@ object CallNotificationManager {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
 
-        val contentIntent = buildFullScreenIntent(ctx, callId)
+        // A call answered on the lock screen opens its call screen: a notification tap (unlike an
+        // action button) shows a show-when-locked activity without unlocking.
+        val contentIntent =
+            if (LockedCallKeepAlive.isHeld(callId)) buildLockedCallIntent(ctx, callId)
+            else buildFullScreenIntent(ctx, callId)
 
         val notification =
             buildBase(ctx, CHANNEL_ONGOING, displayName, "Ongoing call")
@@ -310,12 +468,14 @@ object CallNotificationManager {
                 .build()
 
         postNotification(ctx, callId, displayName, "ongoing call")
-        notify(ctx, notification)
+        // Under the lock so a "Connecting…" post racing from the main thread cannot follow it.
+        synchronized(postLock) { notify(ctx, notification) }
     }
 
     /** Shows a brief "Call Ended" notification that auto-cancels after ~2 seconds. */
     fun showEndedCall(context: Context, callId: UUID, callerName: String?) {
         cancelDelayedCancel()
+        ring = null
         val ctx = context.applicationContext
         val displayName = callerName ?: "Unknown"
 
@@ -326,7 +486,8 @@ object CallNotificationManager {
                 .build()
 
         postNotification(ctx, callId, displayName, "ended call")
-        notify(ctx, notification)
+        // Under the lock like the ongoing post, so a "Connecting…" post cannot follow it.
+        synchronized(postLock) { notify(ctx, notification) }
 
         delayedCancelJob =
             scope.launch {
@@ -338,6 +499,7 @@ object CallNotificationManager {
     /** Cancels any active call notification. */
     fun cancel(context: Context) {
         cancelDelayedCancel()
+        ring = null
         NotificationManagerCompat.from(context.applicationContext).cancel(NOTIFICATION_ID)
         CallKitTelecomLog.d(TAG) { "Cancelled call notification" }
     }
@@ -346,6 +508,58 @@ object CallNotificationManager {
     private fun cancelDelayedCancel() {
         delayedCancelJob?.cancel()
         delayedCancelJob = null
+    }
+
+    /**
+     * Whether a ring's Answer is taken on the lock screen: the opt-in is on, the app's JS is
+     * running to drive the call (see [LockedCallKeepAlive.canKeepAlive]), and the device is locked
+     * (PIN, pattern or password), or its screen is off on a secured device, when the keyguard
+     * (possibly after its lock delay) is what the user will see first.
+     */
+    private fun answersOnLockScreen(ctx: Context): Boolean {
+        if (!answerOnLockScreenEnabled || !LockedCallKeepAlive.canKeepAlive(ctx)) return false
+        val keyguard = ctx.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+        val power = ctx.getSystemService(Context.POWER_SERVICE) as PowerManager
+        // isDeviceLocked: a swipe-only keyguard dismisses without credentials, like unlocked.
+        return keyguard.isDeviceLocked || (!power.isInteractive && keyguard.isDeviceSecure)
+    }
+
+    /**
+     * Keeps a ringing call's Answer action matched to the lock state: the ring may be posted
+     * unlocked and answered after the phone locked (or the other way round), and each state needs
+     * its own action. The screen turning off or on and the user unlocking are the moments the lock
+     * state changes; a mismatched ring is then updated in place, quietly.
+     */
+    private fun trackLockState() {
+        val receiver =
+            object : BroadcastReceiver() {
+                override fun onReceive(context: Context, intent: Intent) {
+                    val current = ring ?: return
+                    if (current.answersLocked == answersOnLockScreen(appContext)) return
+                    val status = CallStore.session(current.callId)?.status
+                    if (status != CallSessionStatus.RINGING) return
+                    showIncomingCall(
+                        appContext,
+                        current.callId,
+                        current.callerName,
+                        current.hasVideo,
+                        quiet = true,
+                    )
+                }
+            }
+        val filter =
+            IntentFilter().apply {
+                addAction(Intent.ACTION_SCREEN_OFF)
+                addAction(Intent.ACTION_SCREEN_ON)
+                addAction(Intent.ACTION_USER_PRESENT)
+            }
+        // System broadcasts still reach a receiver that is not exported.
+        ContextCompat.registerReceiver(
+            appContext,
+            receiver,
+            filter,
+            ContextCompat.RECEIVER_NOT_EXPORTED,
+        )
     }
 
     /** Creates a Person with an icon for use in CallStyle notifications. */
@@ -401,6 +615,15 @@ object CallNotificationManager {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
     }
+
+    /** Opens the lock-screen call screen of [callId], a call answered on the lock screen. */
+    private fun buildLockedCallIntent(context: Context, callId: UUID): PendingIntent =
+        PendingIntent.getActivity(
+            context,
+            callId.hashCode() + 6,
+            IncomingCallActivity.answeredOnLockScreenIntent(context, callId),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
 
     /** Builds a full-screen intent that launches the app's main activity. */
     private fun buildFullScreenIntent(context: Context, callId: UUID): PendingIntent {

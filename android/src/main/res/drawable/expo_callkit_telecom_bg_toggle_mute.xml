@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Mute well: decline_fill while activated (muted), toggle_fill otherwise; ripple on press. -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/expo_callkit_telecom_ripple_toggle">
+    <item>
+        <selector>
+            <item android:state_activated="true">
+                <shape android:shape="oval">
+                    <solid android:color="@color/expo_callkit_telecom_decline_fill" />
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="oval">
+                    <solid android:color="@color/expo_callkit_telecom_toggle_fill" />
+                </shape>
+            </item>
+        </selector>
+    </item>
+</ripple>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Mute glyph: on_fill on the red well while muted, toggle_glyph otherwise. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/expo_callkit_telecom_on_fill" android:state_activated="true" />
+    <item android:color="@color/expo_callkit_telecom_toggle_glyph" />
+</selector>

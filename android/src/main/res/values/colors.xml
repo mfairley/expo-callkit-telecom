@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Palette of the native incoming-call screen (IncomingCallActivity). The defaults are the
+  values the screen used to hard-code. An app restyles it by defining the same names in its
+  own res/values/colors.xml (and res/values-night/colors.xml for a dark variant); see
+  "Customising the incoming-call screen" in docs/platform-notes.md.
+-->
+<resources>
+    <!-- Screen background -->
+    <color name="expo_callkit_telecom_background">#0D0D0D</color>
+    <!-- Caller name -->
+    <color name="expo_callkit_telecom_text_primary">#FFFFFF</color>
+    <!-- Call-type subtitle and the Answer/Decline labels -->
+    <color name="expo_callkit_telecom_text_secondary">#8E8E93</color>
+    <!-- App name in the header -->
+    <color name="expo_callkit_telecom_text_header">#8E8E93</color>
+    <!-- Avatar disc, and the initial or placeholder glyph on it -->
+    <color name="expo_callkit_telecom_avatar_fill">#1C1C2E</color>
+    <color name="expo_callkit_telecom_avatar_text">#FFFFFF</color>
+    <!-- Answer and Decline discs -->
+    <color name="expo_callkit_telecom_answer_fill">#34C759</color>
+    <color name="expo_callkit_telecom_decline_fill">#FF3B30</color>
+    <!-- Glyphs on the Answer/Decline discs, and their press ripple -->
+    <color name="expo_callkit_telecom_on_fill">#FFFFFF</color>
+    <color name="expo_callkit_telecom_ripple_on_fill">#4DFFFFFF</color>
+    <!-- In-call state (androidAnswerOnLockScreen): the Mute, Speaker and Open app wells and
+         the glyphs on them -->
+    <color name="expo_callkit_telecom_toggle_fill">#33FFFFFF</color>
+    <color name="expo_callkit_telecom_toggle_glyph">#FFFFFF</color>
+    <!-- Speaker well and its glyph while the loudspeaker is on; Mute reuses decline_fill and
+         on_fill -->
+    <color name="expo_callkit_telecom_toggle_fill_speaker_on">#FFFFFFFF</color>
+    <color name="expo_callkit_telecom_toggle_glyph_speaker_on">#0D0D0D</color>
+    <!-- Press ripple on the wells -->
+    <color name="expo_callkit_telecom_ripple_toggle">#33FFFFFF</color>
+</resources>
