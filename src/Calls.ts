@@ -416,6 +416,13 @@ export function addOutgoingCallStartedListener(
  * Call this when you receive a push notification or other signal indicating
  * an incoming call. The system will display the incoming call UI.
  *
+ * Reporting a call that is already ringing differs per platform. On iOS the
+ * report resolves without ringing again, and {@link addIncomingCallReportedListener}
+ * / {@link addCallSessionAddedListener} may fire after the promise resolves, so
+ * wait for the event rather than reading {@link getActiveCallSession} right
+ * after the await. On Android a report while a call session exists rejects
+ * with "A call session already exists".
+ *
  * @param event - The incoming call event containing caller information.
  *
  * @example

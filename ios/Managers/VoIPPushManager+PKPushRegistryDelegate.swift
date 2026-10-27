@@ -77,7 +77,11 @@ extension VoIPPushManager: PKPushRegistryDelegate {
     // Report the incoming call to CallKit using callback-based API
     // (async/await may not work reliably when app is launched from terminated state)
     CallManager.shared.reportIncomingCall(event: event) { error in
-      if let error = error {
+      if let error = error, CallManager.isAlreadyReported(error) {
+        // The app already reported this call from JS and CallKit is ringing
+        // it; the push is the second report of the same call, not a failure.
+        Log.voipPush.debug("Incoming call from VoIP push is already ringing - duplicate skipped")
+      } else if let error = error {
         Log.voipPush.error("Failed to report incoming call: \(error.localizedDescription)")
       } else {
         Log.voipPush.debug("Successfully reported incoming call from VoIP push")

@@ -144,7 +144,7 @@ The event itself is always the same shape on both transports. All keys are camel
   "eventId": "550e8400-e29b-41d4-a716-446655440000",   // required (UUID), for dedup
   "serverCallId": "9e7f...",                           // required — your backend's call id
                                                        //   (distinct from CallSession.id,
-                                                       //    which is the OS-assigned UUID)
+                                                       //    the native call UUID)
   "hasVideo": false,
   "startedAt": "2026-01-15T19:42:11.000Z",             // RFC 3339, optional
   "caller": {
@@ -181,6 +181,8 @@ Send a VoIP push (`apns-push-type: voip`) whose dictionary payload nests the eve
   "incomingCall": { /* IncomingCallEvent — see above */ }
 }
 ```
+
+The CallKit call id is derived deterministically from `serverCallId`, so a call the push already reported can safely be reported again from JS (e.g. from your own socket or REST path): CallKit rejects the second report, the module ignores it, and the call rings once.
 
 ### 🤖 Android — FCM data message
 

@@ -347,8 +347,10 @@ export interface IncomingCallEvent {
   /** Unique event identifier (UUID). Used for dedup. */
   eventId: string;
   /** Your backend's id for this call. Distinct from {@link CallSession.id},
-   *  which is the OS-assigned native call UUID. Use this id to talk to your
-   *  server about the call (e.g. POST /calls/:serverCallId/answer). */
+   *  the native call id the module assigns. Use this id to talk to your
+   *  server about the call (e.g. POST /calls/:serverCallId/answer).
+   *  Must be unique per ring attempt: on iOS a repeat report of a call that
+   *  is already ringing is treated as the same call and does not ring again. */
   serverCallId: string;
   /** True for video calls, false for audio. */
   hasVideo: boolean;
@@ -368,6 +370,7 @@ export interface IncomingCallEvent {
 
 /**
  * Fired after `reportIncomingCall`, once the OS has accepted the incoming-call report.
+ * Fires once per call, from whichever report CallKit accepted.
  *
  * @category Call Events
  */
