@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  pull_request:
+    paths-ignore: ["docs/**", "marketing/**", "**/*.md"]
+  push:
+    branches: [main]
+    paths-ignore: ["docs/**", "marketing/**", "**/*.md"]
+  schedule:
+    # Weekly, so a new Xcode or SDK on the runner images is caught without a code change.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: true
+
+jobs:
+  js:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+      - run: bun install --frozen-lockfile
+      - run: bun run typecheck
+      - run: bun run lint
+      - run: bun run test
+      - run: bun run build
+
+  # Builds the example app, without signing or push credentials. These catch compile and
+  # link errors only; CallKit, Telecom, and VoIP push still need a device.
+  ios:
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v6
+      - name: Use the newest stable Xcode on the image
+        run: |
+          sudo xcode-select -s "$(ls -d /Applications/Xcode_[0-9]*.app | grep -vi beta | sort -V | tail -1)"
+          xcodebuild -version
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+      - run: bun install --frozen-lockfile
+      - run: bun install --frozen-lockfile
+        working-directory: example/client
+      - run: bun run build:ios
+        working-directory: example/client
+
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+      - run: bun install --frozen-lockfile
+      - run: bun install --frozen-lockfile
+        working-directory: example/client
+      - run: bun run build:android
+        working-directory: example/client
