@@ -11,6 +11,8 @@ export interface ApnsConfig {
   topic: string;
   deviceToken: string;
   production?: boolean;
+  /** Sent as-is in place of `{ incomingCall: event }`, for testing malformed payloads. */
+  rawBody?: string;
 }
 
 function b64url(input: string | Buffer): string {
@@ -37,7 +39,7 @@ export async function sendApns(
   const host = config.production
     ? "api.push.apple.com"
     : "api.sandbox.push.apple.com";
-  const body = JSON.stringify({ incomingCall: event });
+  const body = config.rawBody ?? JSON.stringify({ incomingCall: event });
 
   const client = http2Connect(`https://${host}`);
   try {

@@ -19,6 +19,9 @@
  *   bun send-test-push.ts --metadata '{"declineToken":"abc"}'   # JSON object; rides into
  *                                                               # the killed-app call-ended
  *                                                               # broadcast on Android
+ *   bun send-test-push.ts --raw-payload '{"notACall":{}}'       # iOS only: send this JSON
+ *                                                               # as the APNs body, to test
+ *                                                               # malformed payloads
  *   bun send-test-push.ts --production     # iOS prod APNs (default: sandbox)
  *
  * Required env (.env auto-loaded by bun):
@@ -91,7 +94,21 @@ const forceIos = flag("--ios");
 const forceAndroid = flag("--android");
 const usePrd = flag("--production");
 
+// Send this JSON as-is instead of the built event. iOS only.
+const rawPayload = arg("--raw-payload");
+if (rawPayload !== undefined) {
+  if (forceAndroid) {
+    throw new Error("--raw-payload is iOS-only; drop --android");
+  }
+  try {
+    JSON.parse(rawPayload);
+  } catch (e) {
+    throw new Error(`--raw-payload is not valid JSON (${(e as Error).message}), got: ${rawPayload}`);
+  }
+}
+
 const want = (target: "ios" | "android") => {
+  if (rawPayload !== undefined) return target === "ios";
   if (endCall) return target === "android";
   if (forceIos) return target === "ios";
   if (forceAndroid) return target === "android";
@@ -109,6 +126,7 @@ async function runApns(): Promise<void> {
     topic: `${env.BUNDLE_ID}.voip`,
     deviceToken: env.APNS_DEVICE_TOKEN,
     production: usePrd,
+    rawBody: rawPayload,
   });
 }
 

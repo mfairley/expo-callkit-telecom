@@ -68,3 +68,11 @@ FCM data values must be strings, so JSON-encode the inner event and put it under
 Every call push the module handles carries its own unique `eventId` inside the JSON payload, and a repeat delivery of an `eventId` seen in the last two minutes is dropped. Besides `incomingCall`, the module handles `callEnded` for ending a call from the server — see [Ending a call from the server](platform-notes.md#ending-a-call-from-the-server).
 
 Other data messages are forwarded to [`expo-notifications`](https://docs.expo.dev/versions/latest/sdk/notifications/)'s service for normal handling.
+
+## When the payload doesn't parse (iOS)
+
+Apple requires a call to be reported to CallKit for every VoIP push, so a payload that fails validation still briefly shows an "Invalid Call" that the module ends immediately. No session is created and no JS events are sent, so the push is silent from your app's point of view. The call does appear in the system Recents list.
+
+The device log says why the payload was rejected: a missing `incomingCall` object (or a JSON string in its place, which is the FCM format), or a missing or empty `eventId`, `serverCallId`, or `caller.id`. In Console.app, filter on subsystem `expo-callkit-telecom`, category `VoIPPush`. To reproduce, send your own payload with `example/server/send-test-push.ts --raw-payload '<json>'`.
+
+On Android, a call push that fails validation is logged and dropped. It isn't forwarded to `expo-notifications`.

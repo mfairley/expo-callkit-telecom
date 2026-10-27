@@ -439,6 +439,35 @@ class CallManager: NSObject {
     }
   }
 
+  /// Reports a placeholder call for a VoIP push that couldn't be parsed, then
+  /// immediately ends it.
+  ///
+  /// PushKit requires a reported call for every VoIP push, but there is nothing
+  /// to connect, so no session is stored, no timeout is started, no events are
+  /// sent to JS, and the audio session is left alone.
+  ///
+  /// - Parameter completion: Called when the CallKit report completes (success or failure).
+  func reportAndEndInvalidCall(completion: @escaping () -> Void) {
+    let id = UUID()
+    Log.call.debug("Reporting invalid call - id: \(id)")
+
+    let update = CXCallUpdate()
+    update.remoteHandle = CXHandle(type: .generic, value: "invalid")
+    update.localizedCallerName = "Invalid Call"
+
+    provider.reportNewIncomingCall(with: id, update: update) { [weak self] error in
+      if let error = error {
+        // CallKit rejected the call, so there's nothing to end.
+        Log.call.error(
+          "Failed to report invalid call to CallKit - id: \(id), error: \(error.localizedDescription)"
+        )
+      } else {
+        self?.provider.reportCall(with: id, endedAt: Date(), reason: .failed)
+      }
+      completion()
+    }
+  }
+
   // MARK: - Answer Call
 
   /// Answers an incoming call via CallKit.

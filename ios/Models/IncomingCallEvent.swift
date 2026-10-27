@@ -138,15 +138,24 @@ struct IncomingCallEventRecord: Record {
 /// match the TS contract.
 enum IncomingCallEventParser {
   static func parse(from payload: [AnyHashable: Any]) -> IncomingCallEvent? {
-    guard
-      let event = (payload["incomingCall"] ?? payload["incoming_call"]) as? [AnyHashable: Any]
-    else {
+    let envelope = payload["incomingCall"] ?? payload["incoming_call"]
+    guard let event = envelope as? [AnyHashable: Any] else {
+      if let envelope = envelope {
+        // Usually the FCM form (a JSON-encoded string) sent to APNs.
+        Log.voipPush.error("incomingCall is a \(type(of: envelope)), expected an object")
+      } else {
+        Log.voipPush.error("Push payload has no incomingCall - keys: \(payload.keys)")
+      }
       return nil
     }
 
     let eventId = event["eventId"] as? String ?? ""
     let serverCallId = event["serverCallId"] as? String ?? ""
     guard !eventId.isEmpty, !serverCallId.isEmpty else {
+      Log.voipPush.error(
+        "Invalid eventId or serverCallId - eventId: \(describe(event["eventId"])), "
+          + "serverCallId: \(describe(event["serverCallId"]))"
+      )
       return nil
     }
 
@@ -154,6 +163,8 @@ enum IncomingCallEventParser {
       let callerId = callerDict["id"] as? String,
       !callerId.isEmpty
     else {
+      let rawCallerId = (event["caller"] as? [AnyHashable: Any])?["id"]
+      Log.voipPush.error("Invalid caller.id: \(describe(rawCallerId))")
       return nil
     }
     let caller = IncomingCallEvent.Caller(
@@ -183,6 +194,16 @@ enum IncomingCallEventParser {
       startedAt: startedAt,
       metadata: metadata
     )
+  }
+
+  /// Describes a rejected payload value for logging. Strings are truncated and
+  /// escaped so an empty string reads differently from a missing key and a
+  /// malformed value can't inject text into the log line.
+  private static func describe(_ value: Any?) -> String {
+    guard let value = value else { return "<missing>" }
+    if value is NSNull { return "<null>" }
+    guard let string = value as? String else { return "<\(type(of: value))>" }
+    return String(reflecting: String(string.prefix(64)))
   }
 
   /// Parses an RFC 3339 timestamp. Handles optional fractional seconds.
