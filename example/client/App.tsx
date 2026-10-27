@@ -8,6 +8,7 @@ import {
 
 import { ActionsCard } from "./components/ActionsCard";
 import { AudioSessionCard } from "./components/AudioSessionCard";
+import { AudioSessionDetailsCard } from "./components/AudioSessionDetailsCard";
 import { EventLogCard } from "./components/EventLogCard";
 import { SessionCard } from "./components/SessionCard";
 import { useAllEvents } from "./hooks/useAllEvents";
@@ -47,6 +48,7 @@ export default function App() {
             onFailConnect={failConnect}
             onError={append}
           />
+          <AudioSessionDetailsCard audio={audio} />
           <EventLogCard lines={lines} onClear={clear} />
         </ScrollView>
       </SafeAreaView>
