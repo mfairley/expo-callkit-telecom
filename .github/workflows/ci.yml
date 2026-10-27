@@ -41,14 +41,17 @@ jobs:
   # Builds the example app, without signing or push credentials. These catch compile and
   # link errors only; CallKit, Telecom, and VoIP push still need a device.
   ios:
-    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Each image's default Xcode: the stable image (Xcode 26), and GitHub's Xcode 27 preview
+        # image, which tracks the current release.
+        runner: [macos-latest, xcode-27]
+    runs-on: ${{ matrix.runner }}
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v6
-      - name: Use the newest stable Xcode on the image
-        run: |
-          sudo xcode-select -s "$(ls -d /Applications/Xcode_[0-9]*.app | grep -vi beta | sort -V | tail -1)"
-          xcodebuild -version
+      - run: xcodebuild -version
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
