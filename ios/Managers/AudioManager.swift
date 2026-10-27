@@ -1,5 +1,6 @@
 import AVFoundation
-internal import ExpoCallKitTelecomWebRTC
+// Implementation-only so apps never resolve this private module; see WebRTCHeaders/README.md.
+@_implementationOnly import ExpoCallKitTelecomWebRTC
 import os
 
 private func permissionStatusString(_ status: AVAudioSession.RecordPermission) -> String {

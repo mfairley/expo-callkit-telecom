@@ -8,6 +8,9 @@ pod is a static framework, the class references resolve when the app links again
 WebRTC build it ships: `@livekit/react-native-webrtc`, upstream `react-native-webrtc`, Fishjam,
 etc. All of them vend these classes under the same names.
 
+Swift files import the module with `@_implementationOnly import`, which keeps it out of the
+compiled `ExpoCallKitTelecom` module, so the app target never has to find these headers.
+
 Keep these in sync with the upstream headers when adding calls. WebRTC declarations are under
 WebRTC's BSD license (https://webrtc.googlesource.com/src/+/main/LICENSE); react-native-webrtc
 declarations are under its MIT license.
