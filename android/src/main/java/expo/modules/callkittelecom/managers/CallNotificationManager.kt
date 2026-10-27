@@ -15,6 +15,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.Person
 import androidx.core.graphics.drawable.IconCompat
 import expo.modules.callkittelecom.IncomingCallActivity
+import expo.modules.callkittelecom.R
 import expo.modules.callkittelecom.services.CallNotificationReceiver
 import expo.modules.callkittelecom.utils.CallKitTelecomLog
 import java.util.UUID
@@ -40,6 +41,7 @@ object CallNotificationManager {
     private const val ENDED_CANCEL_DELAY_MS = 2000L
 
     private const val KEY_DEFAULT_RINGTONE = "ExpoCallKitTelecomDefaultRingtone"
+    private const val KEY_NOTIFICATION_ICON = "ExpoCallKitTelecomNotificationIcon"
     private const val PREFS_NAME = "expo_callkit_telecom_notifications"
     private const val PREF_INCOMING_CHANNEL_ID = "incoming_channel_id"
 
@@ -99,11 +101,14 @@ object CallNotificationManager {
         val channel =
             NotificationChannel(
                     incomingChannelId,
-                    "Incoming calls",
+                    appContext.getString(R.string.expo_callkit_telecom_channel_incoming_name),
                     NotificationManager.IMPORTANCE_HIGH,
                 )
                 .apply {
-                    description = "Notifications for incoming calls"
+                    description =
+                        appContext.getString(
+                            R.string.expo_callkit_telecom_channel_incoming_description
+                        )
                     lockscreenVisibility = Notification.VISIBILITY_PUBLIC
                     setSound(ringtoneUri, ringtoneAttributes)
                     enableVibration(true)
@@ -122,11 +127,14 @@ object CallNotificationManager {
         val channel =
             NotificationChannel(
                     CHANNEL_ONGOING,
-                    "Ongoing calls",
+                    appContext.getString(R.string.expo_callkit_telecom_channel_ongoing_name),
                     NotificationManager.IMPORTANCE_DEFAULT,
                 )
                 .apply {
-                    description = "Notifications for active calls"
+                    description =
+                        appContext.getString(
+                            R.string.expo_callkit_telecom_channel_ongoing_description
+                        )
                     setSound(null, null)
                     enableVibration(false)
                 }
@@ -173,7 +181,7 @@ object CallNotificationManager {
     fun showIncomingCall(context: Context, callId: UUID, callerName: String?, hasVideo: Boolean) {
         cancelDelayedCancel()
         val ctx = context.applicationContext
-        val displayName = callerName ?: "Unknown"
+        val displayName = callerName ?: ctx.getString(R.string.expo_callkit_telecom_unknown_caller)
 
         // Answer action uses PendingIntent.getActivity() to bring the app to
         // foreground. On Android 12+, BroadcastReceivers cannot start activities
@@ -214,7 +222,13 @@ object CallNotificationManager {
                     ctx,
                     incomingChannelId,
                     displayName,
-                    if (hasVideo) "Incoming video call" else "Incoming call",
+                    ctx.getString(
+                        if (hasVideo) {
+                            R.string.expo_callkit_telecom_incoming_video_call
+                        } else {
+                            R.string.expo_callkit_telecom_incoming_call
+                        }
+                    ),
                 )
                 .setStyle(
                     NotificationCompat.CallStyle.forIncomingCall(
@@ -237,7 +251,7 @@ object CallNotificationManager {
     fun showDialingCall(context: Context, callId: UUID, callerName: String?) {
         cancelDelayedCancel()
         val ctx = context.applicationContext
-        val displayName = callerName ?: "Unknown"
+        val displayName = callerName ?: ctx.getString(R.string.expo_callkit_telecom_unknown_caller)
 
         val hangupIntent =
             Intent(ctx, CallNotificationReceiver::class.java).apply {
@@ -255,7 +269,12 @@ object CallNotificationManager {
         val contentIntent = buildFullScreenIntent(ctx, callId)
 
         val notification =
-            buildBase(ctx, CHANNEL_ONGOING, displayName, "Dialing...")
+            buildBase(
+                    ctx,
+                    CHANNEL_ONGOING,
+                    displayName,
+                    ctx.getString(R.string.expo_callkit_telecom_dialing),
+                )
                 .setStyle(
                     NotificationCompat.CallStyle.forOngoingCall(buildPerson(displayName), hangupPI)
                 )
@@ -279,7 +298,7 @@ object CallNotificationManager {
     ) {
         cancelDelayedCancel()
         val ctx = context.applicationContext
-        val displayName = callerName ?: "Unknown"
+        val displayName = callerName ?: ctx.getString(R.string.expo_callkit_telecom_unknown_caller)
 
         val hangupIntent =
             Intent(ctx, CallNotificationReceiver::class.java).apply {
@@ -297,7 +316,12 @@ object CallNotificationManager {
         val contentIntent = buildFullScreenIntent(ctx, callId)
 
         val notification =
-            buildBase(ctx, CHANNEL_ONGOING, displayName, "Ongoing call")
+            buildBase(
+                    ctx,
+                    CHANNEL_ONGOING,
+                    displayName,
+                    ctx.getString(R.string.expo_callkit_telecom_ongoing_call),
+                )
                 .setStyle(
                     NotificationCompat.CallStyle.forOngoingCall(buildPerson(displayName), hangupPI)
                 )
@@ -317,10 +341,15 @@ object CallNotificationManager {
     fun showEndedCall(context: Context, callId: UUID, callerName: String?) {
         cancelDelayedCancel()
         val ctx = context.applicationContext
-        val displayName = callerName ?: "Unknown"
+        val displayName = callerName ?: ctx.getString(R.string.expo_callkit_telecom_unknown_caller)
 
         val notification =
-            buildBase(ctx, CHANNEL_ONGOING, displayName, "Call ended")
+            buildBase(
+                    ctx,
+                    CHANNEL_ONGOING,
+                    displayName,
+                    ctx.getString(R.string.expo_callkit_telecom_call_ended),
+                )
                 .setOngoing(false)
                 .setAutoCancel(true)
                 .build()
@@ -328,11 +357,10 @@ object CallNotificationManager {
         postNotification(ctx, callId, displayName, "ended call")
         notify(ctx, notification)
 
-        delayedCancelJob =
-            scope.launch {
-                delay(ENDED_CANCEL_DELAY_MS)
-                cancel(ctx)
-            }
+        delayedCancelJob = scope.launch {
+            delay(ENDED_CANCEL_DELAY_MS)
+            cancel(ctx)
+        }
     }
 
     /** Cancels any active call notification. */
@@ -364,7 +392,7 @@ object CallNotificationManager {
         text: String,
     ): NotificationCompat.Builder =
         NotificationCompat.Builder(ctx, channelId)
-            .setSmallIcon(getAppIconRes(ctx))
+            .setSmallIcon(getSmallIconRes(ctx))
             .setContentTitle(title)
             .setContentText(text)
             .setCategory(NotificationCompat.CATEGORY_CALL)
@@ -421,11 +449,20 @@ object CallNotificationManager {
         )
     }
 
-    /** Resolves the app's icon resource for the notification small icon. */
-    private fun getAppIconRes(context: Context): Int =
+    /**
+     * Resolves the notification small icon: the drawable set via the `notificationIconAndroid`
+     * plugin option (`ExpoCallKitTelecomNotificationIcon` manifest metadata), else the app's icon.
+     */
+    private fun getSmallIconRes(context: Context): Int =
         try {
-            val appInfo = context.packageManager.getApplicationInfo(context.packageName, 0)
-            appInfo.icon.takeIf { it != 0 } ?: android.R.drawable.sym_def_app_icon
+            val appInfo =
+                context.packageManager.getApplicationInfo(
+                    context.packageName,
+                    PackageManager.GET_META_DATA,
+                )
+            appInfo.metaData?.getInt(KEY_NOTIFICATION_ICON, 0)?.takeIf { it != 0 }
+                ?: appInfo.icon.takeIf { it != 0 }
+                ?: android.R.drawable.sym_def_app_icon
         } catch (_: PackageManager.NameNotFoundException) {
             android.R.drawable.sym_def_app_icon
         }

@@ -257,7 +257,7 @@ class ExpoCallKitTelecomModule : Module() {
             val callId =
                 CallManager.shared.startOutgoingCall(
                     recipient = CallParticipant.fromMap(recipient),
-                    options = CallOptions(hasVideo = options["hasVideo"] as? Boolean ?: false),
+                    options = CallOptions.fromMap(options),
                 )
             callId
         }

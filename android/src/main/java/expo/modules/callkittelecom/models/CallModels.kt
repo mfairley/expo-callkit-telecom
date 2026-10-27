@@ -21,7 +21,31 @@ enum class CallSessionStatus(val value: String) {
 }
 
 /** Call-level options shared with JS and stored in session state. */
-data class CallOptions(val hasVideo: Boolean)
+data class CallOptions(
+    val hasVideo: Boolean,
+    /** Whether Telecom may put the call on hold (e.g. to answer a cellular call). */
+    val supportsHolding: Boolean = true,
+    /** Whether the call accepts DTMF. Carried for parity with iOS; no Telecom capability. */
+    val supportsDTMF: Boolean = true,
+) {
+    /** Serializes options into the JS-facing `CallSession.options` shape. */
+    fun toMap(): Map<String, Any?> =
+        mapOf(
+            "hasVideo" to hasVideo,
+            "supportsHolding" to supportsHolding,
+            "supportsDTMF" to supportsDTMF,
+        )
+
+    companion object {
+        /** Parses a JS options dictionary, defaulting unset capabilities to supported. */
+        fun fromMap(map: Map<String, Any?>): CallOptions =
+            CallOptions(
+                hasVideo = map["hasVideo"] as? Boolean ?: false,
+                supportsHolding = map["supportsHolding"] as? Boolean ?: true,
+                supportsDTMF = map["supportsDTMF"] as? Boolean ?: true,
+            )
+    }
+}
 
 /** Remote participant identity and optional contact/display details. */
 data class CallParticipant(
@@ -75,6 +99,8 @@ data class IncomingCallEvent(
     val serverCallId: String,
     val caller: Caller,
     val hasVideo: Boolean,
+    val supportsHolding: Boolean = true,
+    val supportsDTMF: Boolean = true,
     /** Optional; defaults to now if absent. */
     val startedAt: Instant,
     /** App-defined extra fields forwarded verbatim from the push payload. */
@@ -124,6 +150,8 @@ data class IncomingCallEvent(
                 "serverCallId" to serverCallId,
                 "caller" to caller.toMap(),
                 "hasVideo" to hasVideo,
+                "supportsHolding" to supportsHolding,
+                "supportsDTMF" to supportsDTMF,
                 "startedAt" to DateTimeFormatter.ISO_INSTANT.format(startedAt),
             )
         if (metadata != null) {
@@ -164,6 +192,8 @@ data class IncomingCallEvent(
                 serverCallId = serverCallId,
                 caller = Caller.fromMap(callerMap),
                 hasVideo = map["hasVideo"] as? Boolean ?: false,
+                supportsHolding = map["supportsHolding"] as? Boolean ?: true,
+                supportsDTMF = map["supportsDTMF"] as? Boolean ?: true,
                 startedAt = startedAt,
                 metadata = metadata,
             )
@@ -207,6 +237,8 @@ data class IncomingCallEvent(
                 serverCallId = serverCallId,
                 caller = Caller.fromMap(callerMap),
                 hasVideo = event["hasVideo"] as? Boolean ?: false,
+                supportsHolding = event["supportsHolding"] as? Boolean ?: true,
+                supportsDTMF = event["supportsDTMF"] as? Boolean ?: true,
                 startedAt = startedAt,
                 metadata = event["metadata"] as? Map<String, Any?>,
             )
@@ -232,7 +264,7 @@ data class CallSession(
         val map =
             mutableMapOf<String, Any?>(
                 "id" to id.toString(),
-                "options" to mapOf("hasVideo" to options.hasVideo),
+                "options" to options.toMap(),
                 "origin" to origin.value,
                 "remoteParticipants" to remoteParticipants.map { it.toMap() },
                 "status" to status.value,

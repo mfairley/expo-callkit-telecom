@@ -24,10 +24,8 @@ class CallManager: NSObject {
   private let callController = CXCallController()
   private let provider: CXProvider
 
-  private let supportsHolding = false
   private let supportsGrouping = false
   private let supportsUngrouping = false
-  private let supportsDTMF = false
 
   /// Timeout duration for outgoing calls to connect.
   static let outgoingCallTimeout: Duration = {
@@ -55,10 +53,13 @@ class CallManager: NSObject {
 
   private override init() {
     let configuration = CXProviderConfiguration()
-    configuration.supportsVideo = true
+    configuration.supportsVideo =
+      Bundle.main.object(
+        forInfoDictionaryKey: "ExpoCallKitTelecomSupportsVideo"
+      ) as? Bool ?? true
     configuration.maximumCallGroups = 1
     configuration.maximumCallsPerCallGroup = 1
-    configuration.supportedHandleTypes = [.phoneNumber, .generic]
+    configuration.supportedHandleTypes = [.phoneNumber, .emailAddress, .generic]
     configuration.includesCallsInRecents =
       Bundle.main.object(
         forInfoDictionaryKey: "ExpoCallKitTelecomIncludesCallsInRecents"
@@ -191,6 +192,18 @@ class CallManager: NSObject {
     return CXHandle(type: .generic, value: participant.id)
   }
 
+  /// Sets the per-call capabilities (hold, DTMF, grouping) on a CXCallUpdate.
+  ///
+  /// CallKit shows the hold button and keypad only for calls whose update
+  /// advertises support, so this must be applied to every call when it is first
+  /// reported, incoming or outgoing.
+  func setCapabilities(from options: CallOptions, on update: CXCallUpdate) {
+    update.supportsHolding = options.supportsHolding
+    update.supportsDTMF = options.supportsDTMF
+    update.supportsGrouping = supportsGrouping
+    update.supportsUngrouping = supportsUngrouping
+  }
+
   /// Sets the localized caller name on a CXCallUpdate for participants using a generic handle.
   ///
   /// This ensures the display name appears in the CallKit UI when neither phone number nor email is available.
@@ -313,7 +326,11 @@ class CallManager: NSObject {
 
     let session = CallSession(
       id: id,
-      options: CallOptions(hasVideo: event.hasVideo),
+      options: CallOptions(
+        hasVideo: event.hasVideo,
+        supportsHolding: event.supportsHolding,
+        supportsDTMF: event.supportsDTMF
+      ),
       origin: .incoming,
       remoteParticipants: [caller],
       incomingCallEvent: event,
@@ -329,10 +346,7 @@ class CallManager: NSObject {
     update.hasVideo = event.hasVideo
     update.remoteHandle = handle
     setLocalizedCallerNameIfNeeded(for: caller, on: update)
-    update.supportsHolding = supportsHolding
-    update.supportsGrouping = supportsGrouping
-    update.supportsUngrouping = supportsUngrouping
-    update.supportsDTMF = supportsDTMF
+    setCapabilities(from: session.options, on: update)
 
     do {
       try await withCheckedThrowingContinuation {
@@ -390,7 +404,11 @@ class CallManager: NSObject {
 
     let session = CallSession(
       id: id,
-      options: CallOptions(hasVideo: event.hasVideo),
+      options: CallOptions(
+        hasVideo: event.hasVideo,
+        supportsHolding: event.supportsHolding,
+        supportsDTMF: event.supportsDTMF
+      ),
       origin: .incoming,
       remoteParticipants: [caller],
       incomingCallEvent: event,
@@ -406,10 +424,7 @@ class CallManager: NSObject {
     update.hasVideo = event.hasVideo
     update.remoteHandle = handle
     setLocalizedCallerNameIfNeeded(for: caller, on: update)
-    update.supportsHolding = supportsHolding
-    update.supportsGrouping = supportsGrouping
-    update.supportsUngrouping = supportsUngrouping
-    update.supportsDTMF = supportsDTMF
+    setCapabilities(from: session.options, on: update)
 
     // Report to CallKit - this is the critical part that must happen immediately
     provider.reportNewIncomingCall(with: id, update: update) { [weak self] error in

@@ -13,6 +13,7 @@ import {
   DEFAULT_INCLUDES_CALLS_IN_RECENTS,
   DEFAULT_INCOMING_CALL_TIMEOUT,
   DEFAULT_OUTGOING_CALL_TIMEOUT,
+  DEFAULT_SUPPORTS_VIDEO,
 } from "./constants";
 import type { ExpoCallKitTelecomPluginProps } from "./withExpoCallKitTelecom";
 
@@ -133,6 +134,20 @@ const withRecents: ConfigPlugin<{ includesCallsInRecents?: boolean }> = (
   return withInfoPlist(config, (config) => {
     config.modResults.ExpoCallKitTelecomIncludesCallsInRecents =
       includesCallsInRecents ?? DEFAULT_INCLUDES_CALLS_IN_RECENTS;
+    return config;
+  });
+};
+
+/**
+ * Configures whether the CallKit UI offers video.
+ */
+const withSupportsVideo: ConfigPlugin<{ supportsVideo?: boolean }> = (
+  config,
+  { supportsVideo },
+) => {
+  return withInfoPlist(config, (config) => {
+    config.modResults.ExpoCallKitTelecomSupportsVideo =
+      supportsVideo ?? DEFAULT_SUPPORTS_VIDEO;
     return config;
   });
 };
@@ -343,6 +358,7 @@ export const withExpoCallKitTelecomIos: ConfigPlugin<ExpoCallKitTelecomPluginPro
     outgoingCallTimeout,
     fulfillAnswerCallTimeout,
     includesCallsInRecents,
+    supportsVideo,
     sounds,
     defaultRingtoneIos,
     defaultDialtone,
@@ -359,6 +375,7 @@ export const withExpoCallKitTelecomIos: ConfigPlugin<ExpoCallKitTelecomPluginPro
     fulfillAnswerCallTimeout,
   });
   config = withRecents(config, { includesCallsInRecents });
+  config = withSupportsVideo(config, { supportsVideo });
   config = withSounds(config, { sounds });
   config = withDefaultRingtone(config, {
     sounds,

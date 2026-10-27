@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Text on the call notifications and the incoming-call screen. Apps override
+  these by defining the same names in their own resources (the app wins at
+  resource merge), either directly or via the `notificationStringsAndroid`
+  config plugin prop, and translate them with values-<locale>/strings.xml.
+-->
+<resources>
+    <string name="expo_callkit_telecom_channel_incoming_name">Incoming calls</string>
+    <string name="expo_callkit_telecom_channel_incoming_description">Notifications for incoming calls</string>
+    <string name="expo_callkit_telecom_channel_ongoing_name">Ongoing calls</string>
+    <string name="expo_callkit_telecom_channel_ongoing_description">Notifications for active calls</string>
+    <string name="expo_callkit_telecom_incoming_call">Incoming call</string>
+    <string name="expo_callkit_telecom_incoming_video_call">Incoming video call</string>
+    <string name="expo_callkit_telecom_dialing">Dialing…</string>
+    <string name="expo_callkit_telecom_ongoing_call">Ongoing call</string>
+    <string name="expo_callkit_telecom_call_ended">Call ended</string>
+    <string name="expo_callkit_telecom_unknown_caller">Unknown</string>
+    <string name="expo_callkit_telecom_answer">Answer</string>
+    <string name="expo_callkit_telecom_decline">Decline</string>
+</resources>

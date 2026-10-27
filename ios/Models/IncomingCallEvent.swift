@@ -12,6 +12,8 @@ struct IncomingCallEvent: Equatable {
   let serverCallId: String
   let caller: Caller
   let hasVideo: Bool
+  let supportsHolding: Bool
+  let supportsDTMF: Bool
   let startedAt: Date?
   /// App-defined extra fields forwarded verbatim from the push payload.
   /// Opaque to the library; excluded from `==` since `[String: Any]` is not
@@ -31,6 +33,8 @@ struct IncomingCallEvent: Equatable {
       && lhs.serverCallId == rhs.serverCallId
       && lhs.caller == rhs.caller
       && lhs.hasVideo == rhs.hasVideo
+      && lhs.supportsHolding == rhs.supportsHolding
+      && lhs.supportsDTMF == rhs.supportsDTMF
       && lhs.startedAt == rhs.startedAt
   }
 
@@ -39,6 +43,8 @@ struct IncomingCallEvent: Equatable {
       "eventId": eventId,
       "serverCallId": serverCallId,
       "hasVideo": hasVideo,
+      "supportsHolding": supportsHolding,
+      "supportsDTMF": supportsDTMF,
       "caller": {
         var c: [String: Any] = ["id": caller.id]
         if let displayName = caller.displayName {
@@ -99,6 +105,12 @@ struct IncomingCallEventRecord: Record {
   var hasVideo: Bool = false
 
   @Field
+  var supportsHolding: Bool = true
+
+  @Field
+  var supportsDTMF: Bool = true
+
+  @Field
   var startedAt: String?
 
   @Field
@@ -122,6 +134,8 @@ struct IncomingCallEventRecord: Record {
         email: caller.email
       ),
       hasVideo: hasVideo,
+      supportsHolding: supportsHolding,
+      supportsDTMF: supportsDTMF,
       startedAt: startedAtDate,
       metadata: metadata
     )
@@ -176,6 +190,8 @@ enum IncomingCallEventParser {
     )
 
     let hasVideo = event["hasVideo"] as? Bool ?? false
+    let supportsHolding = event["supportsHolding"] as? Bool ?? true
+    let supportsDTMF = event["supportsDTMF"] as? Bool ?? true
 
     let startedAt: Date?
     if let raw = event["startedAt"] as? String {
@@ -191,6 +207,8 @@ enum IncomingCallEventParser {
       serverCallId: serverCallId,
       caller: caller,
       hasVideo: hasVideo,
+      supportsHolding: supportsHolding,
+      supportsDTMF: supportsDTMF,
       startedAt: startedAt,
       metadata: metadata
     )

@@ -3,9 +3,11 @@ import {
   type ConfigPlugin,
   withAndroidManifest,
   withDangerousMod,
+  withStringsXml,
+  XML,
 } from "expo/config-plugins";
-import { copyFileSync, existsSync, mkdirSync } from "fs";
-import { basename, resolve } from "path";
+import { copyFileSync, existsSync, mkdirSync, rmSync } from "fs";
+import { basename, extname, resolve } from "path";
 
 import {
   ANDROID_CALL_EVENT_ACTION,
@@ -13,9 +15,16 @@ import {
   DEFAULT_INCOMING_CALL_TIMEOUT,
   DEFAULT_OUTGOING_CALL_TIMEOUT,
 } from "./constants";
-import type { ExpoCallKitTelecomPluginProps } from "./withExpoCallKitTelecom";
+import type {
+  AndroidNotificationStrings,
+  ExpoCallKitTelecomPluginProps,
+} from "./withExpoCallKitTelecom";
 
 const ERROR_MSG_PREFIX = "An error occurred while configuring Android calls. ";
+
+// Drawable name the `notificationIconAndroid` file is copied to
+const NOTIFICATION_ICON_RESOURCE = "expo_callkit_telecom_notification_icon";
+const NOTIFICATION_ICON_EXTENSIONS = [".png", ".xml"];
 
 // biome-ignore lint/suspicious/noExplicitAny: Expo config plugin manifest types are untyped
 function setMetaDataValue(app: any, key: string, value: string): void {
@@ -228,6 +237,177 @@ const withDefaultRingtone: ConfigPlugin<{
 };
 
 /**
+ * Copies the notification small icon into the app's drawables and points the
+ * `ExpoCallKitTelecomNotificationIcon` manifest metadata at it.
+ */
+const withNotificationIcon: ConfigPlugin<{ notificationIconAndroid?: string }> = (
+  config,
+  { notificationIconAndroid },
+) => {
+  if (!notificationIconAndroid) {
+    return config;
+  }
+
+  const extension = extname(notificationIconAndroid).toLowerCase();
+  if (!NOTIFICATION_ICON_EXTENSIONS.includes(extension)) {
+    throw new Error(
+      `${ERROR_MSG_PREFIX}"notificationIconAndroid" must be a .png or a ` +
+        `vector drawable .xml, got: ${notificationIconAndroid}`,
+    );
+  }
+
+  config = withDangerousMod(config, [
+    "android",
+    (config) => {
+      const sourcePath = resolve(
+        config.modRequest.projectRoot,
+        notificationIconAndroid,
+      );
+
+      if (!existsSync(sourcePath)) {
+        throw new Error(
+          `${ERROR_MSG_PREFIX}Notification icon file not found: ${sourcePath}`,
+        );
+      }
+
+      const drawableDir = resolve(
+        config.modRequest.platformProjectRoot,
+        "app",
+        "src",
+        "main",
+        "res",
+        "drawable",
+      );
+      mkdirSync(drawableDir, { recursive: true });
+
+      // A leftover copy with the other extension (from an earlier prebuild)
+      // would be a duplicate resource and fail the build.
+      for (const ext of NOTIFICATION_ICON_EXTENSIONS) {
+        rmSync(resolve(drawableDir, `${NOTIFICATION_ICON_RESOURCE}${ext}`), {
+          force: true,
+        });
+      }
+      copyFileSync(
+        sourcePath,
+        resolve(drawableDir, `${NOTIFICATION_ICON_RESOURCE}${extension}`),
+      );
+
+      return config;
+    },
+  ]);
+
+  return withAndroidManifest(config, (config) => {
+    const app = AndroidConfig.Manifest.getMainApplicationOrThrow(
+      config.modResults,
+    );
+
+    AndroidConfig.Manifest.addMetaDataItemToMainApplication(
+      app,
+      "ExpoCallKitTelecomNotificationIcon",
+      `@drawable/${NOTIFICATION_ICON_RESOURCE}`,
+      "resource",
+    );
+
+    return config;
+  });
+};
+
+/**
+ * Converts a {@link AndroidNotificationStrings} key to the string resource
+ * name the library declares, e.g. `incomingVideoCall` →
+ * `expo_callkit_telecom_incoming_video_call`.
+ */
+export function toNotificationStringResourceName(key: string): string {
+  return `expo_callkit_telecom_${key.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`)}`;
+}
+
+/**
+ * Converts a BCP 47 locale tag to an Android resource directory qualifier:
+ * `es` → `values-es`, `pt-BR` → `values-b+pt+BR`. The `b+` form handles
+ * scripts and regions alike and is supported on every API level this module
+ * targets.
+ */
+export function toAndroidValuesDirectory(locale: string): string {
+  if (!/^[A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*$/.test(locale)) {
+    throw new Error(
+      `${ERROR_MSG_PREFIX}"notificationStringsAndroid" locale "${locale}" ` +
+        `is not a BCP 47 tag (e.g. "es", "pt-BR").`,
+    );
+  }
+  const subtags = locale.split("-");
+  return subtags.length === 1
+    ? `values-${locale.toLowerCase()}`
+    : `values-b+${subtags.join("+")}`;
+}
+
+function toStringResourceItems(strings: AndroidNotificationStrings) {
+  return Object.entries(strings)
+    .filter((entry): entry is [string, string] => typeof entry[1] === "string")
+    .map(([key, value]) =>
+      AndroidConfig.Resources.buildResourceItem({
+        name: toNotificationStringResourceName(key),
+        value,
+      }),
+    );
+}
+
+/**
+ * Writes `notificationStringsAndroid` overrides into the app's resources:
+ * `default` into `values/strings.xml`, each locale into its own
+ * `values-<qualifier>/strings.xml`. The app's resources win over the
+ * library's at resource merge, and Android picks the locale at runtime.
+ */
+const withNotificationStrings: ConfigPlugin<{
+  notificationStringsAndroid?: Record<string, AndroidNotificationStrings>;
+}> = (config, { notificationStringsAndroid }) => {
+  const { default: defaultStrings, ...localeStrings } =
+    notificationStringsAndroid ?? {};
+
+  const defaultItems = toStringResourceItems(defaultStrings ?? {});
+  if (defaultItems.length > 0) {
+    config = withStringsXml(config, (config) => {
+      config.modResults = AndroidConfig.Strings.setStringItem(
+        defaultItems,
+        config.modResults,
+      );
+      return config;
+    });
+  }
+
+  const locales = Object.entries(localeStrings).map(
+    ([locale, strings]) =>
+      [toAndroidValuesDirectory(locale), toStringResourceItems(strings)] as const,
+  );
+  if (locales.length === 0) {
+    return config;
+  }
+
+  return withDangerousMod(config, [
+    "android",
+    async (config) => {
+      const resDir = resolve(
+        config.modRequest.platformProjectRoot,
+        "app",
+        "src",
+        "main",
+        "res",
+      );
+
+      for (const [valuesDirectory, items] of locales) {
+        const path = resolve(resDir, valuesDirectory, "strings.xml");
+        const xml = await AndroidConfig.Resources.readResourcesXMLAsync({ path });
+        await XML.writeXMLAsync({
+          path,
+          xml: AndroidConfig.Strings.setStringItem(items, xml),
+        });
+      }
+
+      return config;
+    },
+  ]);
+};
+
+/**
  * Removes expo-notifications' ExpoFirebaseMessagingService from the manifest.
  *
  * Our ExpoCallKitTelecomMessagingService extends it and takes over as the sole
@@ -330,6 +510,8 @@ export const withExpoCallKitTelecomAndroid: ConfigPlugin<ExpoCallKitTelecomPlugi
     defaultRingtone: props.defaultRingtoneAndroid,
   });
   config = withDefaultDialtone(config, props);
+  config = withNotificationIcon(config, props);
+  config = withNotificationStrings(config, props);
   config = withFirebaseMessagingService(config, props);
   config = withEventReceiver(config, props);
   return config;

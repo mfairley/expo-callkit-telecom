@@ -52,6 +52,16 @@ describe("withExpoCallKitTelecomIos Info.plist configuration", () => {
     expect(plist.ExpoCallKitTelecomIncludesCallsInRecents).toBe(true);
   });
 
+  it("defaults ExpoCallKitTelecomSupportsVideo to true when the prop is omitted", async () => {
+    const plist = await evaluateInfoPlist({});
+    expect(plist.ExpoCallKitTelecomSupportsVideo).toBe(true);
+  });
+
+  it("writes ExpoCallKitTelecomSupportsVideo=false when the prop is false", async () => {
+    const plist = await evaluateInfoPlist({ supportsVideo: false });
+    expect(plist.ExpoCallKitTelecomSupportsVideo).toBe(false);
+  });
+
   it("keeps writing the timeout defaults alongside the new key (chain intact)", async () => {
     const plist = await evaluateInfoPlist({});
     expect(plist.ExpoCallKitTelecomIncomingCallTimeout).toBe(45);
