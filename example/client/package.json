@@ -13,7 +13,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@livekit/react-native-webrtc": ">=144.0.0",
+    "@livekit/react-native-webrtc": "^150.1.0",
     "expo": "^58.0.20",
     "expo-build-properties": "~58.0.11",
     "expo-crypto": "~58.0.7",

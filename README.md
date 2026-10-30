@@ -74,7 +74,7 @@ Your app also needs `expo-notifications` and a `react-native-webrtc` build:
 bun add @livekit/react-native-webrtc expo-notifications
 ```
 
-- A `react-native-webrtc` build. [`@livekit/react-native-webrtc`](https://github.com/livekit/react-native-webrtc) `>= 144` is the one the maintainers test against. The module doesn't depend on a specific WebRTC pod: on iOS it links against whichever WebRTC framework your app ships, so upstream [`react-native-webrtc`](https://github.com/react-native-webrtc/react-native-webrtc) `>= 124.0.5` and other forks also work (community-verified). Install only one of them.
+- A `react-native-webrtc` build. [`@livekit/react-native-webrtc`](https://github.com/livekit/react-native-webrtc) `>= 144` is the one the maintainers test against. The module doesn't depend on a specific WebRTC pod: on iOS it finds WebRTC's classes at runtime in whichever WebRTC framework your app ships, `LK`-prefixed (`LiveKitWebRTC`, from `@livekit/react-native-webrtc` 144.2.0) or not, so upstream [`react-native-webrtc`](https://github.com/react-native-webrtc/react-native-webrtc) `>= 124.0.5` and other forks also work (community-verified). Install only one of them.
 - [`expo-notifications`](https://docs.expo.dev/versions/latest/sdk/notifications/) — required on Android, where the module's FCM service builds on it.
 
 Add the config plugin to `app.json` / `app.config.ts`. Minimal form:

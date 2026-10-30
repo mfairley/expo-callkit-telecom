@@ -16,18 +16,16 @@
 #import <AVFoundation/AVFoundation.h>
 #import <Foundation/Foundation.h>
 
+#import "RTCAudioSessionConfiguration.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
-@class RTCAudioSessionConfiguration;
-
-@interface RTCAudioSession : NSObject
+/// The instance methods of WebRTC's RTCAudioSession.
+@protocol ECKTRTCAudioSession <NSObject>
 
 @property(nonatomic, readonly) BOOL isActive;
 @property(nonatomic, assign) BOOL useManualAudio;
 @property(nonatomic, assign) BOOL isAudioEnabled;
-
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)sharedInstance;
 
 - (void)lockForConfiguration;
 - (void)unlockForConfiguration;
@@ -37,9 +35,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)overrideOutputAudioPort:(AVAudioSessionPortOverride)portOverride
                           error:(NSError **)outError;
-- (BOOL)setConfiguration:(RTCAudioSessionConfiguration *)configuration
+- (BOOL)setConfiguration:(id<ECKTRTCAudioSessionConfiguration>)configuration
                    error:(NSError **)outError;
 
 @end
+
+/// The class methods of WebRTC's RTCAudioSession.
+@protocol ECKTRTCAudioSessionClass <NSObject>
++ (id<ECKTRTCAudioSession>)sharedInstance;
+@end
+
+/// `[RTCAudioSession sharedInstance]`, or nil if the app doesn't link WebRTC.
+static inline id<ECKTRTCAudioSession> _Nullable ECKTRTCAudioSessionSharedInstance(void) {
+  Class<ECKTRTCAudioSessionClass> cls = ECKTWebRTCClass(@"RTCAudioSession");
+  return [cls sharedInstance];
+}
 
 NS_ASSUME_NONNULL_END
