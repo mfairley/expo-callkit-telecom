@@ -5,6 +5,13 @@ All notable changes to `expo-callkit-telecom` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1](https://github.com/mfairley/expo-callkit-telecom/compare/v1.0.0...v1.0.1) (2026-10-30)
+
+
+### Bug Fixes
+
+* **ios:** link with LiveKit's LK-prefixed WebRTC classes ([#64](https://github.com/mfairley/expo-callkit-telecom/issues/64)) ([718307a](https://github.com/mfairley/expo-callkit-telecom/commit/718307afff064b0095980bf33b758c15be9f551b))
+
 ## [1.0.0](https://github.com/mfairley/expo-callkit-telecom/compare/v0.5.0...v1.0.0) (2026-10-27)
 
 
