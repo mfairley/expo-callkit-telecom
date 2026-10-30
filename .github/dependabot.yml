@@ -1,0 +1,9 @@
+version: 2
+updates:
+  # Bumps the example app's LiveKit packages so ci.yml builds against each new release.
+  - package-ecosystem: bun
+    directory: /example/client
+    schedule:
+      interval: weekly
+    allow:
+      - dependency-name: "@livekit/*"

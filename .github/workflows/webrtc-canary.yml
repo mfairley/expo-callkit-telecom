@@ -1,0 +1,48 @@
+name: WebRTC canary
+
+# Builds the example app against the latest release of each WebRTC package, ignoring the lockfile,
+# so a breaking WebRTC release (like LiveKit's LK class prefix in 144.2.0) shows up before a user
+# reports it. ci.yml only builds the lockfile's version.
+on:
+  # Also on changes to this file, so edits are checked before they merge.
+  pull_request:
+    paths: [".github/workflows/webrtc-canary.yml"]
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CI: true
+
+jobs:
+  ios:
+    runs-on: macos-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        # LiveKit's build (LK-prefixed classes) and upstream (unprefixed classes).
+        webrtc: ["@livekit/react-native-webrtc", "react-native-webrtc"]
+    name: ios (${{ matrix.webrtc }}@latest)
+    steps:
+      - uses: actions/checkout@v6
+      - run: xcodebuild -version
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+      - run: bun install --frozen-lockfile
+      - run: bun install --frozen-lockfile
+        working-directory: example/client
+      - run: |
+          bun remove @livekit/react-native-webrtc
+          bun add ${{ matrix.webrtc }}@latest
+          grep '"version"' node_modules/${{ matrix.webrtc }}/package.json
+        working-directory: example/client
+      - run: bun run build:ios
+        working-directory: example/client
