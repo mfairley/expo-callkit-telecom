@@ -64,13 +64,43 @@ private struct SavedAudioSessionConfig {
   let categoryOptions: AVAudioSession.CategoryOptions
 
   /// Converts to RTCAudioSessionConfiguration for use with configureAudioSession.
-  func toRTCConfiguration() -> RTCAudioSessionConfiguration {
-    let config = RTCAudioSessionConfiguration()
-    config.category = category.rawValue
-    config.mode = mode.rawValue
-    config.categoryOptions = categoryOptions
-    return config
+  func toRTCConfiguration() -> ECKTRTCAudioSessionConfiguration? {
+    makeRTCConfiguration(category: category, categoryOptions: categoryOptions, mode: mode)
   }
+}
+
+/// Reports a WebRTC class missing at runtime. Logs in release builds and stops debug builds, so a
+/// WebRTC build that renames its classes fails on the first debug run.
+private func webRTCClassNotFound(_ name: String) {
+  let message =
+    "Neither LK\(name) nor \(name) found; the app must link a react-native-webrtc build"
+  Log.audio.error(message)
+  assertionFailure(message)
+}
+
+/// WebRTC's shared RTCAudioSession, or nil if the app doesn't link WebRTC.
+private func rtcAudioSession() -> ECKTRTCAudioSession? {
+  guard let session = ECKTRTCAudioSessionSharedInstance() else {
+    webRTCClassNotFound("RTCAudioSession")
+    return nil
+  }
+  return session
+}
+
+/// A new RTCAudioSessionConfiguration, or nil if the app doesn't link WebRTC.
+private func makeRTCConfiguration(
+  category: AVAudioSession.Category,
+  categoryOptions: AVAudioSession.CategoryOptions,
+  mode: AVAudioSession.Mode
+) -> ECKTRTCAudioSessionConfiguration? {
+  guard let config = ECKTRTCAudioSessionConfigurationCreate() else {
+    webRTCClassNotFound("RTCAudioSessionConfiguration")
+    return nil
+  }
+  config.category = category.rawValue
+  config.categoryOptions = categoryOptions
+  config.mode = mode.rawValue
+  return config
 }
 
 /// Manages audio session configuration for CallKit integration with WebRTC.
@@ -152,7 +182,7 @@ final class AudioManager {
   /// This sets configuration but does not apply it to the audio session
   /// Enables manual audio management
   func setRTCAudioSessionConfiguration(hasVideo: Bool) {
-    let rtcSession = RTCAudioSession.sharedInstance()
+    guard let rtcSession = rtcAudioSession() else { return }
 
     // Enable manual audio management - must be set before any audio session activation
     rtcSession.useManualAudio = true
@@ -160,7 +190,9 @@ final class AudioManager {
     // Set the default WebRTC configuration
     let config =
       hasVideo ? getAudioSessionConfigurationForVideo() : getAudioSessionConfigurationAudioOnly()
-    RTCAudioSessionConfiguration.setWebRTC(config)
+    if let config {
+      ECKTRTCAudioSessionConfigurationSetWebRTCConfiguration(config)
+    }
   }
 
   // MARK: - State
@@ -168,7 +200,7 @@ final class AudioManager {
   /// Returns the current audio session state.
   /// - Returns: A dictionary containing the current audio state and configuration.
   func getAudioSessionState() -> [String: Any] {
-    let rtcSession = RTCAudioSession.sharedInstance()
+    let rtcSession = rtcAudioSession()
     let avSession = AVAudioSession.sharedInstance()
 
     // Get current route information
@@ -193,10 +225,10 @@ final class AudioManager {
 
     return [
       "isActive": isActive,
-      "rtcSessionIsActive": rtcSession.isActive,
-      "avSessionIsActive": rtcSession.isActive,
-      "isAudioEnabled": rtcSession.isAudioEnabled,
-      "useManualAudio": rtcSession.useManualAudio,
+      "rtcSessionIsActive": rtcSession?.isActive ?? false,
+      "avSessionIsActive": rtcSession?.isActive ?? false,
+      "isAudioEnabled": rtcSession?.isAudioEnabled ?? false,
+      "useManualAudio": rtcSession?.useManualAudio ?? false,
       "isOtherAudioPlaying": avSession.isOtherAudioPlaying,
       "category": avSession.category.rawValue,
       "mode": avSession.mode.rawValue,
@@ -217,30 +249,30 @@ final class AudioManager {
 
   /// Returns the RTCAudioSessionConfiguration for audio-only calls.
   /// Uses voiceChat mode without defaulting to speaker.
-  private func getAudioSessionConfigurationAudioOnly() -> RTCAudioSessionConfiguration {
-    let config = RTCAudioSessionConfiguration()
-    config.category = AVAudioSession.Category.playAndRecord.rawValue
-    config.categoryOptions = [.allowBluetoothHFP, .allowBluetoothA2DP, .allowAirPlay]
-    config.mode = AVAudioSession.Mode.voiceChat.rawValue
-    return config
+  private func getAudioSessionConfigurationAudioOnly() -> ECKTRTCAudioSessionConfiguration? {
+    makeRTCConfiguration(
+      category: .playAndRecord,
+      categoryOptions: [.allowBluetoothHFP, .allowBluetoothA2DP, .allowAirPlay],
+      mode: .voiceChat
+    )
   }
 
   /// Returns the RTCAudioSessionConfiguration for video calls.
   /// Uses videoChat mode and defaults to speaker output.
-  private func getAudioSessionConfigurationForVideo() -> RTCAudioSessionConfiguration {
-    let config = RTCAudioSessionConfiguration()
-    config.category = AVAudioSession.Category.playAndRecord.rawValue
-    config.categoryOptions = [
-      .allowBluetoothHFP, .allowBluetoothA2DP, .allowAirPlay, .defaultToSpeaker,
-    ]
-    config.mode = AVAudioSession.Mode.videoChat.rawValue
-    return config
+  private func getAudioSessionConfigurationForVideo() -> ECKTRTCAudioSessionConfiguration? {
+    makeRTCConfiguration(
+      category: .playAndRecord,
+      categoryOptions: [
+        .allowBluetoothHFP, .allowBluetoothA2DP, .allowAirPlay, .defaultToSpeaker,
+      ],
+      mode: .videoChat
+    )
   }
 
   /// Configures RTCAudioSession with the given configuration.
   /// - Parameter config: The audio session configuration to apply.
-  private func configureAudioSession(_ config: RTCAudioSessionConfiguration) {
-    let session = RTCAudioSession.sharedInstance()
+  private func configureAudioSession(_ config: ECKTRTCAudioSessionConfiguration?) {
+    guard let config, let session = rtcAudioSession() else { return }
 
     // Apply the configuration to the AVAudioSession
     session.lockForConfiguration()
@@ -302,13 +334,13 @@ final class AudioManager {
   func onAVAudioSessionActivated(calls: [CallSession]) {
     isActive = true
 
-    let session = RTCAudioSession.sharedInstance()
+    if let session = rtcAudioSession() {
+      // Notify WebRTC that CallKit activated the audio session
+      session.audioSessionDidActivate(AVAudioSession.sharedInstance())
 
-    // Notify WebRTC that CallKit activated the audio session
-    session.audioSessionDidActivate(AVAudioSession.sharedInstance())
-
-    // Enable the audio unit for VOIP processing (required with useManualAudio = true)
-    session.isAudioEnabled = true
+      // Enable the audio unit for VOIP processing (required with useManualAudio = true)
+      session.isAudioEnabled = true
+    }
 
     Log.audio.debug("RTC audio session activated")
 
@@ -324,12 +356,12 @@ final class AudioManager {
   func onAVAudioSessionDeactivated(calls: [CallSession]) {
     isActive = false
 
-    let rtcSession = RTCAudioSession.sharedInstance()
-
-    // Disable the audio unit (required with useManualAudio = true)
-    rtcSession.isAudioEnabled = false
-    // Notify WebRTC that CallKit deactivated the audio session
-    rtcSession.audioSessionDidDeactivate(AVAudioSession.sharedInstance())
+    if let rtcSession = rtcAudioSession() {
+      // Disable the audio unit (required with useManualAudio = true)
+      rtcSession.isAudioEnabled = false
+      // Notify WebRTC that CallKit deactivated the audio session
+      rtcSession.audioSessionDidDeactivate(AVAudioSession.sharedInstance())
+    }
 
     // Restore the pre-call configuration only once no calls remain. A held call still needs the
     // call configuration when it resumes. If the ended call hasn't been removed from the store
@@ -352,7 +384,7 @@ final class AudioManager {
   /// Note that this only has an effect in voiceChat mode because voiceChat mode makes speaker the default
   /// - Parameter enabled: Whether to route audio to the speaker.
   func setAudioSessionPortOverride(_ enabled: Bool) {
-    let rtcSession = RTCAudioSession.sharedInstance()
+    guard let rtcSession = rtcAudioSession() else { return }
     rtcSession.lockForConfiguration()
     defer { rtcSession.unlockForConfiguration() }
 

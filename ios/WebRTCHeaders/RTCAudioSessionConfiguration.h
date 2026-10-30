@@ -18,16 +18,40 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface RTCAudioSessionConfiguration : NSObject
+/// Looks up a WebRTC class by its unprefixed name. LiveKit's WebRTC build (LiveKitWebRTC, used by
+/// @livekit/react-native-webrtc >= 144.2.0) prefixes its classes with `LK`; other builds don't.
+static inline Class _Nullable ECKTWebRTCClass(NSString *name) {
+  return NSClassFromString([@"LK" stringByAppendingString:name]) ?: NSClassFromString(name);
+}
+
+/// The instance methods of WebRTC's RTCAudioSessionConfiguration.
+@protocol ECKTRTCAudioSessionConfiguration <NSObject>
 
 @property(nonatomic, strong) NSString *category;
 @property(nonatomic, assign) AVAudioSessionCategoryOptions categoryOptions;
 @property(nonatomic, strong) NSString *mode;
 
-- (instancetype)init NS_DESIGNATED_INITIALIZER;
-
-+ (void)setWebRTCConfiguration:(RTCAudioSessionConfiguration *)configuration;
-
 @end
+
+/// The class methods of WebRTC's RTCAudioSessionConfiguration.
+@protocol ECKTRTCAudioSessionConfigurationClass <NSObject>
++ (void)setWebRTCConfiguration:(id<ECKTRTCAudioSessionConfiguration>)configuration;
+@end
+
+/// `[[RTCAudioSessionConfiguration alloc] init]`, or nil if the app doesn't link WebRTC.
+static inline id<ECKTRTCAudioSessionConfiguration> _Nullable
+ECKTRTCAudioSessionConfigurationCreate(void) {
+  Class cls = ECKTWebRTCClass(@"RTCAudioSessionConfiguration");
+  return [[cls alloc] init];
+}
+
+/// `[RTCAudioSessionConfiguration setWebRTCConfiguration:]`. Does nothing if the app doesn't link
+/// WebRTC.
+static inline void ECKTRTCAudioSessionConfigurationSetWebRTCConfiguration(
+    id<ECKTRTCAudioSessionConfiguration> configuration) {
+  Class<ECKTRTCAudioSessionConfigurationClass> cls =
+      ECKTWebRTCClass(@"RTCAudioSessionConfiguration");
+  [cls setWebRTCConfiguration:configuration];
+}
 
 NS_ASSUME_NONNULL_END

@@ -5,7 +5,7 @@
     "": {
       "name": "expo-callkit-telecom-example",
       "dependencies": {
-        "@livekit/react-native-webrtc": ">=144.0.0",
+        "@livekit/react-native-webrtc": "^150.1.0",
         "expo": "^58.0.20",
         "expo-build-properties": "~58.0.11",
         "expo-crypto": "~58.0.7",
@@ -246,7 +246,7 @@
 
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.31", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.1.0", "@jridgewell/sourcemap-codec": "^1.4.14" } }, "sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw=="],
 
-    "@livekit/react-native-webrtc": ["@livekit/react-native-webrtc@144.0.0", "", { "dependencies": { "base64-js": "1.5.1", "debug": "4.3.4" }, "peerDependencies": { "react-native": ">=0.60.0" } }, "sha512-G5wAxTpxQcHrEQJchcEXs9COrjpfEwJVOJeadDT8+sX/slB5UrjUQC6JItg295Gqtn20Gv3zMJMmSPASJsXRHA=="],
+    "@livekit/react-native-webrtc": ["@livekit/react-native-webrtc@150.1.0", "", { "dependencies": { "base64-js": "1.5.1", "debug": "4.3.4" }, "peerDependencies": { "react-native": ">=0.60.0" } }, "sha512-JpJWR+psGgUe5qLuS+G8hhA7BTEoN8zP/krOkXGm+U6i1j3WrC2mkCpgkNRlvo+rDLbJQY85soUCcdVHw4AZAA=="],
 
     "@noxcturnal/noxcturnal-darwin-arm64": ["@noxcturnal/noxcturnal-darwin-arm64@0.1.11", "", { "os": "darwin", "cpu": "arm64" }, "sha512-tqvZOVmSoiJzm7QjQ+whPxCP45J2C1zCAZnzc1HhwmJrFIWw/qyA8o9Cup0aVqnjNVAN+as9GHX+DbAmkCbGlQ=="],
 
