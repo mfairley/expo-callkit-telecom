@@ -30,9 +30,8 @@ extension CallManager: CXProviderDelegate {
 
   func provider(_ provider: CXProvider, perform action: CXStartCallAction) {
     Log.call.debug("CXStartCallAction - id: \(action.callUUID), isVideo: \(action.isVideo)")
-    provider.reportOutgoingCall(with: action.callUUID, startedConnectingAt: Date())
 
-    // Start timeout timer for outgoing call
+    // Start timeout timer for outgoing call (cancelled below if the call is already connected)
     startCallTimeout(for: action.callUUID, timeout: Self.outgoingCallTimeout)
 
     Task {
@@ -45,7 +44,28 @@ extension CallManager: CXProviderDelegate {
         provider.reportCall(with: action.callUUID, updated: update)
       }
 
-      await store.updateStatus(for: action.callUUID, status: .connecting)
+      // The app may have reported the call connected before CallKit performs this action
+      // (e.g. joining a call whose remote side is already up): never regress it to .connecting.
+      let alreadyConnected = await store.markConnectingUnlessConnected(for: action.callUUID)
+      if alreadyConnected {
+        Log.call.debug("CXStartCallAction - already connected - id: \(action.callUUID)")
+        // The connect's cancelCallTimeout ran before the timeout above existed.
+        cancelCallTimeout(for: action.callUUID)
+      } else {
+        provider.reportOutgoingCall(with: action.callUUID, startedConnectingAt: Date())
+      }
+
+      // A connect that has already been reported reached CallKit before this action was
+      // performed (or before startedConnectingAt just above). Re-assert connectedAt so the
+      // system UI doesn't sit on "connecting"; reporting it twice is harmless.
+      if let session = await store.session(for: action.callUUID),
+        session.status == .connected
+      {
+        provider.reportOutgoingCall(
+          with: action.callUUID,
+          connectedAt: session.connectedAt ?? Date()
+        )
+      }
 
       await MainActor.run {
         CallEventEmitter.shared.send(OutgoingCallStartedEvent(id: action.callUUID))
@@ -185,6 +205,11 @@ extension CallManager: CXProviderDelegate {
         session.status == .connecting
       {
         DialtonePlayer.shared.play()
+        // A connect that landed between the status read above and play() ran its stop()
+        // before there was a tone to stop. Re-check so the tone doesn't loop for the call.
+        if await store.session(for: session.id)?.status == .connected {
+          DialtonePlayer.shared.stop()
+        }
       }
     }
   }

@@ -87,6 +87,15 @@ actor CallStore {
     }
   }
 
+  /// Set `.connecting` unless the session is already `.connected` (one actor turn, so the
+  /// check and the write can't interleave with a connect). Returns whether it was connected.
+  func markConnectingUnlessConnected(for id: UUID) -> Bool {
+    guard let session = sessions[id] else { return false }
+    if session.status == .connected { return true }
+    updateStatus(for: id, status: .connecting)
+    return false
+  }
+
   /// Update the connectedAt timestamp of a session.
   func updateConnectedAt(for id: UUID, connectedAt: Date?) {
     update(for: id) { session in

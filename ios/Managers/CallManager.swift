@@ -120,6 +120,14 @@ class CallManager: NSObject {
       // Remove self from timeout tasks since we're handling the timeout
       self.removeTimeoutTask(for: id)
 
+      // Never end a connected call (the Android timeout does the same). Covers a timeout
+      // started after the connect already cancelled (CXStartCallAction performed late) and
+      // one firing between the connect's store update and its cancelCallTimeout.
+      if await store.session(for: id)?.status == .connected {
+        Log.call.debug("Call timeout expired for a connected call, ignoring - id: \(id)")
+        return
+      }
+
       Log.call.debug("Call timeout expired - id: \(id)")
 
       // Stop the dialtone (for outgoing calls)
@@ -564,16 +572,19 @@ class CallManager: NSObject {
   func reportOutgoingCallConnected(for id: UUID) async {
     Log.call.debug("Reporting outgoing call connected - id: \(id)")
 
-    // Stop dialtone and cancel timeout
-    DialtonePlayer.shared.stop()
-    cancelCallTimeout(for: id)
-
+    // Store first: didActivate and CXStartCallAction re-check the store after they act, so a
+    // stop() or connectedAt report that ran before this update would otherwise be missed.
     let now = Date()
-    provider.reportOutgoingCall(with: id, connectedAt: now)
     await store.update(for: id) { session in
       session.status = .connected
       session.connectedAt = now
     }
+
+    // Stop dialtone and cancel timeout
+    DialtonePlayer.shared.stop()
+    cancelCallTimeout(for: id)
+
+    provider.reportOutgoingCall(with: id, connectedAt: now)
   }
 
   // MARK: - End Call
