@@ -476,6 +476,8 @@ export function addIncomingCallReportedListener(
  *
  * Use this when the user taps an answer button in your app's custom UI.
  * The system will emit a {@link CallAnsweredEvent} to confirm the answer.
+ * On Android, a call that is not ringing (already answered, connected, or
+ * ended) is ignored and no {@link CallAnsweredEvent} is emitted.
  *
  * @param id - The call session ID to answer.
  *

@@ -29,22 +29,44 @@ class ExpoCallKitTelecomModule : Module() {
         handleAnswerIntent(intent)
     }
 
-    /** Extracts the call ID from an ACTION_ANSWER intent and answers the call. */
+    /**
+     * Answers the call named by an ACTION_ANSWER intent, if it carries one.
+     *
+     * The intent is claimed under the module lock (see [takeAnswerCallId]); the answer itself runs
+     * outside it.
+     */
     private fun handleAnswerIntent(intent: android.content.Intent) {
-        if (intent.action != CallNotificationReceiver.ACTION_ANSWER) return
+        val callId = takeAnswerCallId(intent) ?: return
+        CallManager.shared.answerCall(callId)
+    }
 
-        val callIdStr = intent.getStringExtra(CallNotificationReceiver.EXTRA_CALL_ID) ?: return
+    /**
+     * Returns the call ID of an ACTION_ANSWER intent and clears its action, or null if the intent
+     * is not a valid answer action.
+     *
+     * Synchronized: OnCreate, OnNewIntent and OnActivityEntersForeground can observe the same
+     * intent on different threads, so reading the action and clearing it must be one step for the
+     * call to be answered once.
+     */
+    @Synchronized
+    private fun takeAnswerCallId(intent: android.content.Intent): UUID? {
+        if (intent.action != CallNotificationReceiver.ACTION_ANSWER) return null
+
+        // A Recents relaunch re-delivers the task's base intent, possibly a stale ACTION_ANSWER;
+        // harmless: CallManager ignores an answer for a call that is not ringing and cancels the
+        // notification only after a successful claim.
+        val callIdStr = intent.getStringExtra(CallNotificationReceiver.EXTRA_CALL_ID) ?: return null
         val callId =
             try {
                 UUID.fromString(callIdStr)
             } catch (_: IllegalArgumentException) {
-                return
+                return null
             }
 
         // Clear the action so it isn't re-processed on configuration changes
         intent.action = null
 
-        CallManager.shared.answerCall(callId)
+        return callId
     }
 
     override fun definition() = ModuleDefinition {
@@ -95,6 +117,14 @@ class ExpoCallKitTelecomModule : Module() {
         OnDestroy { CallEventEmitter.setSender(null) }
 
         OnNewIntent { intent -> handleAnswerIntent(intent) }
+
+        // React can already be running when the main activity starts (the app was started by a
+        // headless JS task, or the activity is recreated), so OnCreate ran before any activity
+        // existed and never saw the launch intent. Clearing the action covers a repeat of the same
+        // Intent object (cold start, configuration change); an intent the system re-delivers to a
+        // new activity is ignored by the RINGING claim in CallManager, so a call is answered at
+        // most once.
+        OnActivityEntersForeground { handleLaunchIntent() }
 
         // Register per-event observers
         OnStartObserving(CallEvents.CALL_SESSION_ADDED) {

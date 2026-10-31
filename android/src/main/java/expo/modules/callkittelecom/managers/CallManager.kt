@@ -416,11 +416,16 @@ class CallManager private constructor() {
 
     // region Answer Call
 
-    /** App-level answer request entrypoint (custom in-app answer button path). */
+    /**
+     * App-level answer request entrypoint (custom in-app answer button path).
+     *
+     * The incoming-call notification is cancelled only when this answer claims the call, so a stale
+     * or duplicate answer cannot remove the notification of a call that is still ringing or already
+     * connected.
+     */
     fun answerCall(id: UUID) {
         CallKitTelecomLog.d(TAG) { "Answering call - id: $id" }
-        CallNotificationManager.cancel(context)
-        onCallAnswered(id)
+        onCallAnswered(id, cancelNotification = true)
     }
 
     /**
@@ -833,22 +838,49 @@ class CallManager private constructor() {
      * Shared answer workflow for incoming calls.
      *
      * Emits `onCallAnswered` with a generated `requestId` and waits for JS to call
-     * `fulfillIncomingCallAnswered(requestId)` once media is connected.
+     * `fulfillIncomingCallAnswered(requestId)` once media is connected. An answer for a call that
+     * is unknown or not ringing is ignored and emits nothing.
+     *
+     * @param cancelNotification Dismiss the incoming-call notification once the answer is claimed
+     *   (app-initiated answers; the Core-Telecom route leaves it to the ongoing-call one).
      */
-    private fun onCallAnswered(id: UUID) {
-        val session = CallStore.session(id) ?: return
-        if (session.status == CallSessionStatus.CONNECTED) {
-            CallKitTelecomLog.d(TAG) { "Call already connected, ignoring answer - id: $id" }
+    private fun onCallAnswered(id: UUID, cancelNotification: Boolean = false) {
+        // Claim the answer in one store update: only a RINGING session moves to CONNECTING. A
+        // second answer while CONNECTING (the system and the app both answering, or a launch
+        // intent seen twice) would create a fulfill request JS never fulfils, and its timeout
+        // would end the live call as FAILED; an answer for an ended call must not revive it.
+        var session: CallSession? = null
+        var notRinging = false
+        CallStore.update(id) { current ->
+            session = current
+            if (current.status != CallSessionStatus.RINGING) {
+                notRinging = true
+                current
+            } else {
+                current.copy(status = CallSessionStatus.CONNECTING)
+            }
+        }
+        val answered = session ?: return
+        if (notRinging) {
+            CallKitTelecomLog.d(TAG) {
+                "Call not ringing (${answered.status.value}), ignoring answer - id: $id"
+            }
             return
+        }
+
+        // After the claim, so an ignored answer leaves the notification alone, and before the
+        // CALL_ANSWERED emit below: JS can only post the ongoing notification once it has the
+        // requestId, so any point before the emit is safe and any point after it would race.
+        if (cancelNotification) {
+            CallNotificationManager.cancel(context)
         }
 
         cancelCallTimeout(id)
 
-        CallStore.updateStatus(id, CallSessionStatus.CONNECTING)
         CallAudioManager.onAudioActivated(CallStore.allSessions())
 
         // Request speaker for video calls
-        if (session.options.hasVideo) {
+        if (answered.options.hasVideo) {
             val speakerEndpoint = findEndpointByType(CallEndpointCompat.TYPE_SPEAKER)
             if (speakerEndpoint != null) {
                 activeCalls[id]?.actions?.endpointChange?.trySend(speakerEndpoint)
