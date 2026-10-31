@@ -282,10 +282,26 @@ class CallManager private constructor() {
                 actions = actions,
                 onAnswer = { /* Outgoing calls don't receive onAnswer */ },
             ) {
-                CallStore.updateStatus(id, CallSessionStatus.CONNECTING)
+                // This block runs after the Telecom round-trip; the app may already have
+                // reported the call connected by then. Never regress it to CONNECTING.
+                var alreadyConnected = false
+                CallStore.update(id) { session ->
+                    if (session.status == CallSessionStatus.CONNECTED) {
+                        alreadyConnected = true
+                        session
+                    } else {
+                        session.copy(status = CallSessionStatus.CONNECTING)
+                    }
+                }
                 CallAudioManager.onAudioActivated(CallStore.allSessions())
 
-                CallNotificationManager.showDialingCall(context, id, recipient.displayNameOrHandle)
+                if (!alreadyConnected) {
+                    CallNotificationManager.showDialingCall(
+                        context,
+                        id,
+                        recipient.displayNameOrHandle,
+                    )
+                }
 
                 // Request speaker for video calls
                 if (options.hasVideo) {
@@ -295,14 +311,37 @@ class CallManager private constructor() {
                     }
                 }
 
-                DialtonePlayer.play(context)
+                // Re-read right before playing: a connect landing after the update above
+                // must still keep the tone and the timeout from starting.
+                val connectedBeforeTone =
+                    CallStore.session(id)?.status == CallSessionStatus.CONNECTED
+                if (!connectedBeforeTone) {
+                    DialtonePlayer.play(context)
+                }
 
                 CallEventEmitter.send(
                     CallEvents.OUTGOING_CALL_STARTED,
                     mapOf("id" to id.toString()),
                 )
 
-                startCallTimeout(id, outgoingCallTimeoutMs)
+                if (!connectedBeforeTone) {
+                    startCallTimeout(id, outgoingCallTimeoutMs)
+                }
+
+                // A connect that landed while the lines above ran did its stop / cancel /
+                // ongoing notification before the tone, the timeout and the dialing
+                // notification existed. Undo them now.
+                val latest = CallStore.session(id)
+                if (!alreadyConnected && latest?.status == CallSessionStatus.CONNECTED) {
+                    DialtonePlayer.stop()
+                    cancelCallTimeout(id)
+                    CallNotificationManager.showOngoingCall(
+                        context,
+                        id,
+                        recipient.displayNameOrHandle,
+                        (latest.connectedAt ?: Instant.now()).toEpochMilli(),
+                    )
+                }
             }
 
         activeCalls[id] = CallController(job, actions)
@@ -453,13 +492,18 @@ class CallManager private constructor() {
     /** Reports outgoing media is connected and sets call state to connected. */
     fun reportOutgoingCallConnected(id: UUID) {
         CallKitTelecomLog.d(TAG) { "Reporting outgoing call connected - id: $id" }
-        DialtonePlayer.stop()
-        cancelCallTimeout(id)
-
+        // Publish CONNECTED before stopping the tone and cancelling the timeout. This runs
+        // on the module's async queue while the addCall block in startOutgoingCall runs on
+        // Main; that block re-checks the status right before it plays the tone. If the
+        // stop ran first, a play slipping in after it would read a not-yet-CONNECTED status
+        // and loop the dialtone for the rest of the call.
         val now = Instant.now()
         CallStore.update(id) { session ->
             session.copy(status = CallSessionStatus.CONNECTED, connectedAt = now)
         }
+
+        DialtonePlayer.stop()
+        cancelCallTimeout(id)
 
         activeCalls[id]?.actions?.setActive?.trySend(Unit)
 
