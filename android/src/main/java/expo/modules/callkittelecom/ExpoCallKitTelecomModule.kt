@@ -10,43 +10,12 @@ import expo.modules.callkittelecom.models.CallEndedReason
 import expo.modules.callkittelecom.models.CallOptions
 import expo.modules.callkittelecom.models.CallParticipant
 import expo.modules.callkittelecom.models.IncomingCallEvent
-import expo.modules.callkittelecom.services.CallNotificationReceiver
 import expo.modules.callkittelecom.store.CallStore
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 import java.util.UUID
 
 class ExpoCallKitTelecomModule : Module() {
-    /**
-     * Checks the current activity's launch intent for ACTION_ANSWER.
-     *
-     * On cold start from a notification answer action, the intent is delivered to onCreate() — not
-     * onNewIntent() — so OnNewIntent never fires. This method handles that case by checking the
-     * launch intent directly.
-     */
-    private fun handleLaunchIntent() {
-        val intent = appContext.currentActivity?.intent ?: return
-        handleAnswerIntent(intent)
-    }
-
-    /** Extracts the call ID from an ACTION_ANSWER intent and answers the call. */
-    private fun handleAnswerIntent(intent: android.content.Intent) {
-        if (intent.action != CallNotificationReceiver.ACTION_ANSWER) return
-
-        val callIdStr = intent.getStringExtra(CallNotificationReceiver.EXTRA_CALL_ID) ?: return
-        val callId =
-            try {
-                UUID.fromString(callIdStr)
-            } catch (_: IllegalArgumentException) {
-                return
-            }
-
-        // Clear the action so it isn't re-processed on configuration changes
-        intent.action = null
-
-        CallManager.shared.answerCall(callId)
-    }
-
     override fun definition() = ModuleDefinition {
         Name("ExpoCallKitTelecom")
 
@@ -85,16 +54,11 @@ class ExpoCallKitTelecomModule : Module() {
 
             VoIPPushManager.register()
 
-            // Handle the launch intent for cold-start answer actions.
-            // OnNewIntent only fires when the activity is already running.
-            // On cold start the ACTION_ANSWER intent is the launch intent,
-            // so we must check it here.
-            handleLaunchIntent()
+            // The notification's Answer intent is handled by AnswerIntentListener, from the
+            // activity's own lifecycle, so it works before this module or React exists.
         }
 
         OnDestroy { CallEventEmitter.setSender(null) }
-
-        OnNewIntent { intent -> handleAnswerIntent(intent) }
 
         // Register per-event observers
         OnStartObserving(CallEvents.CALL_SESSION_ADDED) {
