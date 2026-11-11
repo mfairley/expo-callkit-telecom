@@ -855,6 +855,11 @@ class CallManager private constructor() {
             }
         }
 
+        // One pending answer request per call. If the call is answered again (e.g. natively from the
+        // notification before JS was listening, then by JS once it starts), JS only receives and
+        // fulfills the newest requestId; an older request left pending would time out and end the
+        // already-connected call as FAILED.
+        FulfillRequestManager.cancelForCall(id)
         val request =
             FulfillRequestManager.createRequest(callId = id, timeoutMs = fulfillAnswerTimeoutMs) {
                 reportCallEnded(it, CallEndedReason.FAILED)
